@@ -47,15 +47,20 @@ class TraxsourceSource(MusicSource):
     def available_genres(self) -> List[str]:
         return list(self.GENRE_URLS.keys())
     
-    def get_chart_url(self, genre: Optional[str] = None) -> str:
+    def get_chart_url(self, genre: Optional[str] = None, page: int = 1) -> str:
         """Get the URL for a genre chart on Traxsource."""
         genre = genre.lower() if genre else "all"
         genre_id = self.GENRE_URLS.get(genre, "")
         
         if genre_id:
-            return f"{self.CHART_URL}/{genre_id}"
+            base_url = f"{self.CHART_URL}/{genre_id}"
         else:
-            return self.CHART_URL
+            base_url = self.CHART_URL
+            
+        # Add page parameter if beyond page 1
+        if page > 1:
+            return f"{base_url}?page={page}"
+        return base_url
     
     async def get_tracks(self, days_to_look_back: int = 14, 
                           genre: Optional[str] = None, 
@@ -74,10 +79,7 @@ class TraxsourceSource(MusicSource):
         # Calculate date threshold
         date_threshold = datetime.now() - timedelta(days=days_to_look_back)
         
-        # Get chart URL for the specified genre
-        url = self.get_chart_url(genre)
-        
-        logger.info(f"Fetching tracks from Traxsource chart: {url}")
+        logger.info(f"Fetching tracks from Traxsource with genre={genre}, days_back={days_to_look_back}")
         
         # Initialize HTTP session with headers to mimic a browser
         headers = {
@@ -96,42 +98,81 @@ class TraxsourceSource(MusicSource):
         
         try:
             async with aiohttp.ClientSession(headers=headers) as session:
-                # Get the chart page
-                async with session.get(url) as response:
-                    if response.status != 200:
-                        logger.error(f"Failed to fetch chart page: {response.status}")
-                        return []
+                # Process multiple pages until we have enough tracks or no more pages
+                page = 1
+                max_pages = 5  # Safety limit to prevent infinite loops
+                
+                while len(tracks) < limit and page <= max_pages:
+                    # Get chart URL for the current page
+                    url = self.get_chart_url(genre, page)
+                    logger.info(f"Fetching Traxsource page {page}: {url}")
                     
-                    html = await response.text()
+                    # Get the chart page
+                    async with session.get(url) as response:
+                        if response.status != 200:
+                            logger.error(f"Failed to fetch chart page {page}: {response.status}")
+                            break
+                        
+                        html = await response.text()
+                    
+                    # Parse the HTML
+                    soup = BeautifulSoup(html, "html.parser")
+                    
+                    # Find all track entries in the chart
+                    track_elements = soup.select(".trk-row")
+                    
+                    if not track_elements:
+                        logger.info(f"No more tracks found on page {page}")
+                        break
+                    
+                    logger.info(f"Found {len(track_elements)} track elements on page {page}")
+                    
+                    # Process each track
+                    track_tasks = []
+                    for track_el in track_elements:
+                        track_tasks.append(self._process_track(session, track_el, date_threshold))
+                    
+                    # Process tracks in batches to avoid overwhelming the server
+                    batch_size = 5
+                    for i in range(0, len(track_tasks), batch_size):
+                        batch = track_tasks[i:i+batch_size]
+                        batch_results = await asyncio.gather(*batch)
+                        valid_tracks = [t for t in batch_results if t]
+                        tracks.extend(valid_tracks)
+                        logger.info(f"Processed {min(i+batch_size, len(track_tasks))}/{len(track_tasks)} tracks on page {page}, found {len(valid_tracks)} valid tracks")
+                    
+                    # Check if we have a next page by looking for pagination links
+                    next_page_link = soup.select_one(f"a.pag-next")
+                    if not next_page_link:
+                        logger.info(f"No next page link found on page {page}")
+                        break
+                    
+                    # Move to next page
+                    page += 1
                 
-                # Parse the HTML
-                soup = BeautifulSoup(html, "html.parser")
+                # Filter tracks by date if we have more than needed
+                date_filtered_tracks = []
+                for track in tracks:
+                    if track.release_date:
+                        track_date = track.release_date
+                        if isinstance(track_date, datetime):
+                            track_date = track_date.date()
+                        
+                        if track_date >= date_threshold.date():
+                            date_filtered_tracks.append(track)
+                    else:
+                        # Include tracks with unknown dates
+                        date_filtered_tracks.append(track)
                 
-                # Find all track entries in the chart
-                track_elements = soup.select(".trk-row")
+                logger.info(f"After date filtering: {len(date_filtered_tracks)}/{len(tracks)} tracks remain")
                 
-                # Process each track
-                track_tasks = []
-                for i, track_el in enumerate(track_elements[:limit]):
-                    track_tasks.append(self._process_track(session, track_el, date_threshold))
+                # Sort by release date (newest first) and apply limit
+                date_filtered_tracks.sort(key=lambda x: x.release_date if x.release_date else date.today(), reverse=True)
+                result_tracks = date_filtered_tracks[:limit]
                 
-                # Process tracks in batches to avoid overwhelming the server
-                batch_size = 5
-                for i in range(0, len(track_tasks), batch_size):
-                    batch = track_tasks[i:i+batch_size]
-                    batch_results = await asyncio.gather(*batch)
-                    tracks.extend([t for t in batch_results if t])
-                    logger.info(f"Processed {min(i+batch_size, len(track_tasks))}/{len(track_tasks)} tracks")
+                logger.info(f"Returning {len(result_tracks)} tracks from Traxsource")
                 
-                # Filter out tracks older than the date threshold
-                logger.info("Traxsource: Including all tracks from charts without date filtering")
-                
-                # Limit the number of tracks
-                tracks = tracks[:limit]
-                
-                logger.info(f"Found {len(tracks)} tracks from Traxsource")
-                
-                return tracks
+                return result_tracks
         
         except Exception as e:
             logger.error(f"Error fetching Traxsource tracks: {e}")
@@ -167,23 +208,44 @@ class TraxsourceSource(MusicSource):
                             track_html = await response.text()
                             track_soup = BeautifulSoup(track_html, "html.parser")
                             
-                            # Try to extract release date
+                            # Try to extract release date using multiple patterns
                             release_info = track_soup.select_one(".release-date")
                             if release_info:
                                 date_text = release_info.get_text(strip=True)
-                                date_match = re.search(r'(\d{2}-\d{2}-\d{4})', date_text)
-                                if date_match:
-                                    date_str = date_match.group(1)
-                                    try:
-                                        release_date = datetime.strptime(date_str, "%d-%m-%Y").date()
-                                    except ValueError:
-                                        logger.warning(f"Could not parse release date: {date_str}")
+                                
+                                # Try various date formats that might appear on Traxsource
+                                date_formats = [
+                                    r'(\d{2}-\d{2}-\d{4})',            # dd-mm-yyyy
+                                    r'(\d{2}/\d{2}/\d{4})',            # dd/mm/yyyy
+                                    r'(\d{1,2} [A-Za-z]+ \d{4})',      # d MMM yyyy or dd MMM yyyy
+                                    r'([A-Za-z]+ \d{1,2}, \d{4})',     # MMM d, yyyy or MMM dd, yyyy
+                                    r'(\d{4}-\d{2}-\d{2})'             # yyyy-mm-dd
+                                ]
+                                
+                                for pattern in date_formats:
+                                    date_match = re.search(pattern, date_text)
+                                    if date_match:
+                                        date_str = date_match.group(1)
+                                        
+                                        # Try various date parsing formats
+                                        for fmt in [
+                                            "%d-%m-%Y", "%d/%m/%Y", "%d %b %Y", "%d %B %Y",
+                                            "%b %d, %Y", "%B %d, %Y", "%Y-%m-%d"
+                                        ]:
+                                            try:
+                                                release_date = datetime.strptime(date_str, fmt).date()
+                                                break
+                                            except ValueError:
+                                                continue
+                                        
+                                        if release_date:
+                                            break
                 except Exception as e:
                     logger.warning(f"Could not fetch track page at {track_url}: {e}")
             
             # If we couldn't get a release date, use today's date
             if not release_date:
-                logger.warning(f"Could not find release date for track at {track_url}, using today's date")
+                logger.debug(f"Could not find release date for track at {track_url}, using today's date")
                 release_date = date.today()
             
             # Create Track object
