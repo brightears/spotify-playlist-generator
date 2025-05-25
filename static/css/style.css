@@ -1,0 +1,65 @@
+/* Custom styles for Spotify Playlist Generator */
+
+body {
+    background-color: #f8f9fa;
+}
+
+.card {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.card-header {
+    font-weight: bold;
+}
+
+.progress {
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.log-entry {
+    margin-bottom: 5px;
+    line-height: 1.4;
+}
+
+.log-time {
+    opacity: 0.7;
+    margin-right: 8px;
+}
+
+#log-container {
+    border-radius: 5px;
+}
+
+/* Fix for select boxes */
+.form-select {
+    padding-right: 2rem;
+}
+
+/* Make checkboxes more visible */
+.form-check-input {
+    width: 1.1em;
+    height: 1.1em;
+}
+
+/* Custom list styling */
+.card-body ul li {
+    margin-bottom: 8px;
+}
+
+/* Button focus styles */
+.btn:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Make alerts more visible */
+.alert {
+    border-radius: 8px;
+}
+
+/* Add spacing in the form */
+.form-label {
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+}
