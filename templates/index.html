@@ -10,7 +10,7 @@
                 <h2 class="h4 mb-0">Create a New Playlist</h2>
             </div>
             <div class="card-body">
-                <form method="POST" action="{{ url_for('create_playlist_route') }}">
+                <form method="POST" action="{{ url_for('index') }}">
                     {{ form.csrf_token }}
                     
                     {% if errors %}
@@ -52,8 +52,10 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <label for="destination" class="form-label">Destination</label>
-                            {{ form.destination(class="form-select") }}
+                            <!-- Spotify is the only destination currently supported -->
+                            <div class="alert alert-info mb-3">
+                                <i class="fab fa-spotify me-2"></i> Using Spotify as destination
+                            </div>
                             
                             <div class="mt-3">
                                 <label for="genre" class="form-label">Genre</label>
@@ -64,16 +66,16 @@
                     
                     <div class="row mb-3">
                         <div class="col-md-4">
-                            <label for="days_to_look_back" class="form-label">Days to Look Back</label>
-                            {{ form.days_to_look_back(class="form-control") }}
+                            <label for="days" class="form-label">Days to Look Back</label>
+                            {{ form.days(class="form-control") }}
                         </div>
                         <div class="col-md-4">
                             <label for="limit" class="form-label">Track Limit</label>
                             {{ form.limit(class="form-control") }}
                         </div>
                         <div class="col-md-4">
-                            <label for="min_match_score" class="form-label">Match Score (0.0-1.0)</label>
-                            {{ form.min_match_score(class="form-control") }}
+                            <label for="min_score" class="form-label">Match Score (0-100%)</label>
+                            {{ form.min_score(class="form-control") }}
                         </div>
                     </div>
                     
@@ -99,13 +101,15 @@
             </div>
             <div class="card-body">
                 <ul class="mb-0">
-                    <li>Select <strong>YouTube</strong> for the best results - it has the most reliable matching.</li>
-                    <li>Set the <strong>Match Score</strong> lower (0.5) for more tracks, higher (0.8) for better accuracy.</li>
-                    <li>Limit to <strong>specific genres</strong> for more cohesive playlists.</li>
-                    <li>If using <strong>Spotify</strong>, ensure you've authenticated via the command line first.</li>
+                    <li>Combine multiple sources for a diverse playlist</li>
+                    <li>Use a lower match score (e.g. 60%) to include more tracks</li>
+                    <li>Narrow your genre to get more targeted results</li>
+                    <li>YouTube sources typically have the best match rates</li>
                 </ul>
             </div>
         </div>
     </div>
 </div>
 {% endblock %}
+
+<!-- explainer: Fixed the form's action URL to point to the correct 'index' route and removed the non-existent destination field which was causing errors. Spotify is now shown as the only supported destination. -->
