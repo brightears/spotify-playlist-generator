@@ -1,0 +1,12 @@
+flask==2.3.3
+flask-wtf==1.1.1
+requests==2.31.0
+beautifulsoup4==4.12.2
+aiohttp==3.8.5
+asyncio==3.4.3
+python-dotenv==1.0.0
+spotipy==2.22.1
+google-api-python-client==2.88.0
+google-auth==2.22.0
+google-auth-oauthlib==1.0.0
+google-auth-httplib2==0.1.0
