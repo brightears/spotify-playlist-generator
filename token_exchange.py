@@ -52,25 +52,10 @@ def exchange_code_for_tokens(code):
     response = requests.post(TOKEN_URL, headers=headers, data=data)
     
     if response.status_code == 200:
-        token_data = response.json()
-        # Add expiration time
-        token_data["expires_at"] = int(time.time()) + token_data["expires_in"]
-        return token_data
+        return response.json()
     else:
-        print(f"Error exchanging code for tokens: {response.status_code}")
-        print(response.text)
+        print(f"❌ Error: {response.status_code} - {response.text}")
         return None
-
-
-def save_auth_data(auth_data):
-    """Save authentication data to a file.
-    
-    Args:
-        auth_data: Dict with token data
-    """
-    with open(AUTH_FILE_PATH, "w") as f:
-        json.dump(auth_data, f)
-    print(f"Authentication data saved to {AUTH_FILE_PATH}")
 
 
 def refresh_access_token(refresh_token):
@@ -99,105 +84,137 @@ def refresh_access_token(refresh_token):
     response = requests.post(TOKEN_URL, headers=headers, data=data)
     
     if response.status_code == 200:
-        token_data = response.json()
-        # Add expiration time
-        token_data["expires_at"] = int(time.time()) + token_data["expires_in"]
-        # Keep the refresh token if not provided in the response
-        if "refresh_token" not in token_data:
-            token_data["refresh_token"] = refresh_token
-        return token_data
+        return response.json()
     else:
-        print(f"Error refreshing access token: {response.status_code}")
-        print(response.text)
+        print(f"❌ Error refreshing token: {response.status_code} - {response.text}")
+        return None
+
+
+def save_auth_data(auth_data):
+    """Save authentication data to a file.
+    
+    Args:
+        auth_data: Dict with token data
+    """
+    # Add timestamp to know when the tokens were acquired
+    auth_data["timestamp"] = int(time.time())
+    
+    # Save to file
+    try:
+        with open(AUTH_FILE_PATH, "w") as f:
+            json.dump(auth_data, f, indent=2)
+        print(f"✅ Saved authentication data to {AUTH_FILE_PATH}")
+    except Exception as e:
+        print(f"❌ Error saving authentication data: {e}")
+
+
+def load_auth_data():
+    """Load authentication data from file.
+    
+    Returns:
+        Dict with token data or None if file doesn't exist or is invalid
+    """
+    try:
+        if not AUTH_FILE_PATH.exists():
+            print(f"❌ Authentication file not found: {AUTH_FILE_PATH}")
+            return None
+        
+        with open(AUTH_FILE_PATH, "r") as f:
+            auth_data = json.load(f)
+        
+        return auth_data
+    except Exception as e:
+        print(f"❌ Error loading authentication data: {e}")
         return None
 
 
 def get_valid_auth_data():
-    """Get valid authentication data, refreshing the access token if necessary.
+    """Get valid authentication data, refreshing if necessary.
     
     Returns:
-        Dict with valid token data or None if not available/refreshable
+        Dict with valid token data or None if not available
     """
-    # Check if auth file exists
-    if not AUTH_FILE_PATH.exists():
-        print(f"Authentication file not found: {AUTH_FILE_PATH}")
-        print("Please run the token exchange script first.")
+    auth_data = load_auth_data()
+    
+    if not auth_data:
+        print("❌ No authentication data available")
+        print("Please run 'python token_exchange.py YOUR_AUTH_CODE' to authenticate")
         return None
     
-    # Load auth data
-    try:
-        with open(AUTH_FILE_PATH, "r") as f:
-            auth_data = json.load(f)
-    except Exception as e:
-        print(f"Error loading authentication data: {e}")
-        return None
-    
-    # Check if access token is expired
+    # Check if the access token has expired (tokens last 1 hour)
+    timestamp = auth_data.get("timestamp", 0)
+    expires_in = auth_data.get("expires_in", 3600)
     current_time = int(time.time())
-    expires_at = auth_data.get("expires_at", 0)
     
-    # If token expires in less than 60 seconds, refresh it
-    if expires_at - current_time < 60:
-        print("Access token expired or about to expire, refreshing...")
-        refresh_token = auth_data.get("refresh_token")
+    # Refresh if token is expired or about to expire (within 5 minutes)
+    if current_time >= timestamp + expires_in - 300:
+        print("Token expired, refreshing...")
         
+        refresh_token = auth_data.get("refresh_token")
         if not refresh_token:
-            print("No refresh token found")
+            print("❌ No refresh token available")
             return None
         
-        # Refresh the token
         new_auth_data = refresh_access_token(refresh_token)
         
         if not new_auth_data:
-            print("Failed to refresh access token")
+            print("❌ Failed to refresh token")
             return None
         
-        # Save the new auth data
+        # Preserve the refresh token if it's not included in the response
+        if "refresh_token" not in new_auth_data:
+            new_auth_data["refresh_token"] = refresh_token
+        
+        # Update the timestamp
+        new_auth_data["timestamp"] = current_time
+        
+        # Save the updated auth data
         save_auth_data(new_auth_data)
+        
         return new_auth_data
     
     return auth_data
 
 
 def test_api_connection(auth_data):
-    """Test the Spotify API connection with a simple request.
+    """Test the Spotify API connection with the provided tokens.
     
     Args:
         auth_data: Dict with token data
         
     Returns:
-        True if connection successful, False otherwise
+        True if connection is successful, False otherwise
     """
-    if not auth_data or "access_token" not in auth_data:
+    access_token = auth_data.get("access_token")
+    
+    if not access_token:
+        print("❌ No access token available")
         return False
     
     headers = {
-        "Authorization": f"Bearer {auth_data['access_token']}",
+        "Authorization": f"Bearer {access_token}",
     }
     
     response = requests.get("https://api.spotify.com/v1/me", headers=headers)
     
     if response.status_code == 200:
         user_data = response.json()
-        print(f"✅ Connected to Spotify as: {user_data['display_name']} ({user_data['id']})")
+        print(f"✅ Connected to Spotify API as {user_data.get('display_name')} ({user_data.get('id')})")
         return True
     else:
-        print(f"❌ API connection failed: {response.status_code}")
-        print(response.text)
+        print(f"❌ API connection test failed: {response.status_code} - {response.text}")
         return False
 
 
 def main():
-    """Main function to exchange the code for tokens."""
-    print("\n===== Spotify Token Exchange =====\n")
-    
-    # Check if credentials are set
+    """Main function."""
+    # Check for Spotify credentials
     if not SPOTIFY_CLIENT_ID or not SPOTIFY_CLIENT_SECRET:
-        print("❌ Error: Spotify credentials not found in .env file")
-        print("Make sure SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET are set")
+        print("❌ Error: Missing Spotify API credentials")
+        print("Please set SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET in your .env file")
         return 1
     
-    # Get the authorization code from command line argument
+    # Get authorization code from command line argument
     if len(sys.argv) < 2:
         print("❌ Error: No authorization code provided")
         print("Usage: python token_exchange.py YOUR_AUTH_CODE")
@@ -224,7 +241,9 @@ def main():
     if test_api_connection(auth_data):
         print("\n🎉 Authentication completed successfully! 🎉")
         print("\nYou can now run the playlist creation script:")
-        print("python spotify_playlist.py --limit 25")
+        print("python create_spotify_playlist.py --limit 25")
+        print("or")
+        print("python web_app.py")
         return 0
     else:
         print("\n❌ Authentication failed - API connection test unsuccessful")
