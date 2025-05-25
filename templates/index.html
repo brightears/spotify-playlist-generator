@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Spotify Playlist Generator - Home{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h4 mb-0">Create a New Playlist</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('create_playlist_route') }}">
+                    {{ form.csrf_token }}
+                    
+                    {% if errors %}
+                    <div class="alert alert-danger">
+                        <h4 class="alert-heading">Form Errors</h4>
+                        <ul>
+                            {% for field, field_errors in errors.items() %}
+                                {% for error in field_errors %}
+                                <li><strong>{{ field }}:</strong> {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">Playlist Name</label>
+                            {{ form.name(class="form-control", placeholder="My Awesome Playlist {date}") }}
+                            <div class="form-text">Use {date} for current date</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="description" class="form-label">Description</label>
+                            {{ form.description(class="form-control", placeholder="A collection of the best new tracks") }}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Sources</label>
+                            <div class="border rounded p-3">
+                                {% for value, label in form.sources.choices %}
+                                <div class="form-check">
+                                    <input type="checkbox" name="sources" value="{{ value }}" id="source-{{ value }}" class="form-check-input"
+                                        {% if value == 'youtube' %}checked{% endif %}>
+                                    <label for="source-{{ value }}" class="form-check-label">{{ label }}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="destination" class="form-label">Destination</label>
+                            {{ form.destination(class="form-select") }}
+                            
+                            <div class="mt-3">
+                                <label for="genre" class="form-label">Genre</label>
+                                {{ form.genre(class="form-select") }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="days_to_look_back" class="form-label">Days to Look Back</label>
+                            {{ form.days_to_look_back(class="form-control") }}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="limit" class="form-label">Track Limit</label>
+                            {{ form.limit(class="form-control") }}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="min_match_score" class="form-label">Match Score (0.0-1.0)</label>
+                            {{ form.min_match_score(class="form-control") }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form.public(class="form-check-input") }}
+                            <label for="public" class="form-check-label">Public Playlist</label>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-play me-2"></i> Generate Playlist
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4 shadow">
+            <div class="card-header bg-info text-white">
+                <h3 class="h5 mb-0">Tips</h3>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li>Select <strong>YouTube</strong> for the best results - it has the most reliable matching.</li>
+                    <li>Set the <strong>Match Score</strong> lower (0.5) for more tracks, higher (0.8) for better accuracy.</li>
+                    <li>Limit to <strong>specific genres</strong> for more cohesive playlists.</li>
+                    <li>If using <strong>Spotify</strong>, ensure you've authenticated via the command line first.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
