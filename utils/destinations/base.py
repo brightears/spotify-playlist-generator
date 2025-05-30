@@ -2,7 +2,7 @@
 Base class for playlist destinations.
 """
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional, Callable
 
 from utils.sources.base import Track
@@ -29,6 +29,10 @@ class PlaylistResult:
     playlist_url: str = ""
     tracks_added: int = 0
     message: str = ""
+    # Enhanced fields for better reporting
+    added_tracks: List[MatchResult] = field(default_factory=list)
+    unmatched_tracks: List[MatchResult] = field(default_factory=list)
+    csv_data: Optional[str] = None  # Store CSV data for export
 
 
 class PlaylistDestination(ABC):
@@ -60,191 +64,224 @@ class PlaylistDestination(ABC):
         pass
     
     @abstractmethod
-    async def search_track(self, track: Track) -> MatchResult:
-        """
-        Search for a track in the destination service.
-        
-        Args:
-            track: Track to search for
-            
-        Returns:
-            MatchResult object with match details
-        """
-        pass
-    
-    @abstractmethod
     async def create_playlist(
         self, 
         name: str,
         description: str,
         tracks: List[Track],
         public: bool = True,
-        min_match_score: float = 0.7,
-        progress_callback = None
+        min_match_score: float = 0.85,
+        progress_callback = None,
+        export_unmatched: bool = False
     ) -> PlaylistResult:
         """
         Create a playlist with the given tracks.
         
         Args:
-            name: Name of the playlist
-            description: Description of the playlist
+            name: Playlist name
+            description: Playlist description
             tracks: List of tracks to add to the playlist
             public: Whether the playlist should be public
-            min_match_score: Minimum score to consider a track a match
-            progress_callback: Optional callback function to report progress
+            min_match_score: Minimum score required for a track to be considered a match
+            progress_callback: Optional callback for progress updates
+            export_unmatched: Whether to export unmatched tracks in the result
             
         Returns:
-            PlaylistResult object with creation details
+            Result of playlist creation
+        """
+        pass
+    
+    @abstractmethod
+    async def search_track(self, track: Track) -> MatchResult:
+        """
+        Search for a track.
+        
+        Args:
+            track: Track to search for
+            
+        Returns:
+            MatchResult with the best match
+        """
+        pass
+    
+    @abstractmethod
+    async def add_tracks_to_playlist(
+        self, 
+        playlist_id: str, 
+        track_ids: List[str],
+        progress_callback = None
+    ) -> bool:
+        """
+        Add tracks to an existing playlist.
+        
+        Args:
+            playlist_id: ID of the playlist
+            track_ids: List of track IDs to add
+            progress_callback: Optional callback for progress updates
+            
+        Returns:
+            True if all tracks were added successfully, False otherwise
         """
         pass
     
     @staticmethod
     def calculate_title_similarity(title1: str, title2: str) -> float:
-        """Calculate similarity between two track titles."""
-        # Normalize titles
-        t1 = title1.lower()
-        t2 = title2.lower()
+        """
+        Calculate similarity between two track titles.
         
-        # Enhanced cleaning of titles - more thorough for better matching
-        # Remove common words, punctuation, and variant spellings
-        remove_words = [
-            'feat', 'ft', 'featuring', 'presents', 'pres', 'pres.', 
-            'original', 'mix', 'remix', 'rmx', 're-work', 'rework', 'refix',
-            'extended', 'ext', 'radio', 'edit', 'version', 'vocal', 'instrumental',
-            'club', 'dub', '(', ')', '[', ']', '{', '}', '-', ':', '&', '+', '/',
-            'official', 'audio', 'music', 'video'
-        ]
+        Args:
+            title1: First title
+            title2: Second title
+            
+        Returns:
+            Similarity score between 0.0 and 1.0
+        """
+        # Clean and normalize titles
+        title1 = PlaylistDestination.normalize_title(title1)
+        title2 = PlaylistDestination.normalize_title(title2)
         
-        # Apply replacements
-        for word in remove_words:
-            t1 = t1.replace(word, ' ')
-            t2 = t2.replace(word, ' ')
+        # If titles are identical after normalization, return 1.0
+        if title1 == title2:
+            return 1.0
         
-        # Further normalization
-        import re
-        t1 = re.sub(r'\s+', ' ', t1).strip()  # Replace multiple spaces with single space
-        t2 = re.sub(r'\s+', ' ', t2).strip()
+        # Calculate Levenshtein distance
+        distance = PlaylistDestination.levenshtein_distance(title1, title2)
+        max_length = max(len(title1), len(title2))
         
-        # If either title is empty after cleaning, use original titles
-        if not t1 or not t2:
-            t1 = title1.lower()
-            t2 = title2.lower()
-        
-        # Check for substantial substring matches (helpful for very different formats)
-        # This helps when one title is completely contained within another
-        if len(t1) > 5 and t1 in t2:
-            return 0.9  # High confidence for substring match
-        if len(t2) > 5 and t2 in t1:
-            return 0.9
-        
-        # Split into words and count overlaps
-        words1 = set(t1.split())
-        words2 = set(t2.split())
-        
-        if not words1 or not words2:
+        # Convert distance to similarity score
+        if max_length == 0:
             return 0.0
         
-        # Calculate Jaccard similarity with word overlap
-        intersection = len(words1.intersection(words2))
-        union = len(words1.union(words2))
-        
-        # Give bonus for consecutive word matches
-        word_seq1 = t1.split()
-        word_seq2 = t2.split()
-        consecutive_matches = 0
-        
-        for i in range(len(word_seq1) - 1):
-            if i < len(word_seq2) - 1 and word_seq1[i] == word_seq2[i] and word_seq1[i+1] == word_seq2[i+1]:
-                consecutive_matches += 1
-        
-        # Base similarity plus bonus for consecutive matches
-        base_similarity = intersection / union if union > 0 else 0.0
-        consecutive_bonus = 0.1 * consecutive_matches if consecutive_matches > 0 else 0.0
-        
-        return min(1.0, base_similarity + consecutive_bonus)
+        return 1.0 - (distance / max_length)
     
     @staticmethod
     def calculate_artist_similarity(artist1: str, artist2: str) -> float:
-        """Calculate similarity between two artist names."""
-        import re
+        """
+        Calculate similarity between two artist names.
         
-        # Normalize artist names
-        a1 = artist1.lower()
-        a2 = artist2.lower()
-        
-        # Handle common separators
-        for sep in [' & ', ' and ', ', ', '; ', ' x ', ' + ', ' vs ', ' with ', ' feat ', ' ft ']:
-            a1 = a1.replace(sep, ', ')
-            a2 = a2.replace(sep, ', ')
-        
-        # Clean up artist names - remove common prefixes/suffixes
-        prefixes = ['dj ', 'mc ', 'the ', 'mr ', 'ms ', 'dr ', 'sir ']
-        for prefix in prefixes:
-            a1 = re.sub(f'^{prefix}', '', a1)
-            a2 = re.sub(f'^{prefix}', '', a2)
+        Args:
+            artist1: First artist
+            artist2: Second artist
             
-        # Remove special characters and standardize spacing
-        a1 = re.sub(r'[^\w\s,]', '', a1)
-        a2 = re.sub(r'[^\w\s,]', '', a2)
-        a1 = re.sub(r'\s+', ' ', a1).strip()
-        a2 = re.sub(r'\s+', ' ', a2).strip()
+        Returns:
+            Similarity score between 0.0 and 1.0
+        """
+        # Clean and normalize artist names
+        artist1 = PlaylistDestination.normalize_artist(artist1)
+        artist2 = PlaylistDestination.normalize_artist(artist2)
         
-        # Split into individual artists
-        artists1 = [a.strip() for a in a1.split(',') if a.strip()]
-        artists2 = [a.strip() for a in a2.split(',') if a.strip()]
+        # If artist names are identical after normalization, return 1.0
+        if artist1 == artist2:
+            return 1.0
         
-        # Handle empty lists (safeguard)
-        if not artists1 or not artists2:
-            artists1 = [artist1.lower()]
-            artists2 = [artist2.lower()]
+        # Check if one artist name contains the other
+        if artist1 in artist2 or artist2 in artist1:
+            return 0.9
         
-        # Direct substring matching - check if any artist is a substring of another
-        # This helps with abbreviated names or partial matches
-        direct_matches = 0
-        partial_matches = 0
+        # Calculate Levenshtein distance
+        distance = PlaylistDestination.levenshtein_distance(artist1, artist2)
+        max_length = max(len(artist1), len(artist2))
         
-        for artist1 in artists1:
-            # Perfect match - exact artist name
-            if artist1 in artists2:
-                direct_matches += 1
-                continue
-                
-            # Partial match - one artist name contains the other
-            for artist2 in artists2:
-                # Substantial substring match (at least 4 chars)
-                if len(artist1) >= 4 and artist1 in artist2:
-                    partial_matches += 0.8  # 80% confidence for substring
-                    break
-                if len(artist2) >= 4 and artist2 in artist1:
-                    partial_matches += 0.8
-                    break
-                
-                # Word-level matching - check if words in artist1 appear in artist2
-                words1 = set(artist1.split())
-                words2 = set(artist2.split())
-                if words1 and words2:
-                    overlap = len(words1.intersection(words2))
-                    if overlap > 0:
-                        # Score based on percentage of matching words
-                        word_score = overlap / max(len(words1), len(words2))
-                        partial_matches += word_score * 0.7  # 70% confidence for word matching
-                        break
+        # Convert distance to similarity score
+        if max_length == 0:
+            return 0.0
         
-        # Calculate weighted score - perfect matches are worth more
-        direct_match_score = direct_matches / len(artists1) if artists1 else 0
-        partial_match_score = partial_matches / len(artists1) if artists1 else 0
+        return 1.0 - (distance / max_length)
+    
+    @staticmethod
+    def normalize_title(title: str) -> str:
+        """
+        Normalize a track title for comparison.
         
-        # Combine scores with preference for direct matches
-        final_score = direct_match_score * 0.7 + partial_match_score * 0.3
+        Args:
+            title: Track title to normalize
+            
+        Returns:
+            Normalized title
+        """
+        if not title:
+            return ""
         
-        return min(1.0, final_score)  # Cap at 1.0
+        # Convert to lowercase
+        title = title.lower()
+        
+        # Remove common words and punctuation
+        for word in ["official", "video", "audio", "lyric", "lyrics", "ft.", "feat.", "remix", "edit"]:
+            title = title.replace(word, "")
+        
+        # Remove punctuation
+        for char in ",.()[]{}!?\"':-;":
+            title = title.replace(char, "")
+        
+        # Remove extra whitespace
+        title = " ".join(title.split())
+        
+        return title
+    
+    @staticmethod
+    def normalize_artist(artist: str) -> str:
+        """
+        Normalize an artist name for comparison.
+        
+        Args:
+            artist: Artist name to normalize
+            
+        Returns:
+            Normalized artist name
+        """
+        if not artist:
+            return ""
+        
+        # Convert to lowercase
+        artist = artist.lower()
+        
+        # Remove common words and punctuation
+        for word in ["official", "dj", "feat.", "ft."]:
+            artist = artist.replace(word, "")
+        
+        # Remove punctuation
+        for char in ",.()[]{}!?\"':-;":
+            artist = artist.replace(char, "")
+        
+        # Remove extra whitespace
+        artist = " ".join(artist.split())
+        
+        return artist
+    
+    @staticmethod
+    def levenshtein_distance(s1: str, s2: str) -> int:
+        """
+        Calculate the Levenshtein distance between two strings.
+        
+        Args:
+            s1: First string
+            s2: Second string
+            
+        Returns:
+            Levenshtein distance
+        """
+        if len(s1) < len(s2):
+            return PlaylistDestination.levenshtein_distance(s2, s1)
+        
+        if len(s2) == 0:
+            return len(s1)
+        
+        previous_row = range(len(s2) + 1)
+        for i, c1 in enumerate(s1):
+            current_row = [i + 1]
+            for j, c2 in enumerate(s2):
+                insertions = previous_row[j + 1] + 1
+                deletions = current_row[j] + 1
+                substitutions = previous_row[j] + (c1 != c2)
+                current_row.append(min(insertions, deletions, substitutions))
+            previous_row = current_row
+        
+        return previous_row[-1]
     
     @classmethod
-    def calculate_match_score(cls, track: Track, 
-                              match_title: str, 
-                              match_artist: str) -> float:
+    def calculate_match_score(cls, track: Track, match_title: str, match_artist: str) -> float:
         """
-        Calculate overall match score between a track and a potential match.
+        Calculate a match score between a track and a potential match.
         
         Args:
             track: Original track
