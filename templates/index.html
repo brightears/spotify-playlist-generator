@@ -40,15 +40,9 @@
                     
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label">Sources</label>
-                            <div class="border rounded p-3">
-                                {% for value, label in form.sources.choices %}
-                                <div class="form-check">
-                                    <input type="checkbox" name="sources" value="{{ value }}" id="source-{{ value }}" class="form-check-input"
-                                        {% if value == 'youtube' %}checked{% endif %}>
-                                    <label for="source-{{ value }}" class="form-check-label">{{ label }}</label>
-                                </div>
-                                {% endfor %}
+                            <!-- YouTube is the exclusive source -->
+                            <div class="alert alert-info mb-3">
+                                <i class="fab fa-youtube me-2"></i> Using YouTube as exclusive music source
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -56,26 +50,20 @@
                             <div class="alert alert-info mb-3">
                                 <i class="fab fa-spotify me-2"></i> Using Spotify as destination
                             </div>
-                            
-                            <div class="mt-3">
-                                <label for="genre" class="form-label">Genre</label>
-                                {{ form.genre(class="form-select") }}
-                            </div>
                         </div>
                     </div>
                     
                     <div class="row mb-3">
-                        <div class="col-md-4">
+                        <div class="col-md-12">
+                            <label for="genre" class="form-label">Genre</label>
+                            {{ form.genre(class="form-select") }}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
                             <label for="days" class="form-label">Days to Look Back</label>
                             {{ form.days(class="form-control") }}
-                        </div>
-                        <div class="col-md-4">
-                            <label for="limit" class="form-label">Track Limit</label>
-                            {{ form.limit(class="form-control") }}
-                        </div>
-                        <div class="col-md-4">
-                            <label for="min_score" class="form-label">Match Score (0-100%)</label>
-                            {{ form.min_score(class="form-control") }}
                         </div>
                     </div>
                     
@@ -101,10 +89,10 @@
             </div>
             <div class="card-body">
                 <ul class="mb-0">
-                    <li>Combine multiple sources for a diverse playlist</li>
-                    <li>Use a lower match score (e.g. 60%) to include more tracks</li>
+                    <li>YouTube data provides high-quality track matches for Spotify</li>
                     <li>Narrow your genre to get more targeted results</li>
-                    <li>YouTube sources typically have the best match rates</li>
+                    <li>Use the "Days to Look Back" field to find recent or older tracks</li>
+                    <li>Your playlist will automatically include a CSV export of all tracks</li>
                 </ul>
             </div>
         </div>
@@ -112,4 +100,4 @@
 </div>
 {% endblock %}
 
-<!-- explainer: Fixed the form's action URL to point to the correct 'index' route and removed the non-existent destination field which was causing errors. Spotify is now shown as the only supported destination. -->
+<!-- explainer: Removed obsolete tips referencing multiple sources and match scores, updated tips to reflect YouTube-focused approach, and ensured the form fields match the PlaylistForm class definition -->
