@@ -8,6 +8,7 @@ import logging
 import asyncio
 import csv
 import io
+import base64
 from datetime import datetime
 from typing import List, Dict, Any, Optional, Tuple
 
@@ -109,13 +110,16 @@ class SpotifyDestination(PlaylistDestination):
             return False
         
         try:
+            # Create the auth string and encode it properly
             auth_string = f"{client_id}:{client_secret}"
+            auth_bytes = auth_string.encode('ascii')
+            base64_auth = base64.b64encode(auth_bytes).decode('ascii')
             
             async with aiohttp.ClientSession() as session:
                 async with session.post(
                     "https://accounts.spotify.com/api/token",
                     headers={
-                        "Authorization": f"Basic {auth_string}",
+                        "Authorization": f"Basic {base64_auth}",
                         "Content-Type": "application/x-www-form-urlencoded"
                     },
                     data={
@@ -125,6 +129,8 @@ class SpotifyDestination(PlaylistDestination):
                 ) as response:
                     if response.status != 200:
                         logger.error(f"Failed to refresh token: {response.status}")
+                        response_text = await response.text()
+                        logger.error(f"Response: {response_text}")
                         return False
                     
                     data = await response.json()
@@ -463,3 +469,10 @@ class SpotifyDestination(PlaylistDestination):
                     unmatched_tracks=unmatched_results,
                     csv_data=csv_data
                 )
+        
+        except Exception as e:
+            logger.exception(f"Error creating playlist: {e}")
+            return PlaylistResult(
+                success=False,
+                message=f"Error creating playlist: {str(e)}"
+            )
