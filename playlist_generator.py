@@ -3,6 +3,7 @@ Core playlist generation logic.
 """
 import asyncio
 import logging
+import random
 from typing import List, Dict, Any, Optional, Callable
 
 from utils.sources.base import MusicSource, Track
@@ -40,40 +41,28 @@ async def create_playlist(
         progress_callback: Optional callback function to report progress
         
     Returns:
-        PlaylistResult object with creation details
+        PlaylistResult with the result of the playlist creation
     """
-    if not sources:
-        raise ValueError("No sources provided")
-    
-    if not destination:
-        raise ValueError("No destination provided")
-    
-    # Helper function to report progress
+    # Define an async function to report progress
     async def report_progress(current, total, message=None):
         if progress_callback:
             await progress_callback(current, total, message)
-        else:
-            if message:
-                logger.info(f"{current}/{total}: {message}")
     
     # Authenticate with the destination
-    logger.info(f"Authenticating with {destination.name}...")
-    authenticated = await destination.authenticate()
-    
-    if not authenticated:
+    if not await destination.authenticate():
         raise ValueError(f"Failed to authenticate with {destination.name}")
     
-    logger.info(f"Successfully authenticated with {destination.name}")
+    # Calculate per-source limit
+    per_source_limit = limit * 3 // len(sources)  # Get 3x more than needed to account for duplicates and non-matches
     
-    # Fetch tracks from sources
+    # Fetch tracks from all sources
     all_tracks = []
-    per_source_limit = max(limit // len(sources), 10)  # Ensure at least 10 per source
     
     for i, source in enumerate(sources):
-        logger.info(f"Fetching tracks from {source.name} ({i+1}/{len(sources)})...")
         await report_progress(i, len(sources), f"Fetching tracks from {source.name}...")
         
         try:
+            # Fetch tracks from the source
             tracks = await source.get_tracks(
                 days_to_look_back=days_to_look_back,
                 genre=genre,
@@ -95,6 +84,13 @@ async def create_playlist(
     
     logger.info(f"Found {len(all_tracks)} total tracks from all sources")
     
+    # Shuffle and limit tracks to respect the limit parameter
+    if len(all_tracks) > limit:
+        logger.info(f"Limiting tracks from {len(all_tracks)} to {limit}")
+        # Shuffle to get a random selection if we have more tracks than the limit
+        random.shuffle(all_tracks)
+        all_tracks = all_tracks[:limit]
+    
     # Create the playlist
     result = await destination.create_playlist(
         name=name,
@@ -102,7 +98,8 @@ async def create_playlist(
         tracks=all_tracks,
         public=public,
         min_match_score=min_match_score,
-        progress_callback=progress_callback
+        progress_callback=progress_callback,
+        export_unmatched=True  # Always enable CSV export
     )
     
     logger.info(f"Playlist creation result: {result}")
