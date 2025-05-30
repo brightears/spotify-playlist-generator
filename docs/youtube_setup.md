@@ -1,6 +1,18 @@
 # YouTube API Setup Guide
 
-This guide will walk you through setting up the necessary credentials to use the YouTube Data API with the Spotify Playlist Generator.
+## Overview
+
+This guide will walk you through setting up the necessary credentials to use the YouTube Data API with the Spotify Playlist Generator. The application uses YouTube as its primary source for discovering tracks that will be matched with Spotify.
+
+## Why YouTube?
+
+YouTube provides access to a wide range of music content, including:
+- Official music videos
+- Promotional channels with new releases
+- Genre-specific curated playlists
+- Independent music from emerging artists
+
+This makes it an excellent source for discovering new tracks to add to your Spotify playlists.
 
 ## Step 1: Create a Google Cloud Project
 
@@ -49,19 +61,17 @@ To verify that your YouTube API key is working correctly:
 The YouTube Data API has usage limits:
 
 - Free tier: 10,000 units per day
-- Each search request costs approximately 100 units
-- Each video details request costs approximately 1 unit
-
-Monitor your usage in the Google Cloud Console under "APIs & Services" > "Dashboard".
+- Each API request uses a different number of quota units
+- Search operations are more expensive (100 units per call)
+- List operations are less expensive (1 unit per call)
 
 ## Troubleshooting
 
-If you encounter any issues:
+If you encounter issues with the YouTube API:
 
-1. **403 Forbidden Error**: Verify your API key is correct and has the proper permissions.
-2. **Quota Exceeded Error**: You've reached your daily quota limit. Wait until it resets or request increased quota.
-3. **API Not Enabled Error**: Make sure you've enabled the YouTube Data API v3 for your project.
+1. Check that your API key is correctly added to the `.env` file
+2. Verify that the YouTube Data API v3 is enabled for your project
+3. Check your quota usage in the Google Cloud Console
+4. Look for any error messages in the application logs
 
-For more detailed information, visit the [YouTube Data API Documentation](https://developers.google.com/youtube/v3/getting-started).
-
-<!-- explainer: This guide explains how to set up YouTube API access for fetching track data from YouTube channels and playlists -->
+<!-- explainer: This guide provides comprehensive setup instructions for the YouTube API, explaining why YouTube is used as the primary source and how to properly configure API access -->
