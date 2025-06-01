@@ -28,9 +28,7 @@ def register():
         # Support either field name (password_confirm preferred in templates)
         confirm = request.form.get('password_confirm', request.form.get('confirm_password', ''))
         
-        # Debug output to help with form troubleshooting
-        print(f"Form data received - Email: {email}, Password length: {len(password)}, Confirm length: {len(confirm)}")
-        print(f"Form fields: {list(request.form.keys())}")
+        # Form fields processed
 
         if not email or not password:
             flash('Email and password are required.', 'danger')
