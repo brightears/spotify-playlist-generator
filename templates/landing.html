@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}Spotify Playlist Generator - Create Amazing Playlists{% endblock %}
+
+{% block content %}
+<div class="landing-page">
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-lg-6">
+          <h1 class="hero-title">Generate Amazing Spotify Playlists</h1>
+          <p class="hero-subtitle">Create personalized playlists from YouTube videos with just a few clicks.</p>
+          <div class="cta-buttons">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">Get Started</a>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-secondary btn-lg">Log In</a>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <img src="{{ url_for('static', filename='img/hero-image.svg') }}" alt="Spotify Playlist Generator" class="img-fluid hero-image">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features">
+    <div class="container">
+      <h2 class="section-title text-center">How It Works</h2>
+      <div class="row">
+        <div class="col-md-4">
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="bi bi-music-note-list"></i>
+            </div>
+            <h3>1. Connect with Spotify</h3>
+            <p>Link your Spotify account to our secure platform with just one click.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="bi bi-youtube"></i>
+            </div>
+            <h3>2. Configure Your Playlist</h3>
+            <p>Choose your desired genre and customize your playlist settings.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="bi bi-spotify"></i>
+            </div>
+            <h3>3. Generate & Enjoy</h3>
+            <p>We'll create your playlist on Spotify automatically and share the results.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section class="pricing">
+    <div class="container">
+      <h2 class="section-title text-center">Simple, Transparent Pricing</h2>
+      <div class="row justify-content-center">
+        <div class="col-lg-4 col-md-6">
+          <div class="pricing-card">
+            <div class="pricing-header">
+              <h3>Monthly Subscription</h3>
+              <div class="price">$3<span>/month</span></div>
+            </div>
+            <div class="pricing-features">
+              <ul>
+                <li><i class="bi bi-check-circle"></i> Unlimited playlist creation</li>
+                <li><i class="bi bi-check-circle"></i> Export playlists to CSV</li>
+                <li><i class="bi bi-check-circle"></i> Public & private playlists</li>
+                <li><i class="bi bi-check-circle"></i> Customizable genre selection</li>
+                <li><i class="bi bi-check-circle"></i> Discover new music automatically</li>
+              </ul>
+            </div>
+            <div class="pricing-footer">
+              <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-block">Get Started</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section class="testimonials">
+    <div class="container">
+      <h2 class="section-title text-center">What Our Users Say</h2>
+      <div class="row">
+        <div class="col-lg-4">
+          <div class="testimonial-card">
+            <div class="testimonial-text">
+              <p>"This tool saved me hours of searching for tracks. The playlists it generates are surprisingly good!"</p>
+            </div>
+            <div class="testimonial-author">
+              <div class="author-name">Alex Johnson</div>
+              <div class="author-title">Music Enthusiast</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="testimonial-card">
+            <div class="testimonial-text">
+              <p>"I love how easy it is to discover new music based on YouTube videos. The genre filtering works great too."</p>
+            </div>
+            <div class="testimonial-author">
+              <div class="author-name">Maria Garcia</div>
+              <div class="author-title">Spotify User</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="testimonial-card">
+            <div class="testimonial-text">
+              <p>"The playlist quality is impressive. It finds tracks that match perfectly with my music taste."</p>
+            </div>
+            <div class="testimonial-author">
+              <div class="author-name">David Chen</div>
+              <div class="author-title">Casual Listener</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="faq">
+    <div class="container">
+      <h2 class="section-title text-center">Frequently Asked Questions</h2>
+      <div class="accordion" id="faqAccordion">
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingOne">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+              How does the playlist generation work?
+            </button>
+          </h2>
+          <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+            <div class="accordion-body">
+              Our system analyzes YouTube videos to identify tracks, then searches for them on Spotify. It creates a playlist with all the successfully matched songs and provides a list of any tracks it couldn't find.
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingTwo">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+              Can I use this with any YouTube video?
+            </button>
+          </h2>
+          <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+            <div class="accordion-body">
+              Yes, our system works best with music compilation videos, DJ mixes, and "best of" genre collections. It extracts track information and finds the corresponding songs on Spotify.
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingThree">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+              Is my Spotify account information secure?
+            </button>
+          </h2>
+          <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+            <div class="accordion-body">
+              Absolutely. We use Spotify's official OAuth process, which means we never see or store your password. You can revoke our access to your Spotify account at any time from your Spotify settings.
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingFour">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+              Can I cancel my subscription anytime?
+            </button>
+          </h2>
+          <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
+            <div class="accordion-body">
+              Yes, you can cancel your subscription at any time. Your subscription will remain active until the end of your current billing period.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta">
+    <div class="container text-center">
+      <h2>Ready to Create Amazing Playlists?</h2>
+      <p>Start your journey to better music discovery today.</p>
+      <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">Get Started Now</a>
+    </div>
+  </section>
+</div>
+{% endblock %}
