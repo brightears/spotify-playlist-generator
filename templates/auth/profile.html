@@ -28,7 +28,7 @@
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('create_playlist') }}">
+              <a class="nav-link" href="{{ url_for('create') }}">
                 <i class="bi bi-music-note-list"></i> Create Playlist
               </a>
             </li>
@@ -164,7 +164,7 @@
                       </ul>
                     </div>
                     
-                    <a href="{{ url_for('cancel_subscription') }}" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to cancel your subscription? You will still have access until the end of your billing period.')">
+                    <a href="{{ url_for('subscription.cancel') }}" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to cancel your subscription? You will still have access until the end of your billing period.')">
                       <i class="bi bi-x-circle me-2"></i> Cancel Subscription
                     </a>
                   </div>
@@ -188,7 +188,7 @@
                       </ul>
                     </div>
                     
-                    <a href="{{ url_for('subscribe') }}" class="btn btn-success">
+                    <a href="{{ url_for('subscription.subscription') }}" class="btn btn-success">
                       <i class="bi bi-arrow-repeat me-2"></i> Reactivate Subscription
                     </a>
                   </div>
@@ -207,7 +207,7 @@
                     <div class="pricing-card text-center mb-3 p-3 bg-light rounded">
                       <h6 class="text-muted mb-2">Premium Subscription</h6>
                       <div class="price mb-2">$3<span class="price-period">/mo</span></div>
-                      <a href="{{ url_for('subscribe') }}" class="btn btn-success">
+                      <a href="{{ url_for('subscription.subscription') }}" class="btn btn-success">
                         <i class="bi bi-credit-card me-2"></i> Subscribe Now
                       </a>
                     </div>
@@ -239,10 +239,10 @@
                     </div>
                     
                     <div class="d-flex gap-2">
-                      <a href="{{ url_for('disconnect_spotify') }}" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to disconnect your Spotify account?')">
+                      <a href="{{ url_for('spotify.disconnect') }}" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to disconnect your Spotify account?')">
                         <i class="bi bi-x-circle me-2"></i> Disconnect
                       </a>
-                      <a href="{{ url_for('reconnect_spotify') }}" class="btn btn-outline-success">
+                      <a href="{{ url_for('spotify.reconnect') }}" class="btn btn-outline-success">
                         <i class="bi bi-arrow-repeat me-2"></i> Refresh Connection
                       </a>
                     </div>
@@ -259,7 +259,7 @@
                       </div>
                     </div>
                     
-                    <a href="{{ url_for('connect_spotify') }}" class="btn btn-success">
+                    <a href="{{ url_for('spotify.connect') }}" class="btn btn-success">
                       <i class="bi bi-spotify me-2"></i> Connect Spotify
                     </a>
                   </div>
