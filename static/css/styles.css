@@ -1,0 +1,564 @@
+/* 
+ * Spotify Playlist Generator - Main Stylesheet
+ * 
+ * This file contains all custom styles for the application.
+ */
+
+:root {
+  --spotify-green: #1DB954;
+  --spotify-black: #191414;
+  --youtube-red: #FF0000;
+  --bg-light: #f8f9fa;
+  --text-dark: #343a40;
+  --accent-color: #1DB954;
+  --accent-dark: #1a9d48;
+  --accent-light: #3ecb6a;
+}
+
+/* General Styles */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  color: var(--text-dark);
+  background-color: var(--bg-light);
+  line-height: 1.6;
+}
+
+a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--accent-dark);
+  text-decoration: none;
+}
+
+.btn-primary {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.btn-primary:hover {
+  background-color: var(--accent-dark);
+  border-color: var(--accent-dark);
+}
+
+.btn-outline-primary {
+  color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+/* Landing Page Styles */
+.landing-page .hero {
+  padding: 100px 0;
+  background: linear-gradient(135deg, var(--spotify-black) 0%, #2d2d2d 100%);
+  color: white;
+  margin-bottom: 60px;
+}
+
+.landing-page .hero-title {
+  font-size: 2.8rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.landing-page .hero-subtitle {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+  opacity: 0.9;
+}
+
+.landing-page .cta-buttons {
+  margin-top: 30px;
+}
+
+.landing-page .section-title {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 40px;
+}
+
+.landing-page .features,
+.landing-page .pricing,
+.landing-page .testimonials,
+.landing-page .faq {
+  padding: 80px 0;
+}
+
+.landing-page .feature-card,
+.landing-page .testimonial-card {
+  background-color: white;
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  height: 100%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.landing-page .feature-card:hover,
+.landing-page .testimonial-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.landing-page .feature-icon {
+  font-size: 2.5rem;
+  color: var(--accent-color);
+  margin-bottom: 20px;
+}
+
+.landing-page .pricing-card {
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.landing-page .pricing-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.landing-page .pricing-header {
+  background-color: var(--accent-color);
+  color: white;
+  padding: 30px;
+  text-align: center;
+}
+
+.landing-page .price {
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+.landing-page .price span {
+  font-size: 1rem;
+  font-weight: normal;
+}
+
+.landing-page .pricing-features {
+  padding: 30px;
+}
+
+.landing-page .pricing-features ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.landing-page .pricing-features li {
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.landing-page .pricing-features li:last-child {
+  border-bottom: none;
+}
+
+.landing-page .pricing-footer {
+  padding: 0 30px 30px;
+}
+
+.landing-page .testimonial-text {
+  font-style: italic;
+  margin-bottom: 20px;
+}
+
+.landing-page .author-name {
+  font-weight: 600;
+}
+
+.landing-page .author-title {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.landing-page .cta {
+  background-color: var(--accent-color);
+  color: white;
+  padding: 80px 0;
+  margin-top: 40px;
+}
+
+.landing-page .cta h2 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
+/* Authentication Styles */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 100px);
+  padding: 40px 0;
+}
+
+.auth-form {
+  background-color: white;
+  border-radius: 10px;
+  padding: 40px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 500px;
+}
+
+.auth-title {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.auth-links {
+  margin-top: 20px;
+  text-align: center;
+}
+
+/* Dashboard Styles */
+.dashboard-container {
+  padding: 40px 0;
+}
+
+.dashboard-sidebar {
+  background-color: white;
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  height: 100%;
+}
+
+.dashboard-content {
+  background-color: white;
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.user-profile .avatar {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  color: var(--accent-color);
+}
+
+.sidebar-menu .nav-link {
+  padding: 10px 15px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+  color: var(--text-dark);
+}
+
+.sidebar-menu .nav-link:hover,
+.sidebar-menu .nav-link.active {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+.sidebar-menu .nav-link i {
+  margin-right: 10px;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.playlist-card {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+}
+
+.playlist-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.playlist-header {
+  padding: 15px;
+  background-color: var(--spotify-black);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.playlist-header h5 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.playlist-date {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.playlist-body {
+  padding: 15px;
+}
+
+.playlist-desc {
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+  color: #6c757d;
+  height: 40px;
+  overflow: hidden;
+}
+
+.playlist-stats {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.playlist-footer {
+  padding: 15px;
+  border-top: 1px solid #eee;
+  text-align: right;
+}
+
+/* Subscription Styles */
+.subscription-container {
+  padding: 60px 0;
+}
+
+.subscription-card {
+  background-color: white;
+  border-radius: 10px;
+  padding: 40px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.subscription-header {
+  margin-bottom: 30px;
+}
+
+.pricing-details {
+  margin: 30px 0;
+}
+
+.price-tag {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--accent-color);
+}
+
+.price-period {
+  font-size: 1.2rem;
+  color: #6c757d;
+}
+
+.features-list {
+  margin: 30px 0;
+}
+
+.payment-section {
+  margin: 30px 0;
+}
+
+.payment-info {
+  margin-top: 20px;
+  color: #6c757d;
+}
+
+.payment-icons {
+  font-size: 1.5rem;
+  color: #6c757d;
+}
+
+/* Create Playlist Page Styles */
+.playlist-form-container {
+  padding: 40px 0;
+}
+
+.playlist-form-card {
+  background-color: white;
+  border-radius: 10px;
+  padding: 40px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.form-header {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.form-group label {
+  font-weight: 500;
+}
+
+.form-check-label {
+  font-weight: normal;
+}
+
+.form-text {
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+/* Status Page Styles */
+.status-container {
+  padding: 40px 0;
+}
+
+.status-card {
+  background-color: white;
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.status-header {
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.status-header h2 {
+  margin: 0;
+}
+
+.status-badge {
+  padding: 8px 15px;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.status-badge.pending {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.status-badge.running {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.status-badge.completed {
+  background-color: #28a745;
+  color: white;
+}
+
+.status-badge.failed {
+  background-color: #dc3545;
+  color: white;
+}
+
+.log-section {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 30px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.log-entry {
+  margin-bottom: 8px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9rem;
+}
+
+.tracks-section {
+  margin-bottom: 30px;
+}
+
+.track-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.track-item {
+  padding: 10px 15px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.track-item:last-child {
+  border-bottom: none;
+}
+
+.track-title {
+  font-weight: 500;
+}
+
+.track-artist {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+  .dashboard-sidebar {
+    margin-bottom: 30px;
+  }
+  
+  .user-profile {
+    text-align: center;
+  }
+  
+  .landing-page .hero {
+    padding: 60px 0;
+  }
+  
+  .landing-page .hero-title {
+    font-size: 2.3rem;
+  }
+  
+  .landing-page .features,
+  .landing-page .pricing,
+  .landing-page .testimonials,
+  .landing-page .faq {
+    padding: 60px 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .auth-form,
+  .subscription-card,
+  .playlist-form-card,
+  .status-card {
+    padding: 20px;
+  }
+  
+  .landing-page .hero {
+    padding: 40px 0;
+    text-align: center;
+  }
+  
+  .landing-page .hero-title {
+    font-size: 2rem;
+  }
+  
+  .landing-page .hero-image {
+    margin-top: 30px;
+  }
+  
+  .landing-page .features,
+  .landing-page .pricing,
+  .landing-page .testimonials,
+  .landing-page .faq {
+    padding: 40px 0;
+  }
+  
+  .landing-page .feature-card,
+  .landing-page .testimonial-card {
+    margin-bottom: 20px;
+  }
+}
