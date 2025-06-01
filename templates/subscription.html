@@ -5,12 +5,119 @@
 {% block extra_head %}
 <!-- Stripe JS -->
 <script src="https://js.stripe.com/v3/"></script>
+<style>
+  .subscription-container {
+    padding: 3rem 0;
+  }
+  
+  .subscription-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+  }
+  
+  .subscription-header {
+    background: linear-gradient(135deg, #1DB954 0%, #169E45 100%);
+    color: white;
+    padding: 2rem;
+  }
+  
+  .subscription-content {
+    padding: 2rem;
+  }
+  
+  .price-tag {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: #1DB954;
+  }
+  
+  .price-period {
+    font-size: 1.2rem;
+    color: #777;
+  }
+  
+  .features-list ul {
+    list-style-type: none;
+    padding-left: 0;
+  }
+  
+  .features-list li {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .features-list i {
+    color: #1DB954;
+    margin-right: 0.5rem;
+  }
+  
+  .payment-section {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+  }
+  
+  .security-badges {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  
+  .security-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: #6c757d;
+  }
+  
+  .current-status {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    border-radius: 10px;
+  }
+  
+  .status-active {
+    background-color: rgba(29, 185, 84, 0.1);
+    border: 1px solid rgba(29, 185, 84, 0.3);
+  }
+  
+  .status-inactive {
+    background-color: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+  }
+  
+  .status-canceled {
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+  }
+  
+  .legal-links {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 2rem;
+    font-size: 0.9rem;
+  }
+  
+  #checkout-button {
+    transition: all 0.3s ease;
+  }
+  
+  #checkout-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(29, 185, 84, 0.3);
+  }
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="subscription-container">
   <div class="row justify-content-center">
-    <div class="col-lg-6">
+    <div class="col-lg-7">
       <!-- Alerts and Messages -->
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -23,69 +130,110 @@
         {% endif %}
       {% endwith %}
       
+      <!-- Current Subscription Status (if logged in) -->
+      {% if current_user.is_authenticated %}
+        {% if current_user.subscription_status %}
+          <div class="current-status status-{{ current_user.subscription_status.lower() }} mb-4">
+            <div class="row align-items-center">
+              <div class="col-md-9">
+                {% if current_user.has_active_subscription %}
+                  <h4><i class="bi bi-check-circle-fill text-success me-2"></i> Active Subscription</h4>
+                  <p class="mb-0">Your subscription is active until {{ current_user.subscription_end_date.strftime('%B %d, %Y') }}.</p>
+                {% elif current_user.subscription_status == 'canceled' %}
+                  <h4><i class="bi bi-x-circle-fill text-danger me-2"></i> Subscription Canceled</h4>
+                  <p class="mb-0">Your subscription has been canceled. You'll have access until {{ current_user.subscription_end_date.strftime('%B %d, %Y') }}.</p>
+                {% else %}
+                  <h4><i class="bi bi-exclamation-circle-fill text-warning me-2"></i> No Active Subscription</h4>
+                  <p class="mb-0">You don't have an active subscription. Subscribe now to access all features.</p>
+                {% endif %}
+              </div>
+              <div class="col-md-3 text-end">
+                {% if current_user.has_active_subscription %}
+                  <a href="{{ url_for('cancel_subscription') }}" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to cancel your subscription?')">
+                    Cancel Subscription
+                  </a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      {% endif %}
+      
       <div class="subscription-card">
         <div class="subscription-header text-center">
-          <h2>Subscription</h2>
-          <p class="lead">Get access to all features with our monthly plan</p>
+          <h2 class="mb-2">Premium Subscription</h2>
+          <p class="lead mb-0">Unlimited Playlist Creation</p>
         </div>
         
         <div class="subscription-content">
           <div class="pricing-details text-center mb-4">
-            <div class="price-tag">{{ price }}</div>
+            <div class="price-tag">${{ price }}</div>
             <div class="price-period">per {{ period }}</div>
           </div>
           
           <div class="features-list mb-4">
             <h5>What You Get:</h5>
-            <ul class="list-group">
-              <li class="list-group-item">
-                <i class="bi bi-check-circle-fill text-success me-2"></i> Create unlimited playlists
-              </li>
-              <li class="list-group-item">
-                <i class="bi bi-check-circle-fill text-success me-2"></i> Spotify integration
-              </li>
-              <li class="list-group-item">
-                <i class="bi bi-check-circle-fill text-success me-2"></i> Export playlists to CSV
-              </li>
-              <li class="list-group-item">
-                <i class="bi bi-check-circle-fill text-success me-2"></i> Access to all genres
-              </li>
-              <li class="list-group-item">
-                <i class="bi bi-check-circle-fill text-success me-2"></i> Cancel anytime
-              </li>
+            <ul>
+              <li><i class="bi bi-check-circle-fill"></i> Unlimited playlist creation</li>
+              <li><i class="bi bi-check-circle-fill"></i> Access to all music genres</li>
+              <li><i class="bi bi-check-circle-fill"></i> Look back up to 90 days of trending music</li>
+              <li><i class="bi bi-check-circle-fill"></i> Create both public and private playlists</li>
+              <li><i class="bi bi-check-circle-fill"></i> Export playlist data to CSV</li>
+              <li><i class="bi bi-check-circle-fill"></i> Priority customer support</li>
+              <li><i class="bi bi-check-circle-fill"></i> Cancel anytime</li>
             </ul>
           </div>
           
-          <div class="payment-section text-center">
-            <button id="checkout-button" class="btn btn-primary btn-lg">
-              Subscribe Now
-            </button>
-            <div class="payment-info mt-3">
-              <small class="text-muted">
-                <i class="bi bi-lock-fill"></i> Secure payment powered by Stripe
-              </small>
-              <div class="payment-icons mt-2">
-                <i class="bi bi-credit-card me-2"></i>
-                <i class="bi bi-credit-card-2-front me-2"></i>
-                <i class="bi bi-credit-card-2-back"></i>
+          <div class="payment-section">
+            <h5 class="mb-3">Secure Payment</h5>
+            <p class="text-muted mb-3">Your payment information is secure with Stripe. You'll be redirected to our secure payment processor.</p>
+            
+            {% if current_user.is_authenticated %}
+              {% if not current_user.has_active_subscription %}
+                <div class="d-grid">
+                  <button id="checkout-button" class="btn btn-success btn-lg">
+                    <i class="bi bi-lock-fill me-2"></i> Subscribe Now
+                  </button>
+                </div>
+              {% else %}
+                <div class="text-center">
+                  <a href="{{ url_for('dashboard') }}" class="btn btn-outline-success">
+                    <i class="bi bi-speedometer2 me-2"></i> Go to Dashboard
+                  </a>
+                </div>
+              {% endif %}
+            {% else %}
+              <div class="alert alert-warning">
+                <p class="mb-0"><i class="bi bi-info-circle-fill me-2"></i> Please <a href="{{ url_for('auth.login') }}">login</a> or <a href="{{ url_for('auth.register') }}">register</a> to subscribe.</p>
+              </div>
+            {% endif %}
+            
+            <div class="security-badges">
+              <div class="security-badge">
+                <i class="bi bi-shield-lock-fill"></i>
+                <span>Secure Payment</span>
+              </div>
+              <div class="security-badge">
+                <i class="bi bi-credit-card-fill"></i>
+                <span>SSL Encrypted</span>
+              </div>
+              <div class="security-badge">
+                <i class="bi bi-calendar-check-fill"></i>
+                <span>Cancel Anytime</span>
               </div>
             </div>
           </div>
-        </div>
-        
-        <div class="subscription-footer text-center mt-4">
-          <p class="mb-0">
-            <small>
-              By subscribing, you agree to our <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms of Service</a>
-              and <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy Policy</a>
-            </small>
-          </p>
+          
+          <div class="legal-links">
+            <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms of Service</a>
+            <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy Policy</a>
+          </div>
         </div>
       </div>
       
-      <div class="back-link text-center mt-4">
-        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
-          <i class="bi bi-arrow-left"></i> Back to Dashboard
+      <div class="mt-4 text-center">
+        <a href="{{ url_for('dashboard') if current_user.is_authenticated else url_for('index') }}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-2"></i> Back
         </a>
       </div>
     </div>
@@ -94,30 +242,39 @@
 
 <!-- Terms of Service Modal -->
 <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="termsModalLabel">Terms of Service</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <h6>1. Acceptance of Terms</h6>
-        <p>By accessing and using the Spotify Playlist Generator service, you agree to be bound by these Terms of Service and all applicable laws and regulations.</p>
+        <h4>1. Acceptance of Terms</h4>
+        <p>By accessing and using the Spotify Playlist Generator service, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our service.</p>
         
-        <h6>2. Use of Service</h6>
-        <p>The Spotify Playlist Generator is a subscription-based service that creates playlists on Spotify using content from YouTube videos. Users must maintain an active subscription to access this service.</p>
+        <h4>2. Description of Service</h4>
+        <p>Spotify Playlist Generator provides a service that creates playlists on Spotify based on data from YouTube and other sources. The service requires authentication with your Spotify account and a paid subscription.</p>
         
-        <h6>3. Account Responsibilities</h6>
-        <p>You are responsible for maintaining the confidentiality of your account information and for all activities that occur under your account.</p>
+        <h4>3. Subscription and Billing</h4>
+        <p>Our service requires a subscription fee of $3 per month. Payments are processed securely through Stripe. You may cancel your subscription at any time, and you will maintain access until the end of your current billing period.</p>
         
-        <h6>4. Payment and Subscription</h6>
-        <p>We offer a monthly subscription at $3 USD per month. Payments are processed securely through Stripe. Subscriptions automatically renew unless cancelled.</p>
+        <h4>4. Spotify Account</h4>
+        <p>To use our service, you must connect your Spotify account. We will only perform actions that you explicitly authorize, such as creating playlists on your behalf.</p>
         
-        <h6>5. Spotify Authorization</h6>
-        <p>To use our service, you must authorize our application to access your Spotify account. We only request the minimum permissions required to create playlists.</p>
+        <h4>5. Limitations</h4>
+        <p>We do not guarantee that all YouTube tracks will be found on Spotify. Our matching algorithm does its best to find corresponding tracks, but some may not be available.</p>
         
-        <h6>6. Limitation of Liability</h6>
-        <p>The service is provided "as is" without warranties of any kind. We are not responsible for any playlists created or any issues with your Spotify account.</p>
+        <h4>6. User Conduct</h4>
+        <p>You agree not to use our service for any illegal purposes or in violation of Spotify's terms of service.</p>
+        
+        <h4>7. Modifications to Service</h4>
+        <p>We reserve the right to modify or discontinue the service at any time without notice.</p>
+        
+        <h4>8. Privacy</h4>
+        <p>Please refer to our Privacy Policy for information about how we collect, use, and disclose personal information.</p>
+        
+        <h4>9. Contact</h4>
+        <p>If you have any questions about these Terms, please contact us at support@spotifyplaylistgenerator.com.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -128,30 +285,60 @@
 
 <!-- Privacy Policy Modal -->
 <div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="privacyModalLabel">Privacy Policy</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <h6>1. Information We Collect</h6>
-        <p>We collect your email address, encrypted password, and with your permission, access tokens for Spotify. We also store information about playlists you create.</p>
+        <h4>1. Information We Collect</h4>
+        <p>We collect the following information:</p>
+        <ul>
+          <li>Email address and password for authentication</li>
+          <li>Spotify account access tokens (with your permission)</li>
+          <li>Payment information (processed securely through Stripe)</li>
+          <li>Usage data such as playlists created and features used</li>
+        </ul>
         
-        <h6>2. How We Use Your Information</h6>
-        <p>We use your information to provide our playlist generation service, manage your account, process payments, and communicate with you about your account.</p>
+        <h4>2. How We Use Your Information</h4>
+        <p>We use your information to:</p>
+        <ul>
+          <li>Provide and maintain our service</li>
+          <li>Process payments</li>
+          <li>Create playlists on Spotify on your behalf</li>
+          <li>Improve our service</li>
+          <li>Communicate with you</li>
+        </ul>
         
-        <h6>3. Spotify Data</h6>
-        <p>We request access to create and modify playlists on your Spotify account. We do not access your listening history or other personal data on Spotify.</p>
+        <h4>3. Data Security</h4>
+        <p>We implement appropriate security measures to protect your personal information. We never store your Spotify password or full payment details.</p>
         
-        <h6>4. Payment Information</h6>
-        <p>All payment processing is handled by Stripe. We do not store your full credit card details on our servers.</p>
+        <h4>4. Third-Party Services</h4>
+        <p>We use the following third-party services:</p>
+        <ul>
+          <li>Spotify API for playlist creation</li>
+          <li>Stripe for payment processing</li>
+          <li>YouTube data for track information</li>
+        </ul>
         
-        <h6>5. Data Security</h6>
-        <p>We implement appropriate security measures to protect your personal information. Passwords are encrypted, and Spotify tokens are stored securely.</p>
+        <h4>5. Data Retention</h4>
+        <p>We retain your data for as long as your account is active or as needed to provide you services. You may request deletion of your account at any time.</p>
         
-        <h6>6. Your Rights</h6>
-        <p>You have the right to access, correct, or delete your personal information. You can also revoke our access to your Spotify account at any time.</p>
+        <h4>6. Your Rights</h4>
+        <p>You have the right to:</p>
+        <ul>
+          <li>Access your personal data</li>
+          <li>Correct inaccurate data</li>
+          <li>Request deletion of your data</li>
+          <li>Object to our processing of your data</li>
+        </ul>
+        
+        <h4>7. Changes to This Policy</h4>
+        <p>We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page.</p>
+        
+        <h4>8. Contact Us</h4>
+        <p>If you have questions about this Privacy Policy, please contact us at privacy@spotifyplaylistgenerator.com.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -159,7 +346,6 @@
     </div>
   </div>
 </div>
-
 {% endblock %}
 
 {% block scripts %}
@@ -168,30 +354,49 @@
   var stripe = Stripe('{{ stripe_publishable_key }}');
   var checkoutButton = document.getElementById('checkout-button');
 
-  checkoutButton.addEventListener('click', function() {
-    // Create a checkout session when the button is clicked
-    fetch('/create-checkout-session', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-    .then(function(response) {
-      return response.json();
-    })
-    .then(function(session) {
-      return stripe.redirectToCheckout({ sessionId: session.id });
-    })
-    .then(function(result) {
-      // If redirectToCheckout fails due to a browser or network
-      // error, display the localized error message to your customer
-      if (result.error) {
-        alert(result.error.message);
-      }
-    })
-    .catch(function(error) {
-      console.error('Error:', error);
+  if (checkoutButton) {
+    checkoutButton.addEventListener('click', function() {
+      // Show loading state
+      checkoutButton.disabled = true;
+      checkoutButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Processing...';
+      
+      // Create a checkout session when the button is clicked
+      fetch('{{ url_for("create_checkout_session") }}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token() }}'
+        },
+      })
+      .then(function(response) {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(function(session) {
+        return stripe.redirectToCheckout({ sessionId: session.id });
+      })
+      .then(function(result) {
+        // If redirectToCheckout fails due to a browser or network
+        // error, display the localized error message to your customer
+        if (result.error) {
+          alert(result.error.message);
+          // Reset button state
+          checkoutButton.disabled = false;
+          checkoutButton.innerHTML = '<i class="bi bi-lock-fill me-2"></i> Subscribe Now';
+        }
+      })
+      .catch(function(error) {
+        console.error('Error:', error);
+        alert('There was an error processing your payment. Please try again later.');
+        // Reset button state
+        checkoutButton.disabled = false;
+        checkoutButton.innerHTML = '<i class="bi bi-lock-fill me-2"></i> Subscribe Now';
+      });
     });
-  });
+  }
 </script>
 {% endblock %}
+
+<!-- explainer: Enhanced the subscription page with a modern UI, clear pricing display, detailed feature list, security badges, and responsive design. Added subscription status section for authenticated users with cancel option, improved Stripe integration with loading states, and comprehensive terms/privacy modals. -->
