@@ -2,239 +2,138 @@
 
 {% block title %}Subscription - Spotify Playlist Generator{% endblock %}
 
-{% block extra_head %}
-<!-- Stripe JS -->
-<script src="https://js.stripe.com/v3/"></script>
-<style>
-  .subscription-container {
-    padding: 3rem 0;
-  }
-  
-  .subscription-card {
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    overflow: hidden;
-  }
-  
-  .subscription-header {
-    background: linear-gradient(135deg, #1DB954 0%, #169E45 100%);
-    color: white;
-    padding: 2rem;
-  }
-  
-  .subscription-content {
-    padding: 2rem;
-  }
-  
-  .price-tag {
-    font-size: 3.5rem;
-    font-weight: 700;
-    color: #1DB954;
-  }
-  
-  .price-period {
-    font-size: 1.2rem;
-    color: #777;
-  }
-  
-  .features-list ul {
-    list-style-type: none;
-    padding-left: 0;
-  }
-  
-  .features-list li {
-    padding: 0.75rem 0;
-    border-bottom: 1px solid #eee;
-  }
-  
-  .features-list i {
-    color: #1DB954;
-    margin-right: 0.5rem;
-  }
-  
-  .payment-section {
-    background-color: #f8f9fa;
-    border-radius: 10px;
-    padding: 1.5rem;
-  }
-  
-  .security-badges {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-top: 1.5rem;
-  }
-  
-  .security-badge {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.85rem;
-    color: #6c757d;
-  }
-  
-  .current-status {
-    margin-bottom: 2rem;
-    padding: 1.5rem;
-    border-radius: 10px;
-  }
-  
-  .status-active {
-    background-color: rgba(29, 185, 84, 0.1);
-    border: 1px solid rgba(29, 185, 84, 0.3);
-  }
-  
-  .status-inactive {
-    background-color: rgba(255, 193, 7, 0.1);
-    border: 1px solid rgba(255, 193, 7, 0.3);
-  }
-  
-  .status-canceled {
-    background-color: rgba(220, 53, 69, 0.1);
-    border: 1px solid rgba(220, 53, 69, 0.3);
-  }
-  
-  .legal-links {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    margin-top: 2rem;
-    font-size: 0.9rem;
-  }
-  
-  #checkout-button {
-    transition: all 0.3s ease;
-  }
-  
-  #checkout-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(29, 185, 84, 0.3);
-  }
-</style>
-{% endblock %}
-
 {% block content %}
 <div class="subscription-container">
   <div class="row justify-content-center">
-    <div class="col-lg-7">
-      <!-- Alerts and Messages -->
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          {% for category, message in messages %}
-            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-              {{ message }}
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-          {% endfor %}
-        {% endif %}
-      {% endwith %}
+    <div class="col-md-8">
+      <h1 class="text-center mb-4">Subscription</h1>
       
-      <!-- Current Subscription Status (if logged in) -->
-      {% if current_user.is_authenticated %}
-        {% if current_user.subscription_status %}
-          <div class="current-status status-{{ current_user.subscription_status.lower() }} mb-4">
-            <div class="row align-items-center">
-              <div class="col-md-9">
-                {% if current_user.has_active_subscription %}
-                  <h4><i class="bi bi-check-circle-fill text-success me-2"></i> Active Subscription</h4>
-                  <p class="mb-0">Your subscription is active until {{ current_user.subscription_end_date.strftime('%B %d, %Y') }}.</p>
-                {% elif current_user.subscription_status == 'canceled' %}
-                  <h4><i class="bi bi-x-circle-fill text-danger me-2"></i> Subscription Canceled</h4>
-                  <p class="mb-0">Your subscription has been canceled. You'll have access until {{ current_user.subscription_end_date.strftime('%B %d, %Y') }}.</p>
-                {% else %}
-                  <h4><i class="bi bi-exclamation-circle-fill text-warning me-2"></i> No Active Subscription</h4>
-                  <p class="mb-0">You don't have an active subscription. Subscribe now to access all features.</p>
-                {% endif %}
-              </div>
-              <div class="col-md-3 text-end">
-                {% if current_user.has_active_subscription %}
-                  <a href="{{ url_for('cancel_subscription') }}" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to cancel your subscription?')">
-                    Cancel Subscription
-                  </a>
-                {% endif %}
-              </div>
-            </div>
-          </div>
-        {% endif %}
-      {% endif %}
-      
-      <div class="subscription-card">
-        <div class="subscription-header text-center">
-          <h2 class="mb-2">Premium Subscription</h2>
-          <p class="lead mb-0">Unlimited Playlist Creation</p>
-        </div>
-        
-        <div class="subscription-content">
-          <div class="pricing-details text-center mb-4">
-            <div class="price-tag">${{ price }}</div>
-            <div class="price-period">per {{ period }}</div>
-          </div>
-          
-          <div class="features-list mb-4">
-            <h5>What You Get:</h5>
-            <ul>
-              <li><i class="bi bi-check-circle-fill"></i> Unlimited playlist creation</li>
-              <li><i class="bi bi-check-circle-fill"></i> Access to all music genres</li>
-              <li><i class="bi bi-check-circle-fill"></i> Look back up to 90 days of trending music</li>
-              <li><i class="bi bi-check-circle-fill"></i> Create both public and private playlists</li>
-              <li><i class="bi bi-check-circle-fill"></i> Export playlist data to CSV</li>
-              <li><i class="bi bi-check-circle-fill"></i> Priority customer support</li>
-              <li><i class="bi bi-check-circle-fill"></i> Cancel anytime</li>
-            </ul>
-          </div>
-          
-          <div class="payment-section">
-            <h5 class="mb-3">Secure Payment</h5>
-            <p class="text-muted mb-3">Your payment information is secure with Stripe. You'll be redirected to our secure payment processor.</p>
-            
-            {% if current_user.is_authenticated %}
-              {% if not current_user.has_active_subscription %}
-                <div class="d-grid">
-                  <button id="checkout-button" class="btn btn-success btn-lg">
-                    <i class="bi bi-lock-fill me-2"></i> Subscribe Now
-                  </button>
+      <div class="subscription-box">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="subscription-details">
+              <div class="subscription-header">
+                <h2>Premium Plan</h2>
+                <div class="price">
+                  <span class="currency">$</span>
+                  <span class="amount">3</span>
+                  <span class="period">/month</span>
                 </div>
+              </div>
+              
+              <div class="features">
+                <div class="feature-item">
+                  <i class="bi bi-check-circle-fill text-success"></i>
+                  <span>Create unlimited playlists</span>
+                </div>
+                <div class="feature-item">
+                  <i class="bi bi-check-circle-fill text-success"></i>
+                  <span>Advanced genre filtering</span>
+                </div>
+                <div class="feature-item">
+                  <i class="bi bi-check-circle-fill text-success"></i>
+                  <span>CSV export of all tracks</span>
+                </div>
+                <div class="feature-item">
+                  <i class="bi bi-check-circle-fill text-success"></i>
+                  <span>Priority customer support</span>
+                </div>
+                <div class="feature-item">
+                  <i class="bi bi-check-circle-fill text-success"></i>
+                  <span>Cancel anytime</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-lg-6">
+            <div class="subscription-action">
+              {% if current_user.is_authenticated %}
+                {% if current_user.has_active_subscription %}
+                  <div class="active-subscription">
+                    <div class="alert alert-success mb-4">
+                      <i class="bi bi-patch-check-fill me-2"></i>
+                      <strong>Active Subscription</strong>
+                      <p class="mb-0 mt-2">Your subscription is active. You have full access to all premium features.</p>
+                    </div>
+                    
+                    {% if current_user.subscription_ends_at %}
+                      <p class="text-muted mb-4">
+                        Your subscription will {% if current_user.subscription_will_renew %}renew{% else %}expire{% endif %} on {{ current_user.subscription_ends_at.strftime('%B %d, %Y') }}.
+                      </p>
+                    {% endif %}
+                    
+                    <form action="{{ url_for('subscription.cancel') }}" method="POST" id="cancel-form">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                        <i class="bi bi-x-circle me-2"></i> Cancel Subscription
+                      </button>
+                    </form>
+                  </div>
+                {% else %}
+                  <div class="card shadow-sm">
+                    <div class="card-body p-4">
+                      <h3 class="card-title h4 mb-3">Subscribe Now</h3>
+                      <p class="card-text mb-4">Unlock all premium features for just $3 per month. Cancel anytime.</p>
+                      
+                      <button id="checkout-button" class="btn btn-primary btn-lg w-100">
+                        <i class="bi bi-lock-fill me-2"></i> Subscribe Now
+                      </button>
+                      
+                      <div class="text-center mt-3">
+                        <small class="text-muted">Secure payment powered by Stripe</small>
+                      </div>
+                      
+                      <div class="payment-methods mt-3">
+                        <img src="https://cdn.jsdelivr.net/gh/creativetimofficial/public-assets@master/soft-ui-design-system-pro/assets/img/logos/visa.png" class="payment-icon" alt="Visa">
+                        <img src="https://cdn.jsdelivr.net/gh/creativetimofficial/public-assets@master/soft-ui-design-system-pro/assets/img/logos/mastercard.png" class="payment-icon" alt="Mastercard">
+                        <img src="https://cdn.jsdelivr.net/gh/creativetimofficial/public-assets@master/soft-ui-design-system-pro/assets/img/logos/amex.png" class="payment-icon" alt="American Express">
+                      </div>
+                    </div>
+                  </div>
+                {% endif %}
+                
+                {% if current_user.has_active_subscription %}
+                  <div class="mt-4 text-center">
+                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-primary">
+                      <i class="bi bi-speedometer2 me-2"></i> Go to Dashboard
+                    </a>
+                  </div>
+                {% endif %}
               {% else %}
-                <div class="text-center">
-                  <a href="{{ url_for('dashboard') }}" class="btn btn-outline-success">
-                    <i class="bi bi-speedometer2 me-2"></i> Go to Dashboard
-                  </a>
+                <div class="alert alert-warning">
+                  <p class="mb-0"><i class="bi bi-info-circle-fill me-2"></i> Please <a href="{{ url_for('auth.login') }}">login</a> or <a href="{{ url_for('auth.register') }}">register</a> to subscribe.</p>
                 </div>
               {% endif %}
-            {% else %}
-              <div class="alert alert-warning">
-                <p class="mb-0"><i class="bi bi-info-circle-fill me-2"></i> Please <a href="{{ url_for('auth.login') }}">login</a> or <a href="{{ url_for('auth.register') }}">register</a> to subscribe.</p>
-              </div>
-            {% endif %}
-            
-            <div class="security-badges">
-              <div class="security-badge">
-                <i class="bi bi-shield-lock-fill"></i>
-                <span>Secure Payment</span>
-              </div>
-              <div class="security-badge">
-                <i class="bi bi-credit-card-fill"></i>
-                <span>SSL Encrypted</span>
-              </div>
-              <div class="security-badge">
-                <i class="bi bi-calendar-check-fill"></i>
-                <span>Cancel Anytime</span>
+              
+              <div class="security-badges">
+                <div class="security-badge">
+                  <i class="bi bi-shield-lock-fill"></i>
+                  <span>Secure Payment</span>
+                </div>
+                <div class="security-badge">
+                  <i class="bi bi-credit-card-fill"></i>
+                  <span>SSL Encrypted</span>
+                </div>
+                <div class="security-badge">
+                  <i class="bi bi-calendar-check-fill"></i>
+                  <span>Cancel Anytime</span>
+                </div>
               </div>
             </div>
-          </div>
-          
-          <div class="legal-links">
-            <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms of Service</a>
-            <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy Policy</a>
+            
+            <div class="legal-links">
+              <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms of Service</a>
+              <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy Policy</a>
+            </div>
           </div>
         </div>
-      </div>
-      
-      <div class="mt-4 text-center">
-        <a href="{{ url_for('dashboard') if current_user.is_authenticated else url_for('index') }}" class="btn btn-outline-secondary">
-          <i class="bi bi-arrow-left me-2"></i> Back
-        </a>
+        
+        <div class="mt-4 text-center">
+          <a href="{{ url_for('dashboard') if current_user.is_authenticated else url_for('index') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i> Back
+          </a>
+        </div>
       </div>
     </div>
   </div>
@@ -361,7 +260,7 @@
       checkoutButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Processing...';
       
       // Create a checkout session when the button is clicked
-      fetch('{{ url_for("create_checkout_session") }}', {
+      fetch('{{ url_for("subscription.create_checkout_session") }}', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -398,5 +297,3 @@
   }
 </script>
 {% endblock %}
-
-<!-- explainer: Enhanced the subscription page with a modern UI, clear pricing display, detailed feature list, security badges, and responsive design. Added subscription status section for authenticated users with cancel option, improved Stripe integration with loading states, and comprehensive terms/privacy modals. -->
