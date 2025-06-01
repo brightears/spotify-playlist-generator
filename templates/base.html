@@ -36,22 +36,29 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('index') }}">Home</a>
+          </li>
+          
           {% if current_user.is_authenticated %}
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('create_playlist') }}">Create Playlist</a>
+              <a class="nav-link" href="{{ url_for('auth.profile') }}">Profile</a>
             </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="bi bi-person-circle"></i> {{ current_user.email }}
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('subscription.subscription') }}">
+                {% if current_user.has_active_subscription %}
+                  <i class="bi bi-star-fill text-warning"></i>
+                {% else %}
+                  <i class="bi bi-star"></i>
+                {% endif %}
+                Subscription
               </a>
-              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}">Profile</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Logout</a></li>
-              </ul>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
             </li>
           {% else %}
             <li class="nav-item">
@@ -66,18 +73,32 @@
     </div>
   </nav>
 
+  <!-- Flash Messages -->
+  <div class="container mt-3">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
   <!-- Main Content -->
-  <main>
+  <main class="container my-4">
     {% block content %}{% endblock %}
   </main>
 
   <!-- Footer -->
-  <footer class="bg-dark text-white mt-5 py-4">
+  <footer class="bg-light py-4 mt-5">
     <div class="container">
       <div class="row">
         <div class="col-md-6">
           <h5>Spotify Playlist Generator</h5>
-          <p class="text-muted">Create custom playlists using music from YouTube videos.</p>
+          <p>Create Spotify playlists from YouTube videos and other music sources.</p>
         </div>
         <div class="col-md-3">
           <h5>Links</h5>
@@ -85,7 +106,7 @@
             <li><a href="{{ url_for('index') }}">Home</a></li>
             {% if current_user.is_authenticated %}
               <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
-              <li><a href="{{ url_for('create_playlist') }}">Create Playlist</a></li>
+              <li><a href="{{ url_for('create') }}">Create Playlist</a></li>
             {% else %}
               <li><a href="{{ url_for('auth.login') }}">Login</a></li>
               <li><a href="{{ url_for('auth.register') }}">Register</a></li>
