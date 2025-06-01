@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}Create Playlist - Spotify Playlist Generator{% endblock %}
+
+{% block content %}
+<div class="playlist-form-container">
+  <div class="row">
+    <div class="col-lg-3">
+      <!-- Sidebar -->
+      <div class="dashboard-sidebar">
+        <div class="user-profile text-center mb-4">
+          <div class="avatar">
+            <i class="bi bi-person-circle"></i>
+          </div>
+          <h5>{{ current_user.email }}</h5>
+          {% if current_user.has_active_subscription %}
+            <span class="badge bg-success">Active Subscription</span>
+          {% else %}
+            <span class="badge bg-warning">No Subscription</span>
+          {% endif %}
+        </div>
+        
+        <div class="sidebar-menu">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('dashboard') }}">
+                <i class="bi bi-speedometer2"></i> Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="{{ url_for('create_playlist') }}">
+                <i class="bi bi-music-note-list"></i> Create Playlist
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('auth.profile') }}">
+                <i class="bi bi-gear"></i> Account Settings
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('auth.logout') }}">
+                <i class="bi bi-box-arrow-right"></i> Logout
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-9">
+      <!-- Main Content -->
+      <div class="playlist-form-card">
+        <!-- Alerts and Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        
+        <!-- Subscription Warning -->
+        {% if not current_user.has_active_subscription %}
+          <div class="alert alert-warning" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <strong>Subscription Required:</strong> You need an active subscription to create playlists.
+            <a href="{{ url_for('subscribe') }}" class="alert-link">Subscribe now</a> for just $3/month.
+          </div>
+        {% endif %}
+        
+        <!-- Spotify Connection Warning -->
+        {% if not spotify_connected %}
+          <div class="alert alert-warning" role="alert">
+            <i class="bi bi-spotify me-2"></i>
+            <strong>Spotify Connection Required:</strong> Please 
+            <a href="{{ url_for('connect_spotify') }}" class="alert-link">connect your Spotify account</a> 
+            to create playlists.
+          </div>
+        {% endif %}
+        
+        <div class="form-header">
+          <h2>Create a New Playlist</h2>
+          <p class="text-muted">Generate a playlist based on YouTube videos and your preferences.</p>
+        </div>
+        
+        <form method="POST" action="{{ url_for('create_playlist') }}">
+          {{ form.hidden_tag() }}
+          
+          <div class="mb-4">
+            <div class="row">
+              <div class="col-md-8">
+                <div class="mb-3">
+                  <label for="name" class="form-label">Playlist Name</label>
+                  {{ form.name(class="form-control", placeholder="My Awesome Playlist") }}
+                  {% if form.name.errors %}
+                    <div class="invalid-feedback d-block">
+                      {% for error in form.name.errors %}
+                        {{ error }}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+              
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label for="genre" class="form-label">Genre</label>
+                  {{ form.genre(class="form-select") }}
+                  {% if form.genre.errors %}
+                    <div class="invalid-feedback d-block">
+                      {% for error in form.genre.errors %}
+                        {{ error }}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              {{ form.description(class="form-control", placeholder="A brief description of your playlist", rows=2) }}
+              {% if form.description.errors %}
+                <div class="invalid-feedback d-block">
+                  {% for error in form.description.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="days" class="form-label">Days to Look Back</label>
+                  {{ form.days(class="form-control", type="number", min=1, max=90) }}
+                  <div class="form-text">How many days of trending YouTube music to include (1-90).</div>
+                  {% if form.days.errors %}
+                    <div class="invalid-feedback d-block">
+                      {% for error in form.days.errors %}
+                        {{ error }}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+              
+              <div class="col-md-6">
+                <div class="mb-3 mt-md-4 pt-md-2">
+                  <div class="form-check form-switch">
+                    {{ form.public(class="form-check-input") }}
+                    <label class="form-check-label" for="public">Make playlist public</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="info-cards mb-4">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="card border-danger">
+                  <div class="card-body">
+                    <h5 class="card-title">
+                      <i class="bi bi-youtube text-danger me-2"></i>
+                      Source: YouTube
+                    </h5>
+                    <p class="card-text">Tracks will be sourced from trending YouTube music videos.</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-6">
+                <div class="card border-success">
+                  <div class="card-body">
+                    <h5 class="card-title">
+                      <i class="bi bi-spotify text-success me-2"></i>
+                      Destination: Spotify
+                    </h5>
+                    <p class="card-text">Playlist will be created directly in your Spotify account.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="tips-section mb-4">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">
+                  <i class="bi bi-lightbulb-fill text-warning me-2"></i>
+                  Tips for Better Results
+                </h5>
+              </div>
+              <div class="card-body">
+                <ul class="mb-0">
+                  <li>Choose a specific genre for more focused results</li>
+                  <li>Use 14-30 days for a good balance of trending and recent tracks</li>
+                  <li>A public playlist can be shared with friends</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary btn-lg" 
+                    {% if not current_user.has_active_subscription or not spotify_connected %}disabled{% endif %}>
+              <i class="bi bi-music-note-list me-2"></i>
+              Generate Playlist
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
