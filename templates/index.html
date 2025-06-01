@@ -1,276 +1,142 @@
 {% extends "base.html" %}
 
-{% block title %}Spotify Playlist Generator - Home{% endblock %}
-
-{% block extra_head %}
-<style>
-  .hero-section {
-    padding: 4rem 0;
-    background: linear-gradient(135deg, #121212 0%, #181818 100%);
-    color: white;
-    border-radius: 10px;
-    margin-bottom: 3rem;
-  }
-  
-  .hero-content {
-    max-width: 600px;
-    margin: 0 auto;
-  }
-  
-  .feature-card {
-    height: 100%;
-    transition: transform 0.3s ease;
-    border: none;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-  }
-  
-  .feature-card:hover {
-    transform: translateY(-5px);
-  }
-  
-  .feature-icon {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    color: #1DB954; /* Spotify green */
-  }
-  
-  .pricing-card {
-    border: none;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    border-radius: 10px;
-    overflow: hidden;
-    transition: transform 0.3s ease;
-  }
-  
-  .pricing-card:hover {
-    transform: translateY(-5px);
-  }
-  
-  .pricing-header {
-    background-color: #1DB954;
-    color: white;
-    padding: 1.5rem;
-  }
-  
-  .price {
-    font-size: 2.5rem;
-    font-weight: 700;
-  }
-  
-  .testimonial-card {
-    border: none;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    border-radius: 10px;
-  }
-  
-  .testimonial-img {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 1rem;
-  }
-</style>
-{% endblock %}
+{% block title %}Home - Spotify Playlist Generator{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="hero-section">
-  <div class="container text-center">
-    <div class="hero-content">
-      <h1 class="display-4 fw-bold mb-4">Create Perfect Spotify Playlists Automatically</h1>
-      <p class="lead mb-4">Turn trending YouTube music into personalized Spotify playlists with just a few clicks.</p>
-      {% if not current_user.is_authenticated %}
-        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-          <a href="{{ url_for('auth.register') }}" class="btn btn-success btn-lg px-4 me-md-2">Sign Up Free</a>
-          <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg px-4">Login</a>
-        </div>
-      {% else %}
-        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-          <a href="{{ url_for('dashboard') }}" class="btn btn-success btn-lg px-4 me-md-2">Go to Dashboard</a>
-          <a href="{{ url_for('create_playlist') }}" class="btn btn-outline-light btn-lg px-4">Create Playlist</a>
-        </div>
-      {% endif %}
-    </div>
-  </div>
-</section>
-
-<!-- Features Section -->
-<section class="features-section py-5">
-  <div class="container">
-    <div class="text-center mb-5">
-      <h2 class="fw-bold">How It Works</h2>
-      <p class="lead text-muted">Discover the perfect music with our AI-powered playlist generator</p>
-    </div>
-    
-    <div class="row g-4">
-      <div class="col-md-4">
-        <div class="card feature-card h-100">
-          <div class="card-body text-center">
-            <i class="bi bi-youtube feature-icon"></i>
-            <h3 class="h4 card-title">Source from YouTube</h3>
-            <p class="card-text">We analyze trending music videos from YouTube in your favorite genres.</p>
-          </div>
-        </div>
-      </div>
-      
-      <div class="col-md-4">
-        <div class="card feature-card h-100">
-          <div class="card-body text-center">
-            <i class="bi bi-magic feature-icon"></i>
-            <h3 class="h4 card-title">Smart Matching</h3>
-            <p class="card-text">Our algorithm finds the exact matches in Spotify's extensive library.</p>
-          </div>
-        </div>
-      </div>
-      
-      <div class="col-md-4">
-        <div class="card feature-card h-100">
-          <div class="card-body text-center">
-            <i class="bi bi-spotify feature-icon"></i>
-            <h3 class="h4 card-title">Instant Playlists</h3>
-            <p class="card-text">Your customized playlist appears directly in your Spotify account, ready to enjoy.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Pricing Section -->
-<section class="pricing-section py-5 bg-light">
-  <div class="container">
-    <div class="text-center mb-5">
-      <h2 class="fw-bold">Simple Pricing</h2>
-      <p class="lead text-muted">Start creating unlimited playlists today</p>
-    </div>
-    
-    <div class="row justify-content-center">
-      <div class="col-md-5">
-        <div class="pricing-card">
-          <div class="pricing-header text-center">
-            <h3 class="h4 mb-0">Premium Plan</h3>
-          </div>
-          <div class="card-body text-center">
-            <div class="price mb-3">$3<small>/month</small></div>
-            <ul class="list-unstyled mb-4">
-              <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Unlimited playlists</li>
-              <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Up to 90 days of music history</li>
-              <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>All genres supported</li>
-              <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>CSV export for all playlists</li>
-              <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Priority support</li>
-            </ul>
-            <div class="d-grid">
-              {% if not current_user.is_authenticated %}
-                <a href="{{ url_for('auth.register') }}" class="btn btn-success btn-lg">Sign Up Now</a>
-              {% elif not current_user.has_active_subscription %}
-                <a href="{{ url_for('subscribe') }}" class="btn btn-success btn-lg">Subscribe Now</a>
-              {% else %}
-                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-success btn-lg">View Dashboard</a>
-              {% endif %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h4 mb-0">Create a New Playlist</h2>
             </div>
-          </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('main.index') }}">
+                    {{ form.csrf_token }}
+                    
+                    {% if errors %}
+                        <div class="alert alert-danger">
+                            <h5>Errors:</h5>
+                            <ul class="mb-0">
+                                {% for error in errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.url.id }}" class="form-label">{{ form.url.label.text }}</label>
+                        {{ form.url(class="form-control", placeholder="https://www.youtube.com/playlist?list=PLMC9KNkIncKtPzgY-5rmhvj7fax8fdxoj") }}
+                        <div class="form-text text-muted">Supported sources: YouTube playlists, Last.fm charts, Spotify playlists</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.playlist_name.id }}" class="form-label">{{ form.playlist_name.label.text }}</label>
+                        {{ form.playlist_name(class="form-control", placeholder="My Awesome Playlist") }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.playlist_description.id }}" class="form-label">{{ form.playlist_description.label.text }}</label>
+                        {{ form.playlist_description(class="form-control", placeholder="Generated from YouTube videos", rows=2) }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form.public(class="form-check-input") }}
+                            <label class="form-check-label" for="{{ form.public.id }}">{{ form.public.label.text }}</label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.skip_remaster.id }}" class="form-label">Filtering Options</label>
+                        <div class="form-check ms-3">
+                            {{ form.skip_remaster(class="form-check-input") }}
+                            <label class="form-check-label" for="{{ form.skip_remaster.id }}">{{ form.skip_remaster.label.text }}</label>
+                        </div>
+                        <div class="form-check ms-3">
+                            {{ form.skip_live.id }}
+                            {{ form.skip_live(class="form-check-input") }}
+                            <label class="form-check-label" for="{{ form.skip_live.id }}">{{ form.skip_live.label.text }}</label>
+                        </div>
+                        <div class="form-check ms-3">
+                            {{ form.skip_demo.id }}
+                            {{ form.skip_demo(class="form-check-input") }}
+                            <label class="form-check-label" for="{{ form.skip_demo.id }}">{{ form.skip_demo.label.text }}</label>
+                        </div>
+                        <div class="form-check ms-3">
+                            {{ form.skip_instrumental.id }}
+                            {{ form.skip_instrumental(class="form-check-input") }}
+                            <label class="form-check-label" for="{{ form.skip_instrumental.id }}">{{ form.skip_instrumental.label.text }}</label>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        {% if current_user.is_authenticated %}
+                            {% if current_user.has_active_subscription or current_user.is_admin %}
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-magic me-2"></i> Create Playlist
+                                </button>
+                            {% else %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle me-2"></i> You need an active subscription to create playlists.
+                                </div>
+                                <a href="{{ url_for('subscription.subscription') }}" class="btn btn-success btn-lg">
+                                    <i class="fas fa-crown me-2"></i> Get Premium
+                                </a>
+                            {% endif %}
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i> Please sign in to create a playlist.
+                            </div>
+                            <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i> Sign In
+                            </a>
+                            <a href="{{ url_for('auth.register') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-user-plus me-2"></i> Create Account
+                            </a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
         </div>
-      </div>
+        
+        <div class="card mt-4 shadow-sm">
+            <div class="card-header bg-light">
+                <h3 class="h5 mb-0">How It Works</h3>
+            </div>
+            <div class="card-body">
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>Connect YouTube & Spotify</h4>
+                            <p>Link your accounts to enable playlist creation.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>Enter a Playlist URL</h4>
+                            <p>Paste a link to a YouTube playlist or music collection.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>Customize Options</h4>
+                            <p>Set filtering preferences and naming options.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h4>Create Your Playlist</h4>
+                            <p>We'll match the tracks and create a new Spotify playlist.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</section>
-
-<!-- Testimonials Section -->
-<section class="testimonials-section py-5">
-  <div class="container">
-    <div class="text-center mb-5">
-      <h2 class="fw-bold">What Our Users Say</h2>
-      <p class="lead text-muted">Join thousands of satisfied music lovers</p>
-    </div>
-    
-    <div class="row g-4">
-      <div class="col-md-4">
-        <div class="testimonial-card">
-          <div class="card-body">
-            <div class="d-flex align-items-center mb-3">
-              <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="User" class="testimonial-img">
-              <div>
-                <h5 class="mb-0">Sarah Johnson</h5>
-                <small class="text-muted">Music Enthusiast</small>
-              </div>
-            </div>
-            <p class="card-text">"I've discovered so many amazing artists I would have never found otherwise. This tool is a game-changer for my music listening experience!"</p>
-            <div class="text-warning">
-              <i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-fill"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="col-md-4">
-        <div class="testimonial-card">
-          <div class="card-body">
-            <div class="d-flex align-items-center mb-3">
-              <img src="https://randomuser.me/api/portraits/men/44.jpg" alt="User" class="testimonial-img">
-              <div>
-                <h5 class="mb-0">James Wilson</h5>
-                <small class="text-muted">DJ & Producer</small>
-              </div>
-            </div>
-            <p class="card-text">"As a DJ, I need to stay on top of trending music. This tool saves me hours of research every week and keeps my sets fresh and current."</p>
-            <div class="text-warning">
-              <i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-fill"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="col-md-4">
-        <div class="testimonial-card">
-          <div class="card-body">
-            <div class="d-flex align-items-center mb-3">
-              <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="User" class="testimonial-img">
-              <div>
-                <h5 class="mb-0">Emma Rodriguez</h5>
-                <small class="text-muted">Casual Listener</small>
-              </div>
-            </div>
-            <p class="card-text">"I'm not very tech-savvy, but this app makes creating playlists so easy! Now I have the perfect soundtrack for every occasion."</p>
-            <div class="text-warning">
-              <i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-half"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Call to Action -->
-<section class="cta-section py-5 bg-dark text-white text-center">
-  <div class="container">
-    <h2 class="fw-bold mb-3">Ready to transform your music discovery?</h2>
-    <p class="lead mb-4">Join thousands of music lovers who are already enjoying perfectly curated playlists.</p>
-    {% if not current_user.is_authenticated %}
-      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-        <a href="{{ url_for('auth.register') }}" class="btn btn-success btn-lg px-4 me-sm-3">Sign Up Now</a>
-        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg px-4">Login</a>
-      </div>
-    {% else %}
-      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-        <a href="{{ url_for('create_playlist') }}" class="btn btn-success btn-lg px-4">Create Your First Playlist</a>
-      </div>
-    {% endif %}
-  </div>
-</section>
+</div>
 {% endblock %}
-
-<!-- explainer: Completely redesigned the index page to serve as a landing page for both authenticated and non-authenticated users. Added hero section, features, pricing, testimonials, and call-to-action sections. Includes conditional elements that change based on user authentication status and subscription status. -->
