@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}Subscription - Spotify Playlist Generator{% endblock %}
+
+{% block extra_head %}
+<!-- Stripe JS -->
+<script src="https://js.stripe.com/v3/"></script>
+{% endblock %}
+
+{% block content %}
+<div class="subscription-container">
+  <div class="row justify-content-center">
+    <div class="col-lg-6">
+      <!-- Alerts and Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      
+      <div class="subscription-card">
+        <div class="subscription-header text-center">
+          <h2>Subscription</h2>
+          <p class="lead">Get access to all features with our monthly plan</p>
+        </div>
+        
+        <div class="subscription-content">
+          <div class="pricing-details text-center mb-4">
+            <div class="price-tag">{{ price }}</div>
+            <div class="price-period">per {{ period }}</div>
+          </div>
+          
+          <div class="features-list mb-4">
+            <h5>What You Get:</h5>
+            <ul class="list-group">
+              <li class="list-group-item">
+                <i class="bi bi-check-circle-fill text-success me-2"></i> Create unlimited playlists
+              </li>
+              <li class="list-group-item">
+                <i class="bi bi-check-circle-fill text-success me-2"></i> Spotify integration
+              </li>
+              <li class="list-group-item">
+                <i class="bi bi-check-circle-fill text-success me-2"></i> Export playlists to CSV
+              </li>
+              <li class="list-group-item">
+                <i class="bi bi-check-circle-fill text-success me-2"></i> Access to all genres
+              </li>
+              <li class="list-group-item">
+                <i class="bi bi-check-circle-fill text-success me-2"></i> Cancel anytime
+              </li>
+            </ul>
+          </div>
+          
+          <div class="payment-section text-center">
+            <button id="checkout-button" class="btn btn-primary btn-lg">
+              Subscribe Now
+            </button>
+            <div class="payment-info mt-3">
+              <small class="text-muted">
+                <i class="bi bi-lock-fill"></i> Secure payment powered by Stripe
+              </small>
+              <div class="payment-icons mt-2">
+                <i class="bi bi-credit-card me-2"></i>
+                <i class="bi bi-credit-card-2-front me-2"></i>
+                <i class="bi bi-credit-card-2-back"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="subscription-footer text-center mt-4">
+          <p class="mb-0">
+            <small>
+              By subscribing, you agree to our <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms of Service</a>
+              and <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy Policy</a>
+            </small>
+          </p>
+        </div>
+      </div>
+      
+      <div class="back-link text-center mt-4">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Terms of Service Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="termsModalLabel">Terms of Service</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <h6>1. Acceptance of Terms</h6>
+        <p>By accessing and using the Spotify Playlist Generator service, you agree to be bound by these Terms of Service and all applicable laws and regulations.</p>
+        
+        <h6>2. Use of Service</h6>
+        <p>The Spotify Playlist Generator is a subscription-based service that creates playlists on Spotify using content from YouTube videos. Users must maintain an active subscription to access this service.</p>
+        
+        <h6>3. Account Responsibilities</h6>
+        <p>You are responsible for maintaining the confidentiality of your account information and for all activities that occur under your account.</p>
+        
+        <h6>4. Payment and Subscription</h6>
+        <p>We offer a monthly subscription at $3 USD per month. Payments are processed securely through Stripe. Subscriptions automatically renew unless cancelled.</p>
+        
+        <h6>5. Spotify Authorization</h6>
+        <p>To use our service, you must authorize our application to access your Spotify account. We only request the minimum permissions required to create playlists.</p>
+        
+        <h6>6. Limitation of Liability</h6>
+        <p>The service is provided "as is" without warranties of any kind. We are not responsible for any playlists created or any issues with your Spotify account.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Privacy Policy Modal -->
+<div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="privacyModalLabel">Privacy Policy</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <h6>1. Information We Collect</h6>
+        <p>We collect your email address, encrypted password, and with your permission, access tokens for Spotify. We also store information about playlists you create.</p>
+        
+        <h6>2. How We Use Your Information</h6>
+        <p>We use your information to provide our playlist generation service, manage your account, process payments, and communicate with you about your account.</p>
+        
+        <h6>3. Spotify Data</h6>
+        <p>We request access to create and modify playlists on your Spotify account. We do not access your listening history or other personal data on Spotify.</p>
+        
+        <h6>4. Payment Information</h6>
+        <p>All payment processing is handled by Stripe. We do not store your full credit card details on our servers.</p>
+        
+        <h6>5. Data Security</h6>
+        <p>We implement appropriate security measures to protect your personal information. Passwords are encrypted, and Spotify tokens are stored securely.</p>
+        
+        <h6>6. Your Rights</h6>
+        <p>You have the right to access, correct, or delete your personal information. You can also revoke our access to your Spotify account at any time.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Create an instance of the Stripe object with your publishable API key
+  var stripe = Stripe('{{ stripe_publishable_key }}');
+  var checkoutButton = document.getElementById('checkout-button');
+
+  checkoutButton.addEventListener('click', function() {
+    // Create a checkout session when the button is clicked
+    fetch('/create-checkout-session', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(session) {
+      return stripe.redirectToCheckout({ sessionId: session.id });
+    })
+    .then(function(result) {
+      // If redirectToCheckout fails due to a browser or network
+      // error, display the localized error message to your customer
+      if (result.error) {
+        alert(result.error.message);
+      }
+    })
+    .catch(function(error) {
+      console.error('Error:', error);
+    });
+  });
+</script>
+{% endblock %}
