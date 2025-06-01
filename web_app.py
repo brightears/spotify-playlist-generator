@@ -1,20 +1,28 @@
 """
-Flask web application for creating Spotify playlists from various sources.
+Spotify Playlist Generator web application.
 """
 import os
-import sys
-import logging
 import json
-import asyncio
+from flask import Flask, render_template, redirect, url_for, request, session, jsonify, flash, Response
+from flask_wtf import FlaskForm
+from flask_login import LoginManager, current_user, login_required, login_user, logout_user
+from wtforms import StringField, BooleanField, SelectField, IntegerField
+from wtforms.validators import DataRequired, Optional, NumberRange
+import secrets
+from werkzeug.utils import secure_filename
+from datetime import datetime, timedelta
 import uuid
 import threading
-from datetime import datetime
-from typing import List, Dict, Any, Optional, Tuple
-from functools import wraps
 
 # Load environment variables from .env file
 from dotenv import load_dotenv
 load_dotenv()  # This loads the variables from .env
+
+from playlist_generator import generate_playlist
+from models.user import User
+from utils.spotify_oauth import SpotifyOAuth
+from utils.payment_service import create_checkout_session, handle_webhook_event
+from auth import auth
 
 # Verify that critical environment variables are set
 youtube_api_key = os.environ.get('YOUTUBE_API_KEY')
@@ -26,265 +34,453 @@ if not youtube_api_key:
 if not spotify_client_id or not spotify_client_secret:
     print("WARNING: Spotify credentials not set. Spotify authentication may fail.")
 
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify, Response
-from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, SelectMultipleField, BooleanField, IntegerField
-from wtforms.validators import DataRequired, NumberRange, Optional as OptionalValidator
+# Optional validator
+class OptionalValidator:
+    def __call__(self, form, field):
+        pass
 
-from utils.sources.base import MusicSource, Track
-from utils.destinations.base import PlaylistDestination, PlaylistResult
-from utils.sources.youtube import YouTubeSource
-from utils.destinations.spotify import SpotifyDestination
-
-# Configure logging
-logging.basicConfig(level=logging.INFO, 
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
-
-# Initialize Flask app
-app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY', 'dev-key-for-local-only')
-app.config['WTF_CSRF_ENABLED'] = False  # Disable CSRF protection for simplicity
-
-# In-memory storage for tasks
-tasks = {}
-
+# Form class
 class PlaylistForm(FlaskForm):
-    """Form for playlist creation."""
     name = StringField('Playlist Name', validators=[DataRequired()])
-    description = StringField('Description', validators=[DataRequired()])
+    description = StringField('Description', validators=[OptionalValidator()])
     genre = SelectField('Genre', choices=[
-        ('all', 'All Genres'),
-        ('house', 'House'),
+        ('acoustic', 'Acoustic'),
+        ('afrobeat', 'Afrobeat'),
+        ('alt-rock', 'Alternative Rock'),
+        ('alternative', 'Alternative'),
+        ('ambient', 'Ambient'),
+        ('blues', 'Blues'),
+        ('chill', 'Chill'),
+        ('classical', 'Classical'),
+        ('club', 'Club'),
+        ('country', 'Country'),
+        ('dance', 'Dance'),
         ('deep-house', 'Deep House'),
-        ('nu-disco', 'Nu Disco')
+        ('disco', 'Disco'),
+        ('drum-and-bass', 'Drum and Bass'),
+        ('dubstep', 'Dubstep'),
+        ('edm', 'EDM'),
+        ('electro', 'Electro'),
+        ('electronic', 'Electronic'),
+        ('folk', 'Folk'),
+        ('funk', 'Funk'),
+        ('groove', 'Groove'),
+        ('grunge', 'Grunge'),
+        ('guitar', 'Guitar'),
+        ('happy', 'Happy'),
+        ('hard-rock', 'Hard Rock'),
+        ('heavy-metal', 'Heavy Metal'),
+        ('hip-hop', 'Hip Hop'),
+        ('house', 'House'),
+        ('indie', 'Indie'),
+        ('indie-pop', 'Indie Pop'),
+        ('jazz', 'Jazz'),
+        ('k-pop', 'K-Pop'),
+        ('latin', 'Latin'),
+        ('metal', 'Metal'),
+        ('new-release', 'New Release'),
+        ('opera', 'Opera'),
+        ('party', 'Party'),
+        ('piano', 'Piano'),
+        ('pop', 'Pop'),
+        ('r-n-b', 'R&B'),
+        ('reggae', 'Reggae'),
+        ('reggaeton', 'Reggaeton'),
+        ('rock', 'Rock'),
+        ('rock-n-roll', 'Rock n Roll'),
+        ('romance', 'Romance'),
+        ('sad', 'Sad'),
+        ('salsa', 'Salsa'),
+        ('samba', 'Samba'),
+        ('ska', 'Ska'),
+        ('sleep', 'Sleep'),
+        ('soul', 'Soul'),
+        ('study', 'Study'),
+        ('summer', 'Summer'),
+        ('synth-pop', 'Synth Pop'),
+        ('techno', 'Techno'),
+        ('trance', 'Trance'),
+        ('trip-hop', 'Trip Hop'),
+        ('world-music', 'World Music')
     ], validators=[DataRequired()])
-    days = IntegerField('Days to Look Back', default=14, validators=[
-        DataRequired(),
-        NumberRange(min=1, max=365)
-    ])
+    days = IntegerField('Days to Look Back', validators=[DataRequired(), NumberRange(min=1, max=90)], default=14)
     public = BooleanField('Public Playlist', default=True)
 
+# Create Flask app
+app = Flask(__name__)
+app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY', secrets.token_hex(16))
+app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'uploads')
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max upload size
 
-@app.route('/', methods=['GET', 'POST'])
+# Initialize login manager
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'auth.login'
+
+# Register blueprints
+app.register_blueprint(auth, url_prefix='/auth')
+
+# Tasks storage (memory-based for demonstration)
+tasks = {}
+
+# Setup Spotify OAuth
+spotify_oauth = SpotifyOAuth()
+
+@login_manager.user_loader
+def load_user(user_id):
+    """Load user by ID."""
+    return User.get_by_id(user_id)
+
+# Landing page route
+@app.route('/')
 def index():
-    """Render the index page."""
+    """Landing page for the application."""
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+    return render_template('landing.html')
+
+# Dashboard route (requires login)
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    """User dashboard after login."""
+    # Check if user has active subscription
+    if not current_user.has_active_subscription():
+        return redirect(url_for('subscription'))
+    
+    # Check if user has connected Spotify
+    spotify_connected = bool(current_user.spotify_tokens.get('access_token'))
+    
+    # Get user's created playlists
+    playlists = current_user.created_playlists
+    
+    return render_template('dashboard.html', 
+                          spotify_connected=spotify_connected,
+                          playlists=playlists)
+
+# Subscription page route
+@app.route('/subscription')
+@login_required
+def subscription():
+    """Subscription page for payment."""
+    # Check if user already has active subscription
+    if current_user.has_active_subscription():
+        return redirect(url_for('dashboard'))
+    
+    return render_template('subscription.html', 
+                          price='$3.00',
+                          period='month')
+
+# Create checkout session route
+@app.route('/create-checkout-session', methods=['POST'])
+@login_required
+def create_checkout():
+    """Create Stripe checkout session."""
+    success_url = url_for('subscription_success', _external=True)
+    cancel_url = url_for('subscription', _external=True)
+    
+    session_id = create_checkout_session(
+        current_user.email, 
+        success_url, 
+        cancel_url
+    )
+    
+    if not session_id:
+        flash('An error occurred while creating the checkout session.', 'danger')
+        return redirect(url_for('subscription'))
+    
+    return jsonify({'id': session_id})
+
+# Subscription success route
+@app.route('/subscription/success')
+@login_required
+def subscription_success():
+    """Handle successful subscription."""
+    session_id = request.args.get('session_id')
+    
+    if session_id:
+        # In a real application, verify the session with Stripe
+        # and update the user's subscription status
+        
+        # For demonstration, we'll just activate the subscription
+        current_user.activate_subscription()
+        
+        flash('Your subscription was successful! You now have full access.', 'success')
+    
+    return redirect(url_for('dashboard'))
+
+# Stripe webhook route
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    """Handle Stripe webhook events."""
+    payload = request.data
+    sig_header = request.headers.get('Stripe-Signature')
+    
+    event_data = handle_webhook_event(payload, sig_header)
+    
+    if not event_data or not event_data.get('success'):
+        return jsonify({'status': 'error'}), 400
+    
+    # Handle subscription events
+    if event_data.get('type') == 'subscription_created':
+        # Find user by email and update subscription
+        user = User.get_by_email(event_data.get('customer_email'))
+        if user:
+            user.activate_subscription()
+    
+    elif event_data.get('type') == 'subscription_cancelled':
+        # Find user by subscription ID and deactivate
+        # This is just a placeholder - implement based on your database structure
+        pass
+    
+    return jsonify({'status': 'success'})
+
+# Connect to Spotify route
+@app.route('/connect-spotify')
+@login_required
+def connect_spotify():
+    """Connect user's Spotify account."""
+    # Check if user has active subscription
+    if not current_user.has_active_subscription():
+        flash('Please subscribe to access this feature.', 'warning')
+        return redirect(url_for('subscription'))
+    
+    # Generate a state value for CSRF protection
+    state = secrets.token_hex(16)
+    session['spotify_auth_state'] = state
+    
+    # Get Spotify auth URL
+    auth_url = spotify_oauth.get_auth_url(state)
+    
+    return redirect(auth_url)
+
+# Spotify callback route
+@app.route('/callback')
+@login_required
+def spotify_callback():
+    """Handle Spotify OAuth callback."""
+    error = request.args.get('error')
+    code = request.args.get('code')
+    state = request.args.get('state')
+    
+    # Check state for CSRF protection
+    if state != session.get('spotify_auth_state'):
+        flash('State mismatch. Please try again.', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    if error:
+        flash(f'Spotify authentication error: {error}', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    # Exchange code for tokens
+    token_info = spotify_oauth.get_token(code)
+    
+    if not token_info:
+        flash('Failed to get Spotify tokens.', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    # Save tokens to user record
+    current_user.add_spotify_tokens(
+        token_info['access_token'],
+        token_info['refresh_token'],
+        token_info['expires_at']
+    )
+    
+    flash('Successfully connected to Spotify!', 'success')
+    return redirect(url_for('dashboard'))
+
+# Playlist creation form route
+@app.route('/create-playlist', methods=['GET', 'POST'])
+@login_required
+def create_playlist():
+    """Create playlist form."""
+    # Check if user has active subscription
+    if not current_user.has_active_subscription():
+        flash('Please subscribe to access this feature.', 'warning')
+        return redirect(url_for('subscription'))
+    
+    # Check if user has connected Spotify
+    if not current_user.spotify_tokens.get('access_token'):
+        flash('Please connect your Spotify account first.', 'warning')
+        return redirect(url_for('dashboard'))
+    
     form = PlaylistForm()
     
     if form.validate_on_submit():
-        # Create task ID
+        # Create unique task ID
         task_id = str(uuid.uuid4())
         
         # Initialize task
         tasks[task_id] = {
-            'id': task_id,
             'status': 'pending',
-            'progress': 0,
             'logs': [],
-            'created_at': datetime.now().isoformat(),
-            'updated_at': datetime.now().isoformat()
+            'matched': [],
+            'unmatched': [],
+            'playlist_url': None,
+            'start_time': datetime.now(),
+            'user_id': current_user.id,
+            'result': {}
         }
         
-        # Run task in background
-        run_async_task(
-            task_id=task_id,
-            name=form.name.data,
-            description=form.description.data,
-            genre=form.genre.data,
-            days=form.days.data,
-            limit=200,  # Default to a high limit for maximum track results
-            public=form.public.data,
-            export_csv=True
-        )
+        # Get form data
+        playlist_data = {
+            'name': form.name.data,
+            'description': form.description.data,
+            'genre': form.genre.data,
+            'days': form.days.data,
+            'public': form.public.data,
+            'user_id': current_user.id,
+            'task_id': task_id,
+            'spotify_tokens': current_user.spotify_tokens,
+        }
         
-        # Redirect to status page
-        return redirect(url_for('task_status', task_id=task_id))
-    
-    return render_template('index.html', form=form)
-
-
-def run_async_task(task_id, name, description, genre, days, limit, public, export_csv):
-    """Run a task asynchronously."""
-    def run_task():
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+        # Start playlist generation in a background thread
+        thread = threading.Thread(target=run_playlist_task, args=(task_id, playlist_data))
+        thread.daemon = True
+        thread.start()
         
-        try:
-            loop.run_until_complete(create_playlist_task(
-                task_id=task_id,
-                name=name,
-                description=description,
-                genre=genre,
-                days=days,
-                limit=limit,
-                public=public,
-                export_csv=export_csv
-            ))
-        except Exception as e:
-            logger.exception(f"Error in background task: {e}")
-            tasks[task_id]['status'] = 'failed'
-            tasks[task_id]['error'] = str(e)
-        finally:
-            loop.close()
+        return redirect(url_for('status', task_id=task_id))
     
-    thread = threading.Thread(target=run_task)
-    thread.daemon = True
-    thread.start()
+    return render_template('create_playlist.html', form=form)
 
-
-def log_message(message, task_id):
-    """Add a log message to a task."""
-    if task_id in tasks:
-        timestamp = datetime.now().isoformat()
-        tasks[task_id]['logs'].append({
-            'timestamp': timestamp,
-            'message': message
-        })
-        tasks[task_id]['updated_at'] = timestamp
-        logger.info(f"Task {task_id}: {message}")
-
-
-async def progress_callback(current, total, message=None, task_id=None):
-    """Callback for tracking progress."""
-    if task_id is None or task_id not in tasks:
+def run_playlist_task(task_id, playlist_data):
+    """Run playlist generation task."""
+    task = tasks.get(task_id)
+    if not task:
         return
     
-    if total > 0:
-        tasks[task_id]['progress'] = int((current / total) * 100)
-    if message:
-        log_message(message, task_id)
-
-
-async def create_playlist_task(task_id, name, description, genre, days, limit, public, export_csv):
-    """Background task for creating a playlist."""
-    task = tasks[task_id]
-    task['status'] = 'running'
-    
-    log_message(f"Starting playlist creation task", task_id)
-    log_message(f"Source: YouTube", task_id)
-    log_message(f"Genre: {genre}", task_id)
-    log_message(f"Days to look back: {days}", task_id)
-    
     try:
-        # Initialize YouTube source
-        source = YouTubeSource()
-        log_message("Using YouTube as source", task_id)
+        task['status'] = 'running'
         
-        # Initialize destination
-        destination = SpotifyDestination()
-        log_message("Using Spotify as destination", task_id)
+        # Extract Spotify tokens
+        spotify_tokens = playlist_data.pop('spotify_tokens')
         
-        # Authenticate with Spotify
-        log_message("Authenticating with Spotify...", task_id)
-        authenticated = await destination.authenticate()
+        # Log function for the task
+        def log_message(message):
+            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            task['logs'].append({'timestamp': timestamp, 'message': message})
         
-        if not authenticated:
-            raise ValueError("Failed to authenticate with Spotify. Check credentials and try again.")
-        
-        log_message("Successfully authenticated with Spotify", task_id)
-        
-        # Create a custom progress callback that includes the task ID
-        async def task_progress_callback(current, total, message=None):
-            await progress_callback(current, total, message, task_id)
-        
-        # Create the playlist
-        # Fetch tracks from YouTube
-        log_message(f"Fetching tracks from YouTube...", task_id)
-        
-        try:
-            tracks = await source.get_tracks(
-                days_to_look_back=days,
-                genre=genre,
-                limit=limit * 3  # Fetch 3x the limit to account for tracks that won't match on Spotify
-            )
-            log_message(f"Found {len(tracks)} tracks", task_id)
-        except Exception as e:
-            log_message(f"Error fetching tracks: {str(e)}", task_id)
-            raise
-        
-        # Create the playlist
-        # Pass the tracks directly to the destination to create the playlist
-        log_message(f"Creating playlist with Spotify...", task_id)
-        result = await destination.create_playlist(
-            name=name,
-            description=description,
-            tracks=tracks,
-            public=public,
-            progress_callback=task_progress_callback,
-            export_unmatched=export_csv
+        # Generate playlist with the logged messages
+        result = generate_playlist(
+            playlist_data['name'],
+            playlist_data['description'],
+            playlist_data['genre'],
+            playlist_data['days'],
+            limit=50,  # Set a reasonable limit
+            public=playlist_data['public'],
+            log_message=log_message,
+            spotify_tokens=spotify_tokens
         )
         
-        log_message(f"Playlist created with {result.tracks_added} tracks", task_id)
-        
-        # Get the matched and unmatched tracks from the result
-        matched_tracks = result.added_tracks if hasattr(result, 'added_tracks') and result.added_tracks else []
-        unmatched_tracks = result.unmatched_tracks if hasattr(result, 'unmatched_tracks') and result.unmatched_tracks else []
-        
-        # Get CSV data directly from the result
-        csv_data = result.csv_data if hasattr(result, 'csv_data') else None
-        
-        log_message(f"Matched tracks: {len(matched_tracks)}", task_id)
-        log_message(f"Unmatched tracks: {len(unmatched_tracks)}", task_id)
-        if csv_data:
-            log_message(f"CSV data generated for export", task_id)
-        
-        # Update task status
+        # Update task with results
+        task['matched'] = result['matched']
+        task['unmatched'] = result['unmatched']
+        task['playlist_url'] = result['playlist_url']
+        task['result'] = result
         task['status'] = 'completed'
-        task['result'] = {
-            'playlist_url': result.playlist_url,
-            'playlist_id': result.playlist_id,
-            'tracks_added': result.tracks_added,
-            'tracks_total': len(tracks),
-            'matched_tracks': matched_tracks,
-            'unmatched_tracks': unmatched_tracks,
-            'csv_data': csv_data
-        }
-        task['progress'] = 100
         
+        # Save playlist to user history
+        user = User.get_by_id(playlist_data['user_id'])
+        if user:
+            user.add_created_playlist({
+                'name': playlist_data['name'],
+                'description': playlist_data['description'],
+                'created_at': datetime.now().isoformat(),
+                'track_count': len(result['matched']),
+                'playlist_url': result['playlist_url']
+            })
     except Exception as e:
-        logger.exception("Error in playlist creation task")
         task['status'] = 'failed'
-        task['error'] = str(e)
-        log_message(f"Error: {str(e)}", task_id)
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        task['logs'].append({
+            'timestamp': timestamp,
+            'message': f'Error: {str(e)}'
+        })
 
+# Status page route
 @app.route('/status/<task_id>')
-def task_status(task_id):
-    """Render the status page for a task."""
-    if task_id not in tasks:
-        return render_template('error.html', message="Task not found"), 404
-        
-    return render_template('status.html', task_id=task_id, task=tasks[task_id])
+@login_required
+def status(task_id):
+    """Show task status."""
+    task = tasks.get(task_id)
+    
+    if not task:
+        flash('Task not found.', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    # Check if this task belongs to the current user
+    if task.get('user_id') != current_user.id:
+        flash('You do not have access to this task.', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    return render_template('status.html', task_id=task_id, task=task)
 
-
+# Download CSV route
 @app.route('/download-csv/<task_id>')
+@login_required
 def download_csv(task_id):
     """Download tracks as CSV."""
-    if task_id not in tasks or 'result' not in tasks[task_id] or 'csv_data' not in tasks[task_id]['result']:
-        return "No data available", 404
+    task = tasks.get(task_id)
     
-    # Get the CSV data from the task result
-    csv_data = tasks[task_id]['result']['csv_data']
-    if not csv_data:
-        return "No data available", 404
+    if not task:
+        flash('Task not found.', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    # Check if this task belongs to the current user
+    if task.get('user_id') != current_user.id:
+        flash('You do not have access to this task.', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    if not task.get('result') or not task.get('result').get('csv_data'):
+        flash('No CSV data available for this task.', 'warning')
+        return redirect(url_for('status', task_id=task_id))
     
     # Create a response with the CSV data
     response = Response(
-        csv_data,
+        task['result']['csv_data'],
         mimetype="text/csv",
         headers={"Content-disposition": f"attachment; filename=playlist_tracks_{task_id}.csv"}
     )
     
     return response
 
+# API endpoint for task status
 @app.route('/api/status/<task_id>')
-def api_task_status(task_id):
-    """API endpoint to get the status of a task."""
-    if task_id not in tasks:
+@login_required
+def api_status(task_id):
+    """Get task status via API."""
+    task = tasks.get(task_id)
+    
+    if not task:
         return jsonify({'error': 'Task not found'}), 404
     
-    return jsonify(tasks[task_id])
+    # Check if this task belongs to the current user
+    if task.get('user_id') != current_user.id:
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    return jsonify({
+        'status': task.get('status'),
+        'logs': task.get('logs', []),
+        'matched': task.get('matched', []),
+        'unmatched': task.get('unmatched', []),
+        'playlist_url': task.get('playlist_url')
+    })
+
+# Clean up tasks older than 24 hours
+@app.before_request
+def clean_old_tasks():
+    """Clean up old tasks."""
+    cutoff = datetime.now() - timedelta(hours=24)
+    
+    for task_id in list(tasks.keys()):
+        task = tasks.get(task_id)
+        if task and task.get('start_time') and task.get('start_time') < cutoff:
+            del tasks[task_id]
 
 if __name__ == '__main__':
+    # Create upload folder if it doesn't exist
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    
     # Use environment variables for port or default to 8080
     port = int(os.environ.get('PORT', 8080))
     debug = os.environ.get('FLASK_ENV') == 'development'
