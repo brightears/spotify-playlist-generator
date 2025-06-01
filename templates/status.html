@@ -1,183 +1,247 @@
 {% extends "base.html" %}
 
-{% block title %}Playlist Status{% endblock %}
-
-{% block head %}
-<meta http-equiv="refresh" content="5" id="refresher">
-{% endblock %}
+{% block title %}Playlist Status - Spotify Playlist Generator{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-10 offset-md-1">
-        {% if error %}
-        <div class="alert alert-danger">
-            <h4 class="alert-heading">Error</h4>
-            <p>{{ error }}</p>
-            <hr>
-            <p class="mb-0">
-                <a href="{{ url_for('index') }}" class="btn btn-outline-danger">
-                    <i class="fas fa-arrow-left"></i> Back to Form
-                </a>
-            </p>
+<div class="status-container">
+  <div class="row">
+    <div class="col-lg-3">
+      <!-- Sidebar -->
+      <div class="dashboard-sidebar">
+        <div class="user-profile text-center mb-4">
+          <div class="avatar">
+            <i class="bi bi-person-circle"></i>
+          </div>
+          <h5>{{ current_user.email }}</h5>
+          {% if current_user.has_active_subscription %}
+            <span class="badge bg-success">Active Subscription</span>
+          {% else %}
+            <span class="badge bg-warning">No Subscription</span>
+          {% endif %}
         </div>
-        {% else %}
-        <div class="card shadow">
-            <div class="card-header {% if task.status == 'completed' %}bg-success{% elif task.status == 'failed' %}bg-danger{% else %}bg-primary{% endif %} text-white">
-                <h2 class="h4 mb-0">
-                    {% if task.status == "completed" %}
-                        <i class="fas fa-check-circle me-2"></i> Playlist Created Successfully
-                    {% elif task.status == "failed" %}
-                        <i class="fas fa-exclamation-triangle me-2"></i> Playlist Creation Failed
-                    {% else %}
-                        <i class="fas fa-sync-alt me-2"></i> Creating Playlist
-                    {% endif %}
-                </h2>
-            </div>
-            <div class="card-body">
-                <div class="progress mb-4">
-                    <div class="progress-bar progress-bar-striped {% if task.status == 'running' %}progress-bar-animated{% endif %} {% if task.status == 'completed' %}bg-success{% elif task.status == 'failed' %}bg-danger{% endif %}" 
-                         role="progressbar" 
-                         style="width: {{ task.progress }}%;" 
-                         aria-valuenow="{{ task.progress }}" 
-                         aria-valuemin="0" 
-                         aria-valuemax="100">
-                        {{ task.progress }}%
-                    </div>
-                </div>
-                
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="card mb-4">
-                            <div class="card-header bg-light">
-                                <h5 class="mb-0">Progress Logs</h5>
-                            </div>
-                            <div class="card-body p-0">
-                                <div id="log-container" class="bg-dark text-light p-3" style="height: 300px; overflow-y: scroll;">
-                                    {% for log_entry in task.logs %}
-                                    <div class="log-entry">
-                                        <span class="text-muted">{{ log_entry.timestamp }}</span> - 
-                                        <span class="text-light">{{ log_entry.message }}</span>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                {% if task.status == 'completed' and task.result %}
-                <div class="alert alert-success">
-                    <h5><i class="fas fa-music me-2"></i> Playlist Summary</h5>
-                    <p class="mb-1">Your playlist "{{ task.result.playlist_name|default('New Playlist') }}" has been created with {{ task.result.tracks_added }} tracks.</p>
-                    <p class="mb-0">
-                        <a href="{{ task.result.playlist_url }}" target="_blank" class="btn btn-sm btn-success me-2">
-                            <i class="fab fa-spotify me-1"></i> Open in Spotify
-                        </a>
-                        {% if task.result.csv_data %}
-                        <a href="{{ url_for('download_csv', task_id=task.id) }}" class="btn btn-sm btn-outline-dark">
-                            <i class="fas fa-file-csv me-1"></i> Download Track List (CSV)
-                        </a>
-                        {% endif %}
-                    </p>
-                </div>
-                
-                {% if task.result.matched_tracks or task.result.unmatched_tracks %}
-                <div class="row mt-4">
-                    {% if task.result.matched_tracks %}
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header bg-success text-white">
-                                <h5 class="mb-0">Matched Tracks ({{ task.result.matched_tracks|length }})</h5>
-                            </div>
-                            <div class="card-body p-0">
-                                <div class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
-                                    {% for track in task.result.matched_tracks %}
-                                    <div class="list-group-item">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">{{ track.match_name }}</h6>
-                                            <small class="text-muted">{{ track.score|round(2) }}</small>
-                                        </div>
-                                        <p class="mb-1">{{ track.match_artist }}</p>
-                                        <small>Original: {{ track.track.title }} by {{ track.track.artist }}</small>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-                    
-                    {% if task.result.unmatched_tracks %}
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header bg-warning text-dark">
-                                <h5 class="mb-0">Unmatched Tracks ({{ task.result.unmatched_tracks|length }})</h5>
-                            </div>
-                            <div class="card-body p-0">
-                                <div class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
-                                    {% for track in task.result.unmatched_tracks %}
-                                    <div class="list-group-item">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">{{ track.track.title }}</h6>
-                                            <small class="text-muted">{{ track.score|round(2) }}</small>
-                                        </div>
-                                        <p class="mb-1">{{ track.track.artist }}</p>
-                                        <small>{{ track.message }}</small>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-                </div>
-                {% endif %}
-                
-                {% elif task.status == 'failed' %}
-                <div class="alert alert-danger">
-                    <h5><i class="fas fa-exclamation-circle me-2"></i> Error</h5>
-                    <p class="mb-0">{{ task.error }}</p>
-                </div>
-                {% endif %}
-                
-                <div class="mt-4">
-                    <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
-                        <i class="fas fa-arrow-left me-2"></i> Create Another Playlist
-                    </a>
-                </div>
-            </div>
+        
+        <div class="sidebar-menu">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('dashboard') }}">
+                <i class="bi bi-speedometer2"></i> Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('create_playlist') }}">
+                <i class="bi bi-music-note-list"></i> Create Playlist
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('auth.profile') }}">
+                <i class="bi bi-gear"></i> Account Settings
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('auth.logout') }}">
+                <i class="bi bi-box-arrow-right"></i> Logout
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-9">
+      <!-- Main Content -->
+      <div class="status-card">
+        <!-- Alerts and Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        
+        <div class="status-header">
+          <h2>Playlist: {{ task.name }}</h2>
+          
+          {% if task.status == 'pending' %}
+            <span class="status-badge pending">Pending</span>
+          {% elif task.status == 'running' %}
+            <span class="status-badge running">Running</span>
+          {% elif task.status == 'completed' %}
+            <span class="status-badge completed">Completed</span>
+          {% elif task.status == 'failed' %}
+            <span class="status-badge failed">Failed</span>
+          {% endif %}
+        </div>
+        
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <p><strong>Description:</strong> {{ task.description or 'No description' }}</p>
+            <p><strong>Genre:</strong> {{ task.genre }}</p>
+            <p><strong>Created:</strong> {{ task.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Days Lookup:</strong> {{ task.days }} days</p>
+            <p><strong>Visibility:</strong> {{ 'Public' if task.public else 'Private' }}</p>
+            {% if task.status == 'completed' and task.playlist_url %}
+              <p>
+                <a href="{{ task.playlist_url }}" target="_blank" class="btn btn-success">
+                  <i class="bi bi-spotify me-2"></i> Open in Spotify
+                </a>
+              </p>
+            {% endif %}
+          </div>
+        </div>
+        
+        {% if task.status == 'running' %}
+        <div class="progress mb-4" style="height: 25px;">
+          <div class="progress-bar progress-bar-striped progress-bar-animated" 
+               role="progressbar" 
+               style="width: {{ task.progress }}%;" 
+               aria-valuenow="{{ task.progress }}" 
+               aria-valuemin="0" 
+               aria-valuemax="100">
+            {{ task.progress }}%
+          </div>
         </div>
         {% endif %}
+        
+        <div class="log-section mb-4">
+          <h4>Process Log</h4>
+          <div id="logContainer">
+            {% for log in task.logs %}
+              <div class="log-entry">{{ log }}</div>
+            {% endfor %}
+          </div>
+        </div>
+        
+        {% if task.status == 'completed' or task.status == 'failed' %}
+          <div class="tracks-section">
+            <ul class="nav nav-tabs" id="trackTabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="matched-tab" data-bs-toggle="tab" data-bs-target="#matched" type="button" role="tab" aria-controls="matched" aria-selected="true">
+                  Matched Tracks <span class="badge bg-success">{{ task.matched_tracks|length }}</span>
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="unmatched-tab" data-bs-toggle="tab" data-bs-target="#unmatched" type="button" role="tab" aria-controls="unmatched" aria-selected="false">
+                  Unmatched Tracks <span class="badge bg-danger">{{ task.unmatched_tracks|length }}</span>
+                </button>
+              </li>
+            </ul>
+            
+            <div class="tab-content mt-3" id="trackTabsContent">
+              <div class="tab-pane fade show active" id="matched" role="tabpanel" aria-labelledby="matched-tab">
+                {% if task.matched_tracks %}
+                  <div class="track-list">
+                    {% for track in task.matched_tracks %}
+                      <div class="track-item">
+                        <div>
+                          <div class="track-title">{{ track.title }}</div>
+                          <div class="track-artist">{{ track.artist }}</div>
+                        </div>
+                        <div class="track-source">
+                          <span class="badge rounded-pill bg-success">Spotify</span>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                {% else %}
+                  <p class="text-muted text-center py-3">No matched tracks.</p>
+                {% endif %}
+              </div>
+              
+              <div class="tab-pane fade" id="unmatched" role="tabpanel" aria-labelledby="unmatched-tab">
+                {% if task.unmatched_tracks %}
+                  <div class="track-list">
+                    {% for track in task.unmatched_tracks %}
+                      <div class="track-item">
+                        <div>
+                          <div class="track-title">{{ track.title }}</div>
+                          <div class="track-artist">{{ track.artist }}</div>
+                        </div>
+                        <div class="track-source">
+                          <span class="badge rounded-pill bg-danger">YouTube</span>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                {% else %}
+                  <p class="text-muted text-center py-3">No unmatched tracks.</p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          
+          {% if task.csv_path %}
+            <div class="csv-download mt-4">
+              <a href="{{ url_for('download_csv', task_id=task.id) }}" class="btn btn-primary">
+                <i class="bi bi-download me-2"></i> Download CSV
+              </a>
+            </div>
+          {% endif %}
+        {% endif %}
+        
+        <div class="mt-4">
+          <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i> Back to Dashboard
+          </a>
+          
+          {% if task.status == 'failed' %}
+            <a href="{{ url_for('create_playlist', retry=task.id) }}" class="btn btn-warning ms-2">
+              <i class="bi bi-arrow-repeat me-2"></i> Retry
+            </a>
+          {% endif %}
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    $(document).ready(function() {
-        // Scroll to bottom of log container
-        var logContainer = document.getElementById('log-container');
-        if (logContainer) {
-            logContainer.scrollTop = logContainer.scrollHeight;
-        }
-        
-        // Disable auto-refresh when task is completed or failed
-        {% if task and (task.status == 'completed' or task.status == 'failed') %}
-        document.getElementById('refresher').remove();
-        {% endif %}
-        
-        // Auto-update via AJAX
-        {% if task and task.status == 'running' %}
-        setTimeout(function() {
-            $.getJSON("{{ url_for('api_task_status', task_id=task.id) }}", function(data) {
-                if (data.status !== "{{ task.status }}" || 
-                    data.progress !== {{ task.progress }} || 
-                    data.logs.length !== {{ task.logs|length }}) {
-                    location.reload();
-                }
+  document.addEventListener('DOMContentLoaded', function() {
+    {% if task.status == 'running' %}
+      // Auto-refresh for running tasks
+      const refreshInterval = setInterval(function() {
+        fetch('{{ url_for("check_task_status", task_id=task.id) }}')
+          .then(response => response.json())
+          .then(data => {
+            // Update progress
+            const progressBar = document.querySelector('.progress-bar');
+            progressBar.style.width = data.progress + '%';
+            progressBar.setAttribute('aria-valuenow', data.progress);
+            progressBar.textContent = data.progress + '%';
+            
+            // Update logs
+            const logContainer = document.getElementById('logContainer');
+            logContainer.innerHTML = '';
+            data.logs.forEach(log => {
+              const logEntry = document.createElement('div');
+              logEntry.className = 'log-entry';
+              logEntry.textContent = log;
+              logContainer.appendChild(logEntry);
             });
-        }, 2000);
-        {% endif %}
-    });
+            
+            // Auto scroll to bottom of logs
+            logContainer.scrollTop = logContainer.scrollHeight;
+            
+            // If task is no longer running, reload the page to show final state
+            if (data.status !== 'running') {
+              clearInterval(refreshInterval);
+              window.location.reload();
+            }
+          })
+          .catch(error => console.error('Error fetching task status:', error));
+      }, 3000);
+      
+      // Auto scroll to bottom of logs initially
+      const logContainer = document.getElementById('logContainer');
+      logContainer.scrollTop = logContainer.scrollHeight;
+    {% endif %}
+  });
 </script>
 {% endblock %}
