@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Confirm Email - Spotify Playlist Generator{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+  <div class="auth-form">
+    <h1 class="auth-title">Email Confirmation</h1>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    
+    <div class="text-center mb-4">
+      {% if confirmed %}
+        <div class="confirmation-icon success mb-4">
+          <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+        </div>
+        <h4>Your email has been confirmed!</h4>
+        <p>Thank you for verifying your email address. Your account is now active.</p>
+        <div class="d-grid gap-2 mt-4">
+          <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Log In</a>
+        </div>
+      {% elif expired %}
+        <div class="confirmation-icon error mb-4">
+          <i class="bi bi-exclamation-circle-fill text-danger" style="font-size: 4rem;"></i>
+        </div>
+        <h4>Link Expired</h4>
+        <p>Your confirmation link has expired. Please request a new confirmation email.</p>
+        <form method="POST" action="{{ url_for('auth.resend_confirmation') }}" class="mt-4">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="email" value="{{ email }}">
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary">Resend Confirmation Email</button>
+          </div>
+        </form>
+      {% elif invalid %}
+        <div class="confirmation-icon error mb-4">
+          <i class="bi bi-x-circle-fill text-danger" style="font-size: 4rem;"></i>
+        </div>
+        <h4>Invalid Link</h4>
+        <p>The confirmation link is invalid. Please check your email or contact support.</p>
+        <div class="d-grid gap-2 mt-4">
+          <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Back to Login</a>
+        </div>
+      {% else %}
+        <div class="confirmation-icon waiting mb-4">
+          <i class="bi bi-envelope-fill text-primary" style="font-size: 4rem;"></i>
+        </div>
+        <h4>Check Your Email</h4>
+        <p>We've sent a confirmation link to your email address. Please check your inbox and click the link to activate your account.</p>
+        <p class="small text-muted mt-3">
+          If you don't see the email, check your spam folder or request a new confirmation email below.
+        </p>
+        <form method="POST" action="{{ url_for('auth.resend_confirmation') }}" class="mt-4">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="email" value="{{ email }}">
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-outline-primary">Resend Confirmation Email</button>
+          </div>
+        </form>
+      {% endif %}
+    </div>
+    
+    <div class="auth-links mt-4 text-center">
+      <p>Need help? <a href="mailto:support@example.com">Contact Support</a></p>
+    </div>
+  </div>
+</div>
+{% endblock %}
