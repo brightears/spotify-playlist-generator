@@ -1,18 +1,15 @@
 #!/bin/bash
 # Setup script for Spotify Playlist Generator
 
-# Create virtual environment if it doesn't exist
-if [ ! -d "venv" ]; then
-    echo "Creating virtual environment..."
-    python -m venv venv
+# Install dependencies directly (for Codex environment)
+echo "Installing dependencies directly..."
+pip install flask flask-login flask-wtf flask-sqlalchemy flask-migrate flask-dance blinker sqlalchemy-utils pytest
+
+# If requirements.txt exists, install from it as well
+if [ -f "requirements.txt" ]; then
+    echo "Installing dependencies from requirements.txt..."
+    pip install -r requirements.txt
 fi
-
-# Activate virtual environment
-source venv/bin/activate
-
-# Install dependencies
-echo "Installing dependencies..."
-pip install -r requirements.txt
 
 # Create instance directory if it doesn't exist
 if [ ! -d "instance" ]; then
@@ -26,5 +23,4 @@ if [ ! -f "instance/app.db" ]; then
     FLASK_APP=app.py python -c "from app import create_app; from models import db; app = create_app(); app.app_context().push(); db.create_all()"
 fi
 
-echo "Setup complete! You can now run the application with:"
-echo "flask run --host=127.0.0.1 --port=8080"
+echo "Setup complete!"
