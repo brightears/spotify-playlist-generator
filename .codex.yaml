@@ -1,6 +1,7 @@
 # .codex.yaml  –  minimal but usable
 approvalMode: auto-edit        # let Codex apply patches locally
 testCommand: "python -m pytest -q"       # or your own test runner
+setupCommand: "pip install -r codex-requirements.txt"  # Install dependencies before running
 safeCommands:                  # commands Codex may run without asking
   - "pytest*"
   - "pip install*"
