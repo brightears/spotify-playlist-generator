@@ -1,0 +1,9 @@
+# .codex.yaml  –  minimal but usable
+approvalMode: auto-edit        # let Codex apply patches locally
+testCommand: "python -m pytest -q"       # or your own test runner
+safeCommands:                  # commands Codex may run without asking
+  - "pytest*"
+  - "pip install*"
+  - "flask run*"
+  - "python*"
+model: codex-1                 # stick with default unless you upgrade
