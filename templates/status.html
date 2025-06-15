@@ -3,77 +3,108 @@
 {% block title %}Playlist Status{% endblock %}
 
 {% block content %}
-<div class="ui container" id="status-container">
-    <h1 class="ui header">Playlist Generation Status</h1>
-    <div class="ui divider"></div>
-    
-    <div class="ui segment" id="status-box">
-        <div class="ui active dimmer" id="loading-dimmer">
-            <div class="ui text loader">Loading status...</div>
-        </div>
+<div class="min-h-screen bg-gradient-to-br from-[#1a1a1a] to-[#242831] py-12">
+    <div class="max-w-4xl mx-auto px-4">
+        <h1 class="text-3xl font-bold text-white mb-8">Playlist Generation Status</h1>
         
-        <h2 class="ui header" id="status-header">Processing</h2>
-        
-        <div class="ui indicating progress" id="task-progress">
-            <div class="bar">
-                <div class="progress"></div>
-            </div>
-            <div class="label" id="status-message">Initializing task...</div>
-        </div>
-        
-        <div id="result-container" style="display: none;">
-            <div class="ui divider"></div>
-            <h3 class="ui header">Playlist Details</h3>
-            
-            <div class="ui list">
-                <div class="item">
-                    <i class="music icon"></i>
-                    <div class="content">
-                        <div class="header">Name</div>
-                        <div class="description" id="playlist-name"></div>
-                    </div>
-                </div>
-                <div class="item">
-                    <i class="list icon"></i>
-                    <div class="content">
-                        <div class="header">Tracks</div>
-                        <div class="description" id="track-count"></div>
-                    </div>
+        <div class="bg-[#252525] rounded-xl border border-[#282828] shadow-xl p-8" id="status-box">
+            <div id="loading-dimmer" class="text-center">
+                <div class="inline-flex items-center justify-center">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00CFFF]"></div>
+                    <span class="ml-3 text-[#b3b3b3]">Loading status...</span>
                 </div>
             </div>
             
-            <a class="ui primary button" id="spotify-action-button" target="_blank">
-                <i class="spotify icon"></i> <span id="spotify-button-text">Connect to Spotify</span>
-            </a>
+            <h2 class="text-2xl font-semibold text-white mb-4" id="status-header">Processing</h2>
             
-            <a class="ui blue button" id="csv-download-button" style="display: none;">
-                <i class="download icon"></i> Download CSV
-            </a>
-            
-            <div class="ui divider"></div>
-            <h3 class="ui header">Track Preview</h3>
-            <div class="ui relaxed divided list" id="track-list">
-                <!-- Track items will be inserted here -->
+            <div class="mb-4">
+                <div class="w-full bg-[#1a1a1a] rounded-full h-3 mb-2" id="task-progress">
+                    <div class="bg-[#00CFFF] h-3 rounded-full transition-all duration-300 bar" style="width: 0%"></div>
+                </div>
+                <p class="text-[#b3b3b3]" id="status-message">Initializing task...</p>
             </div>
-            
-            <a href="{{ url_for('main.dashboard') }}" class="ui button">
-                <i class="arrow left icon"></i> Back to Dashboard
-            </a>
-        </div>
         
-        <div id="error-container" style="display: none;">
-            <div class="ui negative message">
-                <div class="header">Error</div>
-                <p id="error-message">There was a problem creating your playlist.</p>
+            <div id="result-container" style="display: none;" class="mt-8">
+                <div class="border-t border-[#282828] pt-6">
+                    <h3 class="text-xl font-semibold text-white mb-4">Playlist Details</h3>
+                    
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-start space-x-3">
+                            <svg class="w-6 h-6 text-[#00CFFF] mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+                            </svg>
+                            <div>
+                                <div class="text-sm font-medium text-[#6a6a6a]">Name</div>
+                                <div class="text-white" id="playlist-name"></div>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <svg class="w-6 h-6 text-[#00CFFF] mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                            </svg>
+                            <div>
+                                <div class="text-sm font-medium text-[#6a6a6a]">Tracks</div>
+                                <div class="text-white" id="track-count"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-3 mb-8">
+                        <a class="inline-flex items-center justify-center px-6 py-3 bg-[#00CFFF] text-[#121212] rounded-full font-bold hover:bg-[#00a8d9] transition-all duration-200" id="spotify-action-button">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+                            </svg>
+                            <span id="spotify-button-text">Connect to Spotify</span>
+                        </a>
+                        
+                        <a class="inline-flex items-center justify-center px-6 py-3 border-2 border-[#00CFFF] text-[#00CFFF] rounded-full font-bold hover:bg-[#00CFFF] hover:text-[#121212] transition-all duration-200" id="csv-download-button" style="display: none;">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                            </svg>
+                            Download CSV
+                        </a>
+                    </div>
+                    
+                    <div class="border-t border-[#282828] pt-6">
+                        <h3 class="text-xl font-semibold text-white mb-4">Track Preview</h3>
+                        <div class="space-y-3" id="track-list">
+                            <!-- Track items will be inserted here -->
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8">
+                        <a href="{{ url_for('main.dashboard') }}" class="inline-flex items-center justify-center px-6 py-3 border border-[#282828] rounded-full text-white font-medium hover:bg-[#282828] transition-all duration-200">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            </svg>
+                            Back to Dashboard
+                        </a>
+                    </div>
+                </div>
             </div>
-            
-            <a href="{{ url_for('main.create', retry=task_id) }}" class="ui primary button">
-                <i class="redo icon"></i> Try Again
-            </a>
-            
-            <a href="{{ url_for('main.dashboard') }}" class="ui button">
-                <i class="arrow left icon"></i> Back to Dashboard
-            </a>
+        
+            <div id="error-container" style="display: none;" class="mt-8">
+                <div class="bg-red-900/20 border border-red-500 text-red-200 px-6 py-4 rounded-lg mb-6">
+                    <h3 class="font-semibold mb-1">Error</h3>
+                    <p id="error-message">There was a problem creating your playlist.</p>
+                </div>
+                
+                <div class="flex gap-3">
+                    <a href="{{ url_for('main.create', retry=task_id) }}" class="inline-flex items-center justify-center px-6 py-3 bg-[#00CFFF] text-[#121212] rounded-full font-bold hover:bg-[#00a8d9] transition-all duration-200">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Try Again
+                    </a>
+                    
+                    <a href="{{ url_for('main.dashboard') }}" class="inline-flex items-center justify-center px-6 py-3 border border-[#282828] rounded-full text-white font-medium hover:bg-[#282828] transition-all duration-200">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        Back to Dashboard
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -122,16 +153,19 @@ $(document).ready(function() {
                 // Reset failed attempts counter on success
                 failedAttempts = 0;
                 
-                // Update progress bar
-                $('#task-progress').progress('set percent', data.progress);
+                // Update progress bar (plain JavaScript since we don't have jQuery UI)
+                const progressBar = document.querySelector('#task-progress .bar');
+                if (progressBar) {
+                    progressBar.style.width = data.progress + '%';
+                }
                 
                 // Update status message
                 $('#status-message').text(data.message);
                 
                 // Update header based on status
                 if (data.status === 'complete') {
-                    $('#status-header').text('Complete!').removeClass('processing').addClass('positive');
-                    $('#loading-dimmer').removeClass('active');
+                    $('#status-header').text('Complete!').removeClass('text-yellow-400').addClass('text-green-400');
+                    $('#loading-dimmer').hide();
                     
                     // Show results if available
                     if (data.result) {
@@ -143,9 +177,9 @@ $(document).ready(function() {
                         clearInterval(pollInterval);
                     }
                 } else if (data.status === 'error') {
-                    $('#status-header').text('Error').removeClass('processing').addClass('negative');
+                    $('#status-header').text('Error').removeClass('text-yellow-400').addClass('text-red-400');
                     $('#status-message').text(data.error || 'An error occurred during playlist creation.');
-                    $('#loading-dimmer').removeClass('active');
+                    $('#loading-dimmer').hide();
                     
                     // Stop polling
                     if (pollInterval) {
@@ -153,8 +187,8 @@ $(document).ready(function() {
                     }
                 } else {
                     // Still processing
-                    $('#status-header').text('Processing...').addClass('processing');
-                    $('#loading-dimmer').addClass('active');
+                    $('#status-header').text('Processing...').addClass('text-yellow-400');
+                    $('#loading-dimmer').show();
                 }
             },
             error: function(xhr, status, error) {
@@ -241,13 +275,15 @@ $(document).ready(function() {
         if (result.tracks && result.tracks.length > 0) {
             result.tracks.forEach(function(track) {
                 const trackItem = $(`
-                    <div class="item">
-                        <i class="music icon"></i>
-                        <div class="content">
-                            <div class="header">${track.title}</div>
-                            <div class="description">
-                                ${track.artist} • ${track.duration}
-                                ${track.source ? ` • Source: ${track.source}` : ''}
+                    <div class="flex items-start space-x-3 p-3 rounded-lg hover:bg-[#1a1a1a] transition-colors">
+                        <svg class="w-5 h-5 text-[#00CFFF] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+                        </svg>
+                        <div class="flex-1">
+                            <div class="font-medium text-white">${track.title}</div>
+                            <div class="text-sm text-[#6a6a6a]">
+                                ${track.artist}${track.duration ? ` • ${track.duration}` : ''}
+                                ${track.source ? ` • ${track.source}` : ''}
                             </div>
                         </div>
                     </div>

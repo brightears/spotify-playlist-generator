@@ -29,6 +29,14 @@ class TaskManager:
         try:
             logger.info(f"Starting playlist creation task for genre: {genre}, track count: {track_count}")
             
+            # Check if API keys are available
+            import os
+            youtube_api_key = os.environ.get("YOUTUBE_API_KEY")
+            spotify_client_id = os.environ.get("SPOTIFY_CLIENT_ID")
+            
+            if not youtube_api_key or not spotify_client_id:
+                return await self._create_demo_playlist(genre, track_count, progress_callback)
+            
             # Update progress
             if progress_callback:
                 progress_callback({
@@ -244,11 +252,26 @@ async def process_task_step(task_id: str) -> bool:
                 raise e
             
         elif current_step == 2:
-            # Process and filter tracks
-            track_count = len(task.get('tracks', []))
-            task['message'] = f'Processing {track_count} tracks and filtering duplicates...'
-            task['progress'] = 70
-            task['step'] = 3
+            # Complete the task - don't automatically create Spotify playlist
+            tracks = task.get('tracks', [])
+            task['status'] = 'complete'
+            task['progress'] = 100
+            task['message'] = f'Successfully fetched {len(tracks)} tracks from YouTube!'
+            
+            # Create result without Spotify info
+            task['result'] = {
+                'playlist_name': task['playlist_name'],
+                'playlist_url': None,
+                'spotify_created': False,
+                'track_count': len(tracks),
+                'matched_tracks': 0,
+                'unmatched_tracks': 0,
+                'tracks': tracks[:10],  # Show first 10 tracks
+                'sources_used': [source['name'] for source in task.get('sources', [])],
+                'genre': task['genre'],
+                'days_searched': task['days']
+            }
+            task['step'] = 3  # Mark as complete
             
         elif current_step == 3:
             # Connect to Spotify  
