@@ -29,6 +29,8 @@ services:
         sync: false
       - key: PYTHON_VERSION
         value: 3.11.0
+      - key: RENDER
+        value: true
 
 databases:
   - name: bright-ears-db
