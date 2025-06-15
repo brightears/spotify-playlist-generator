@@ -16,8 +16,8 @@ spotify_bp = Blueprint('spotify', __name__, url_prefix='/spotify')
 
 def get_spotify_oauth():
     """Get configured SpotifyOAuth instance."""
-    # Use 127.0.0.1 instead of localhost - Spotify allows this for development
-    redirect_uri = 'http://127.0.0.1:5000/spotify/callback'
+    # Use environment variable for redirect URI, fallback to local development
+    redirect_uri = os.environ.get('SPOTIFY_REDIRECT_URI', 'http://127.0.0.1:5000/spotify/callback')
     
     return SpotifyOAuth(
         client_id=os.environ.get('SPOTIFY_CLIENT_ID'),

@@ -175,6 +175,35 @@ app.register_blueprint(spotify_bp, url_prefix='/spotify')  # Register the Spotif
 # Initialize database after everything is set up
 init_db()
 
+# Start background task processor
+from src.flasksaas.main.task_manager import cleanup_old_tasks, get_task, process_task_step
+import threading
+
+def background_task_processor():
+    """Background thread to process tasks."""
+    import time
+    while True:
+        try:
+            # Process any pending tasks
+            from src.flasksaas.main.task_manager import tasks
+            for task_id, task in list(tasks.items()):
+                if task['status'] in ['processing', 'running']:
+                    asyncio.run(process_task_step(task_id))
+            
+            # Clean up old tasks every hour
+            cleanup_old_tasks()
+            
+            time.sleep(5)  # Check every 5 seconds
+        except Exception as e:
+            print(f"Background task processor error: {e}")
+            time.sleep(10)  # Wait longer on error
+
+# Start the background processor
+if IS_PRODUCTION or True:  # Always run for now
+    processor_thread = threading.Thread(target=background_task_processor, daemon=True)
+    processor_thread.start()
+    print("Background task processor started")
+
 # -------------- Helper Functions --------------------- #
 
 def subscription_required(f):
