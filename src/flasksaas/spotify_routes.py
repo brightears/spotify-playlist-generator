@@ -50,9 +50,9 @@ def connect(task_id):
     
     # Debug logging
     print(f"DEBUG: Spotify OAuth Configuration:")
-    print(f"  Client ID: {spotify_oauth.client_id}")
+    print(f"  Client ID: {spotify_oauth.client_id[:10]}...{spotify_oauth.client_id[-10:] if len(spotify_oauth.client_id) > 20 else spotify_oauth.client_id}")
     print(f"  Redirect URI: {spotify_oauth.redirect_uri}")
-    print(f"  Auth URL: {auth_url}")
+    print(f"  Auth URL: {auth_url[:100]}...")
     
     return redirect(auth_url)
 

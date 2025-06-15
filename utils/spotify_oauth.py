@@ -71,7 +71,9 @@ class SpotifyOAuth:
         except requests.exceptions.HTTPError as e:
             current_app.logger.error(f"Error getting token: {e}")
             current_app.logger.error(f"Response: {response.text}")
-            return None
+            current_app.logger.error(f"Client ID: {self.client_id}")
+            current_app.logger.error(f"Redirect URI: {self.redirect_uri}")
+            raise e
         except Exception as e:
             current_app.logger.error(f"Unexpected error: {e}")
             return None
