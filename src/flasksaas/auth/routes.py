@@ -206,11 +206,25 @@ def google_login():
 @auth_bp.route("/google-callback")
 def google_callback():
     """Handle Google OAuth callback."""
+    print(f"Google callback received with args: {dict(request.args)}")
+    
     if current_user.is_authenticated:
         return redirect(url_for("main.dashboard"))
     
+    # Check for errors from Google
+    error = request.args.get('error')
+    if error:
+        print(f"Google OAuth error: {error}")
+        error_desc = request.args.get('error_description', 'Unknown error')
+        flash(f"Google login failed: {error_desc}", "error")
+        return redirect(url_for("auth.login"))
+    
     # Verify state parameter
-    if 'oauth_state' not in session or request.args.get('state') != session['oauth_state']:
+    state = request.args.get('state')
+    stored_state = session.get('oauth_state')
+    print(f"State verification - received: {state}, stored: {stored_state}")
+    
+    if not stored_state or state != stored_state:
         flash("Invalid OAuth state. Please try again.", "error")
         return redirect(url_for("auth.login"))
     
@@ -220,15 +234,18 @@ def google_callback():
         return redirect(url_for("auth.login"))
     
     try:
+        print("Fetching token from Google...")
         # Fetch token
         flow.fetch_token(authorization_response=request.url)
         
+        print("Token fetched successfully, getting user info...")
         # Get user info from Google
         credentials = flow.credentials
         request_session = requests.Request()
         id_info = id_token.verify_oauth2_token(
             credentials.id_token, request_session, GOOGLE_CLIENT_ID
         )
+        print(f"User info retrieved: email={id_info.get('email')}, name={id_info.get('name')}")
         
         # Extract user information
         email = id_info.get('email', '').lower()
