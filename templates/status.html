@@ -259,8 +259,8 @@ $(document).ready(function() {
         // Add additional info if available
         if (result.genre) {
             $('#result-container').append(`
-                <div class="ui info message">
-                    <h4>Playlist Details</h4>
+                <div class="bg-blue-900/20 border border-blue-500 text-blue-200 px-6 py-4 rounded-lg mt-6">
+                    <h4 class="font-semibold mb-2">Playlist Details</h4>
                     <p><strong>Genre:</strong> ${result.genre}</p>
                     <p><strong>Days Searched:</strong> ${result.days_searched}</p>
                     ${result.sources_used ? `<p><strong>Sources:</strong> ${result.sources_used.join(', ')}</p>` : ''}

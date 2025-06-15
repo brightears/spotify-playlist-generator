@@ -258,6 +258,24 @@ async def process_task_step(task_id: str) -> bool:
             task['progress'] = 100
             task['message'] = f'Successfully fetched {len(tracks)} tracks from YouTube!'
             
+            # Generate CSV data for download
+            import csv
+            import io
+            csv_buffer = io.StringIO()
+            csv_writer = csv.writer(csv_buffer)
+            csv_writer.writerow(['Title', 'Artist', 'Remix', 'Source', 'URL'])
+            
+            for track in tracks:
+                csv_writer.writerow([
+                    track.get('title', ''),
+                    track.get('artist', ''),
+                    track.get('remix', ''),
+                    track.get('source', ''),
+                    track.get('url', track.get('source_url', ''))
+                ])
+            
+            task['csv_data'] = csv_buffer.getvalue()
+            
             # Create result without Spotify info
             task['result'] = {
                 'playlist_name': task['playlist_name'],
