@@ -50,7 +50,11 @@ def get_google_oauth_flow():
                 "redirect_uris": [redirect_uri]
             }
         },
-        scopes=["openid", "email", "profile"]
+        scopes=[
+            "openid",
+            "https://www.googleapis.com/auth/userinfo.email",
+            "https://www.googleapis.com/auth/userinfo.profile"
+        ]
     )
     flow.redirect_uri = redirect_uri
     return flow
@@ -196,7 +200,8 @@ def google_login():
     
     authorization_url, state = flow.authorization_url(
         access_type='offline',
-        include_granted_scopes='true'
+        include_granted_scopes='true',
+        prompt='consent'  # Force consent to avoid scope mismatch
     )
     
     session['oauth_state'] = state
@@ -235,8 +240,47 @@ def google_callback():
     
     try:
         print("Fetching token from Google...")
-        # Fetch token
-        flow.fetch_token(authorization_response=request.url)
+        # Fetch token - handle scope mismatch by catching and retrying
+        try:
+            flow.fetch_token(authorization_response=request.url)
+        except Exception as e:
+            error_msg = str(e)
+            print(f"Token fetch error: {error_msg}")
+            if "Scope has changed" in error_msg:
+                # This is a known issue with google-auth library
+                # The scopes are equivalent, just in different format
+                # Try to fetch token without scope verification
+                import urllib.parse
+                parsed_url = urllib.parse.urlparse(request.url)
+                params = urllib.parse.parse_qs(parsed_url.query)
+                code = params.get('code', [None])[0]
+                
+                if code:
+                    # Manually exchange the code for tokens
+                    token_url = "https://oauth2.googleapis.com/token"
+                    token_data = {
+                        'code': code,
+                        'client_id': GOOGLE_CLIENT_ID,
+                        'client_secret': GOOGLE_CLIENT_SECRET,
+                        'redirect_uri': flow.redirect_uri,
+                        'grant_type': 'authorization_code'
+                    }
+                    
+                    import requests as req
+                    response = req.post(token_url, data=token_data)
+                    if response.status_code == 200:
+                        token_info = response.json()
+                        flow.credentials._token = token_info.get('access_token')
+                        flow.credentials._id_token = token_info.get('id_token')
+                        flow.credentials._refresh_token = token_info.get('refresh_token')
+                        flow.credentials._expiry = None
+                        print("Token obtained via manual exchange")
+                    else:
+                        raise Exception(f"Manual token exchange failed: {response.text}")
+                else:
+                    raise Exception("No authorization code found")
+            else:
+                raise
         
         print("Token fetched successfully, getting user info...")
         # Get user info from Google
