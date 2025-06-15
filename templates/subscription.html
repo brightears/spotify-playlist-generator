@@ -251,52 +251,23 @@
             e.preventDefault();
             const planType = e.target.dataset.plan;
             
-            // For now, just show an alert since Stripe isn't configured
-            alert(`You selected the ${planType} plan! Stripe integration coming soon.`);
-            
-            {% if stripe_publishable_key %}
             // Show loading state
             const originalText = e.target.textContent;
             e.target.textContent = 'Processing...';
             e.target.disabled = true;
             
-            try {
-                // Create checkout session
-                const response = await fetch('/billing/create-checkout-session', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        plan_type: planType
-                    })
-                });
-                
-                const session = await response.json();
-                
-                if (session.error) {
-                    throw new Error(session.error);
-                }
-                
-                // Redirect to Stripe Checkout
-                const result = await stripe.redirectToCheckout({
-                    sessionId: session.id
-                });
-                
-                if (result.error) {
-                    throw new Error(result.error.message);
-                }
-                
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error: ' + error.message);
-            } finally {
-                // Reset button state
+            // Simulate processing for demo
+            setTimeout(() => {
+                // Reset button
                 e.target.textContent = originalText;
                 e.target.disabled = false;
-            }
-            {% endif %}
+                
+                // Show demo message
+                alert(`Great choice! You selected the ${planType} plan.\n\nStripe payment integration will be added when ready to launch.\n\nFor now, you can explore the dashboard and playlist creation features!`);
+                
+                // Optionally redirect to dashboard
+                window.location.href = '/dashboard';
+            }, 1500);
         });
     });
 </script>
