@@ -22,6 +22,24 @@ def get_google_oauth_flow():
     if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
         return None
     
+    # For Render deployment, we need to ensure HTTPS is used
+    # Get the base URL from environment or construct it
+    if os.environ.get('RENDER'):
+        # On Render, force HTTPS
+        scheme = 'https'
+        # Use the Render service URL or construct from request
+        if request:
+            redirect_uri = url_for('auth.google_callback', _external=True, _scheme=scheme)
+        else:
+            # Fallback for when request context is not available
+            app_url = os.environ.get('RENDER_EXTERNAL_URL', 'https://bright-ears.onrender.com')
+            redirect_uri = f"{app_url}/auth/google-callback"
+    else:
+        # Local development
+        redirect_uri = url_for('auth.google_callback', _external=True)
+    
+    print(f"DEBUG: Google OAuth redirect URI: {redirect_uri}")
+    
     flow = Flow.from_client_config(
         {
             "web": {
@@ -29,12 +47,12 @@ def get_google_oauth_flow():
                 "client_secret": GOOGLE_CLIENT_SECRET,
                 "auth_uri": "https://accounts.google.com/o/oauth2/auth",
                 "token_uri": "https://oauth2.googleapis.com/token",
-                "redirect_uris": [url_for('auth.google_callback', _external=True)]
+                "redirect_uris": [redirect_uri]
             }
         },
         scopes=["openid", "email", "profile"]
     )
-    flow.redirect_uri = url_for('auth.google_callback', _external=True)
+    flow.redirect_uri = redirect_uri
     return flow
 
 @auth_bp.route("/login", methods=["GET", "POST"])
