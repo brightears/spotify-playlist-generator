@@ -128,9 +128,7 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 # Initialize database tables on first run
-@app.before_first_request
-def create_tables():
-    """Create database tables if they don't exist."""
+with app.app_context():
     try:
         print("Checking if database tables exist...")
         # Try to query the User table
