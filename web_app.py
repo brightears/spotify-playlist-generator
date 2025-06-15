@@ -86,10 +86,16 @@ base_dir = os.path.abspath(os.path.dirname(__file__))
 
 # Handle database URL - Render uses 'postgres://' but SQLAlchemy needs 'postgresql://'
 database_url = os.environ.get('DATABASE_URL')
+print(f"Raw DATABASE_URL: {database_url}")
+
 if database_url and database_url.startswith('postgres://'):
     database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    print(f"Converted DATABASE_URL: {database_url}")
 
-app.config['SQLALCHEMY_DATABASE_URI'] = database_url or f'sqlite:///{os.path.join(base_dir, "spotify_playlists.db")}'
+final_db_url = database_url or f'sqlite:///{os.path.join(base_dir, "spotify_playlists.db")}'
+print(f"Final database URL: {final_db_url}")
+
+app.config['SQLALCHEMY_DATABASE_URI'] = final_db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Enable CSRF protection in production
@@ -120,6 +126,44 @@ login_manager.login_view = 'auth.login'
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+# Initialize database tables on first run
+@app.before_first_request
+def create_tables():
+    """Create database tables if they don't exist."""
+    try:
+        print("Checking if database tables exist...")
+        # Try to query the User table
+        User.query.first()
+        print("Database tables already exist.")
+    except:
+        print("Database tables don't exist. Creating them...")
+        db.create_all()
+        print("Database tables created successfully!")
+
+# Debug endpoint to manually create tables
+@app.route('/debug/create-tables')
+def debug_create_tables():
+    """Debug endpoint to manually create database tables."""
+    try:
+        print("Creating database tables...")
+        db.create_all()
+        
+        # Verify tables were created
+        tables = db.engine.table_names()
+        return f"""
+        <h2>Database Setup Debug</h2>
+        <p><strong>Database URL:</strong> {app.config['SQLALCHEMY_DATABASE_URI']}</p>
+        <p><strong>Created tables:</strong> {tables}</p>
+        <p><strong>Status:</strong> Tables created successfully!</p>
+        <a href="/auth/register">Try Registration Now</a>
+        """
+    except Exception as e:
+        return f"""
+        <h2>Database Setup Error</h2>
+        <p><strong>Database URL:</strong> {app.config['SQLALCHEMY_DATABASE_URI']}</p>
+        <p><strong>Error:</strong> {str(e)}</p>
+        """
 
 # Register blueprints (new auth + billing + main)
 app.register_blueprint(auth_bp, url_prefix='/auth')
