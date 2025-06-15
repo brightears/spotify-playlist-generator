@@ -60,13 +60,14 @@ tidal_fresh/
 ├── src/flasksaas/          # Core application package
 │   ├── __init__.py         # Flask app factory
 │   ├── auth/               # Authentication blueprint
-│   │   ├── routes.py       # Login/register/logout endpoints
+│   │   ├── routes.py       # Login/register/logout + Google OAuth
 │   │   └── forms.py        # WTForms for auth
 │   ├── billing/            # Stripe payment blueprint
 │   │   └── routes.py       # Subscription management
 │   ├── main/               # Core functionality blueprint
 │   │   ├── routes.py       # Playlist generation endpoints
 │   │   └── task_manager.py # Async task handling
+│   ├── spotify_routes.py   # Spotify OAuth and playlist creation
 │   └── models.py           # SQLAlchemy User model
 ├── utils/                  # Plugin architecture
 │   ├── sources/            # Music source plugins
@@ -103,102 +104,106 @@ User:
 - subscription_status (String)
 - subscription_id (String)
 - subscription_end_date (DateTime)
+- spotify_access_token (String)
+- spotify_refresh_token (String)
+- google_id (String)
 ```
 
-## Recent Changes
+## Recent Progress (Latest Session - June 15, 2025)
 
-### Session 1 (Initial Analysis)
-- Verified all core files intact after iCloud sync issue
-- Confirmed production-ready features all present
-- Identified Flask blueprint architecture
+### Authentication System
+- Implemented Flask-Login based authentication
+- Added User model with bcrypt password hashing
+- Created login and registration forms with WTForms
+- Built responsive auth templates with Tailwind CSS
+- Added session management and user persistence
+- **Successfully implemented Google OAuth login**
+  - Fixed scope mismatch issues with Google Auth library
+  - Added manual token exchange fallback
+  - Configured for Render deployment with proper HTTPS redirect URIs
 
-### Session 2 (UI Redesign)
-- Integrated Google Stitch dark theme design
-- Rebranded from "MusicMixr" to "Bright Ears"
-- Updated to Inter font throughout
-- Created professional landing page with hero, features, pricing
-- Changed color scheme to dark theme (#1a1a1a) with cyan accent (#00CFFF)
+### Deployment & Production
+- Fixed jQuery UI dependency issues on status page
+- Added CSV download functionality for fetched tracks
+- Debugged and fixed Spotify OAuth integration (was using wrong Client ID)
+- Successfully deployed to Render at https://spotify-playlist-generator-rcva.onrender.com
+- All core features working: YouTube fetch → CSV download → Spotify playlist creation
 
-### Session 3 (Header Design)
-- Evolved header from black → grey → white → cyan gradient
-- Final header: Light cyan gradient (from-[#f0fdff] to-[#e6fcff])
-- Updated navigation to SaaS best practices:
-  - Unauthenticated: Home, Login, Sign Up (button)
-  - Authenticated: Dashboard, Account, user@email, Log Out
-- Ensured black logo elements visible on light background
+### Project Structure
+- Migrated to Flask factory pattern with blueprints
+- Created modular structure: auth, billing, main blueprints
+- Set up proper extension initialization
+- Maintained compatibility with existing functionality
 
 ## Current Status
 
-### ✅ Working
-- Core Flask application structure
-- Authentication system (login/register/logout)
-- Google OAuth integration
-- Stripe payment setup
-- YouTube music discovery
-- Spotify playlist creation
-- CSV export functionality
-- Task management system
-- New dark theme UI
-- Landing page design
-- Header with cyan gradient
+### Working Features
+- ✅ YouTube playlist/video URL parsing and track extraction
+- ✅ Track search using YouTube Data API
+- ✅ Background task processing with progress tracking
+- ✅ User authentication (login/register/logout)
+- ✅ Session persistence with "Remember Me"
+- ✅ Blueprint-based modular architecture
+- ✅ **Google OAuth login integration**
+- ✅ **Spotify OAuth integration and playlist creation**
+- ✅ **CSV export of fetched tracks**
+- ✅ **Full production deployment on Render**
 
-### 🚧 In Progress
-- Auth-rebuild branch active
-- Blueprint modularization
-- User subscription system
-- Flask-Login integration
-
-### ❌ Broken/Issues
-- Test suite has import errors
-- No Flask-Migrate despite being in requirements
-- Virtual environment needs setup for development
-- CSRF temporarily disabled (WTF_CSRF_ENABLED = False)
-- Many untracked files from restructuring
+### In Progress
+- 🔄 Stripe billing integration (routes created, implementation pending)
+- 🔄 User dashboard with playlist history
+- 🔄 Email confirmation system
 
 ## Next Steps
 
-### Immediate Priorities
-1. Complete auth system integration on auth-rebuild branch
-2. Fix test suite import issues
-3. Set up proper virtual environment
-4. Enable CSRF protection
-5. Clean up untracked files and commit changes
+1. **Implement Billing System**
+   - Set up Stripe webhook handlers
+   - Create subscription plans (Basic/Pro/Premium)
+   - Add payment method management
+   - Integrate billing with user dashboard
 
-### Planned Features
-- Automated daily playlist updates for Pro users
-- Team accounts with shared playlists
-- Advanced genre filtering
-- Analytics dashboard
-- Mobile-responsive design improvements
-- Email notifications for playlist updates
+2. **Enhance User Experience**
+   - Add email verification for new accounts
+   - Create user profile management page
+   - Implement playlist history and management
+   - Add ability to edit/delete saved playlists
+   - Add social sharing features
 
-### Known Issues
-- Task storage is in-memory (needs Redis/DB for production)
-- Multiple template directories need consolidation
-- No proper error handling for API failures
-- Missing rate limiting on playlist generation
+3. **Production Improvements**
+   - Move task storage from in-memory to Redis/database
+   - Add proper error tracking (Sentry)
+   - Implement rate limiting
+   - Add comprehensive logging
+   - Set up automated backups
 
-## Development Notes
+## Technical Debt
 
-### Important Patterns
-- **Plugin Architecture**: Sources and destinations are extensible via abstract base classes
-- **Factory Pattern**: Flask app created via `create_app()` in `src/flasksaas/__init__.py`
-- **Blueprint Structure**: Modular components (auth, billing, main)
-- **Async Tasks**: Background threads for playlist generation with status polling
+- Move task storage from in-memory to persistent storage (Redis/DB)
+- Add comprehensive error handling and logging
+- Implement proper CSRF protection (currently disabled)
+- Add rate limiting for API endpoints
+- Create automated tests (pytest setup exists but tests need fixing)
+- Set up CI/CD pipeline
+- Configure Flask-Migrate for database migrations (currently using manual scripts)
+- Add production-grade session storage (Redis)
+- Implement proper secrets management
 
-### Conventions
-- Templates use Jinja2 with `{% extends "base.html" %}`
-- All routes return JSON for AJAX or render templates
-- User authentication checked via `@login_required` decorator
-- Dark theme with Tailwind CSS utility classes
-- Brand colors: #00CFFF (cyan), #1a1a1a (dark bg)
+## Environment Variables (Required for Deployment)
 
-### Security Considerations
-- Passwords hashed with bcrypt
-- Sessions managed by Flask-Login
-- OAuth tokens stored securely
-- API keys in environment variables
-- CSRF protection (currently disabled for dev)
+### Render Environment Variables
+- `DATABASE_URL`: PostgreSQL connection string (or uses SQLite fallback)
+- `SPOTIFY_CLIENT_ID`: Spotify OAuth client ID
+- `SPOTIFY_CLIENT_SECRET`: Spotify OAuth client secret
+- `SPOTIFY_REDIRECT_URI`: https://your-app.onrender.com/spotify/callback
+- `GOOGLE_CLIENT_ID`: Google OAuth client ID (e.g., 240581931156-xxx.apps.googleusercontent.com)
+- `GOOGLE_CLIENT_SECRET`: Google OAuth client secret
+- `RENDER`: Set to `true` for Render deployment
+- `RENDER_EXTERNAL_URL`: Full app URL (e.g., https://spotify-playlist-generator-rcva.onrender.com)
+- `YOUTUBE_API_KEY`: YouTube Data API key
+- `FLASK_SECRET_KEY`: Secret key for sessions
+- `STRIPE_SECRET_KEY`: (When implementing billing)
+- `STRIPE_PUBLISHABLE_KEY`: (When implementing billing)
+- `STRIPE_WEBHOOK_SECRET`: (When implementing billing)
 
 ## Key Files
 
@@ -208,6 +213,8 @@ User:
 
 ### Core Functionality
 - `src/flasksaas/main/routes.py` - Playlist generation endpoints
+- `src/flasksaas/auth/routes.py` - Authentication + Google OAuth
+- `src/flasksaas/spotify_routes.py` - Spotify OAuth and playlist creation
 - `utils/sources/youtube.py` - YouTube channel scanning logic
 - `utils/destinations/spotify.py` - Spotify playlist creation
 
@@ -215,12 +222,14 @@ User:
 - `templates/base.html` - Base template with header/nav
 - `templates/landing.html` - Marketing homepage
 - `templates/dashboard.html` - User dashboard
+- `templates/status.html` - Playlist generation progress page
 - `static/css/style.css` - Custom styles (if any)
 
 ### Configuration
 - `.env` - Environment variables (not in git)
 - `requirements.txt` - Python dependencies
 - `CLAUDE.md` - AI assistant instructions
+- `docs/google_oauth_setup.md` - Google OAuth configuration guide
 
 ## Setup Instructions
 
@@ -274,34 +283,34 @@ python web_app.py
 
 ### Current Branch Status
 - On `auth-rebuild` branch
-- Major restructuring in progress
-- Many files modified but not committed
+- Last commit: "fix: handle Google OAuth scope mismatch error"
+- All major features working in production
 
-### Design Decisions Made
-1. **Branding**: "Bright Ears" with cyan (#00CFFF) accent
-2. **UI Theme**: Dark mode (#1a1a1a) with light cyan gradient header
-3. **Navigation**: SaaS-focused (Login/Sign Up prominent)
-4. **Font**: Inter throughout application
-5. **Architecture**: Moving to Flask blueprints + factory pattern
+### What Was Accomplished Today
+1. **Fixed playlist creation flow** - Was stuck at "Initializing task..."
+2. **Debugged Spotify OAuth** - Wrong Client ID in Render environment
+3. **Implemented Google OAuth** - Full setup with Google Cloud Console
+4. **Fixed scope mismatch error** - Added fallback token exchange
+5. **Added CSV export** - Users can download fetched tracks
+6. **Fixed jQuery UI errors** - Replaced with vanilla JavaScript
 
-### Next Session Should
-1. Review uncommitted changes on auth-rebuild branch
-2. Complete auth system integration
-3. Test user registration/login flow
-4. Consider merging to main once stable
-5. Set up proper deployment pipeline
+### Production URLs
+- App: https://spotify-playlist-generator-rcva.onrender.com
+- Google OAuth Callback: https://spotify-playlist-generator-rcva.onrender.com/auth/google-callback
+- Spotify OAuth Callback: https://spotify-playlist-generator-rcva.onrender.com/spotify/callback
+
+### Next Session Should Focus On
+1. **Stripe Integration** - Complete billing system
+2. **User Dashboard** - Show playlist history
+3. **Email Verification** - Add email confirmation flow
+4. **Profile Management** - Let users update their info
+5. **Redis Integration** - Move tasks to persistent storage
 
 ### Important Context
-- User requested "art" focused design - achieved with gradient header
-- Logo has black "B" and half-black "E" - needs light backgrounds
-- Project was originally called "Tidal Fresh" - file paths still reflect this
-- Production features all verified working in core files
-- UI modernization is primary current focus
+- Google OAuth Client ID: 240581931156-mue123egr4tgo46290heq56c00mnc1n5.apps.googleusercontent.com
+- All OAuth integrations working (Google + Spotify)
+- Production deployment stable on Render
+- Database auto-creates tables on startup
+- Task system uses in-memory storage (needs Redis for production scale)
 
-### File Naming Notes
-- Project folder: `tidal_fresh` (historical)
-- Brand name: "Bright Ears" (current)
-- Some references to "MusicMixr" being updated
-- Database: `spotify_playlists.db`
-
-This project is a production-ready SaaS application with solid fundamentals that's currently undergoing UI/UX modernization and architectural improvements to support scaling.
+This project is now a fully functional SaaS application with working authentication, OAuth integrations, and playlist generation. The next phase is monetization through Stripe and enhanced user features.
