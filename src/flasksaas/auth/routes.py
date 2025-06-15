@@ -32,7 +32,7 @@ def get_google_oauth_flow():
             redirect_uri = url_for('auth.google_callback', _external=True, _scheme=scheme)
         else:
             # Fallback for when request context is not available
-            app_url = os.environ.get('RENDER_EXTERNAL_URL', 'https://bright-ears.onrender.com')
+            app_url = os.environ.get('RENDER_EXTERNAL_URL', 'https://spotify-playlist-generator-rcva.onrender.com')
             redirect_uri = f"{app_url}/auth/google-callback"
     else:
         # Local development
