@@ -1,168 +1,263 @@
 {% extends "base.html" %}
 
-{% block title %}Subscription - Spotify Playlist Generator{% endblock %}
+{% block title %}Choose Your Plan - Bright Ears{% endblock %}
 
 {% block content %}
-<div class="ui container" style="margin-top: 2rem;">
-    <h1 class="ui header">
-        <i class="credit card icon"></i>
-        Choose Your Plan
-    </h1>
-    
-    {% if current_user.has_active_subscription %}
-        <div class="ui info message">
-            <div class="header">Current Subscription</div>
-            <p>You are currently subscribed to: <strong>{{ current_user.subscription_display_name }}</strong></p>
-            {% if current_user.subscription_current_period_end %}
-            <p>Your subscription renews on: {{ current_user.subscription_current_period_end.strftime('%B %d, %Y') }}</p>
-            {% endif %}
+<div class="min-h-screen bg-gradient-to-br from-[#1a1a1a] to-[#242831] py-12">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl sm:text-5xl font-bold text-white mb-4">
+                Choose Your Plan
+            </h1>
+            <p class="text-xl text-[#b3b3b3] max-w-2xl mx-auto">
+                Start discovering fresh music with the perfect plan for your needs
+            </p>
         </div>
         
-        <div class="ui red segment">
-            <h3 class="ui header">Cancel Subscription</h3>
-            <p>You can cancel your subscription at any time. You'll continue to have access until the end of your current billing period.</p>
-            <form method="POST" action="{{ url_for('billing.cancel') }}">
-                {{ csrf_token() }}
-                <button type="submit" class="ui red button" onclick="return confirm('Are you sure you want to cancel your subscription?')">
-                    <i class="cancel icon"></i>
-                    Cancel Subscription
-                </button>
-            </form>
-        </div>
-    {% else %}
-        <div class="ui warning message">
-            <div class="header">Free Account Limitations</div>
-            <p>You're currently using a free account. Upgrade to Pro for unlimited playlist generation and advanced features!</p>
-        </div>
-        
-        <div class="ui two stackable cards">
-            <!-- Monthly Plan -->
-            <div class="card">
-                <div class="content">
-                    <div class="header">Pro Monthly</div>
-                    <div class="meta">Perfect for regular users</div>
-                    <div class="description">
-                        <div class="ui huge text" style="color: #2185d0;">
-                            <strong>$3</strong>
-                            <span style="font-size: 0.6em; color: #999;">/month</span>
+        {% if current_user.has_active_subscription %}
+        <!-- Active Subscription View -->
+        <div class="max-w-2xl mx-auto">
+            <div class="bg-[#252525] rounded-xl border border-[#282828] shadow-xl p-8 mb-8">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-2xl font-semibold text-white mb-2">Active Subscription</h2>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                            <span class="text-green-400">{{ current_user.subscription_display_name }}</span>
                         </div>
-                        <div class="ui list" style="margin-top: 1rem;">
-                            <div class="item">
-                                <i class="check green icon"></i>
-                                <div class="content">Unlimited playlist generation</div>
-                            </div>
-                            <div class="item">
-                                <i class="check green icon"></i>
-                                <div class="content">CSV export of all tracks</div>
-                            </div>
-                            <div class="item">
-                                <i class="check green icon"></i>
-                                <div class="content">Advanced matching algorithms</div>
-                            </div>
-                            <div class="item">
-                                <i class="check green icon"></i>
-                                <div class="content">Priority support</div>
-                            </div>
-                        </div>
+                        {% if current_user.subscription_current_period_end %}
+                        <p class="text-[#b3b3b3] mt-2">Renews on {{ current_user.subscription_current_period_end.strftime('%B %d, %Y') }}</p>
+                        {% endif %}
                     </div>
+                    <svg class="w-12 h-12 text-[#00CFFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>
                 </div>
-                <div class="extra content">
-                    <button class="ui fluid primary button subscribe-btn" data-plan="monthly">
-                        <i class="credit card icon"></i>
-                        Subscribe Monthly
+                
+                <div class="bg-red-900/10 border border-red-500/20 rounded-lg p-6">
+                    <h3 class="text-lg font-semibold text-red-400 mb-3">Cancel Subscription</h3>
+                    <p class="text-[#b3b3b3] mb-4">You can cancel anytime. You'll keep access until the end of your billing period.</p>
+                    <form method="POST" action="{{ url_for('billing.cancel') }}">
+                        {{ csrf_token() }}
+                        <button type="submit" class="inline-flex items-center justify-center px-6 py-3 border border-red-500 rounded-full text-red-400 font-medium hover:bg-red-500 hover:text-white transition-all duration-200" onclick="return confirm('Are you sure you want to cancel your subscription?')">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            Cancel Subscription
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- Free Account Upgrade View -->
+        <div class="bg-yellow-900/20 border border-yellow-500 text-yellow-200 px-6 py-4 rounded-lg mb-12 max-w-4xl mx-auto">
+            <div class="flex items-start space-x-3">
+                <svg class="w-6 h-6 text-yellow-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div>
+                    <h3 class="font-semibold mb-1">Free Account Limitations</h3>
+                    <p>You're currently using a free account. Upgrade to Pro for unlimited playlist generation and advanced features!</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pricing Cards -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <!-- Free Plan -->
+            <div class="bg-[#252525] rounded-xl border border-[#282828] shadow-xl overflow-hidden">
+                <div class="p-8">
+                    <div class="text-center mb-6">
+                        <h3 class="text-2xl font-bold text-white mb-2">Free</h3>
+                        <div class="flex items-baseline justify-center">
+                            <span class="text-5xl font-bold text-white">$0</span>
+                            <span class="text-[#6a6a6a] ml-2">/month</span>
+                        </div>
+                        <p class="text-[#6a6a6a] mt-2">Perfect for trying out</p>
+                    </div>
+                    
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-start space-x-3">
+                            <svg class="w-6 h-6 text-[#00CFFF] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-[#b3b3b3]">3 playlists per month</span>
+                        </li>
+                        <li class="flex items-start space-x-3">
+                            <svg class="w-6 h-6 text-[#00CFFF] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-[#b3b3b3]">Basic music sources</span>
+                        </li>
+                        <li class="flex items-start space-x-3 opacity-50">
+                            <svg class="w-6 h-6 text-[#6a6a6a] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            <span class="text-[#6a6a6a]">No CSV export</span>
+                        </li>
+                        <li class="flex items-start space-x-3 opacity-50">
+                            <svg class="w-6 h-6 text-[#6a6a6a] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            <span class="text-[#6a6a6a]">No advanced filters</span>
+                        </li>
+                    </ul>
+                    
+                    <button class="w-full py-3 px-4 border border-[#282828] rounded-full text-white font-medium bg-[#1a1a1a] cursor-not-allowed">
+                        Current Plan
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Monthly Plan -->
+            <div class="bg-[#252525] rounded-xl border border-[#00CFFF] shadow-xl overflow-hidden relative">
+                <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#00CFFF] to-[#00a8d9]"></div>
+                <div class="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <span class="bg-[#00CFFF] text-[#121212] px-4 py-1 rounded-full text-sm font-bold">Most Popular</span>
+                </div>
+                <div class="p-8 pt-12">
+                    <div class="text-center mb-6">
+                        <h3 class="text-2xl font-bold text-white mb-2">Pro Monthly</h3>
+                        <div class="flex items-baseline justify-center">
+                            <span class="text-5xl font-bold text-[#00CFFF]">$3</span>
+                            <span class="text-[#6a6a6a] ml-2">/month</span>
+                        </div>
+                        <p class="text-[#6a6a6a] mt-2">Perfect for regular users</p>
+                    </div>
+                    
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-start space-x-3">
+                            <svg class="w-6 h-6 text-[#00CFFF] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-white font-medium">Unlimited playlists</span>
+                        </li>
+                        <li class="flex items-start space-x-3">
+                            <svg class="w-6 h-6 text-[#00CFFF] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-white font-medium">CSV export</span>
+                        </li>
+                        <li class="flex items-start space-x-3">
+                            <svg class="w-6 h-6 text-[#00CFFF] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-white font-medium">Advanced filtering</span>
+                        </li>
+                        <li class="flex items-start space-x-3">
+                            <svg class="w-6 h-6 text-[#00CFFF] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-white font-medium">Priority support</span>
+                        </li>
+                    </ul>
+                    
+                    <button class="subscribe-btn w-full py-3 px-4 bg-[#00CFFF] text-[#121212] rounded-full font-bold hover:bg-[#00a8d9] transition-all duration-200 transform hover:scale-105" data-plan="monthly">
+                        Choose Monthly
                     </button>
                 </div>
             </div>
             
             <!-- Yearly Plan -->
-            <div class="card">
-                <div class="content">
-                    <div class="ui corner label">
-                        <i class="star icon"></i>
-                    </div>
-                    <div class="header">Pro Yearly</div>
-                    <div class="meta">Best value - Save 33%!</div>
-                    <div class="description">
-                        <div class="ui huge text" style="color: #00b5ad;">
-                            <strong>$24</strong>
-                            <span style="font-size: 0.6em; color: #999;">/year</span>
-                        </div>
-                        <div class="ui small text" style="color: #00b5ad; margin-bottom: 1rem;">
-                            Only $2/month - Save $12/year!
-                        </div>
-                        <div class="ui list">
-                            <div class="item">
-                                <i class="check green icon"></i>
-                                <div class="content">Unlimited playlist generation</div>
-                            </div>
-                            <div class="item">
-                                <i class="check green icon"></i>
-                                <div class="content">CSV export of all tracks</div>
-                            </div>
-                            <div class="item">
-                                <i class="check green icon"></i>
-                                <div class="content">Advanced matching algorithms</div>
-                            </div>
-                            <div class="item">
-                                <i class="check green icon"></i>
-                                <div class="content">Priority support</div>
-                            </div>
-                            <div class="item">
-                                <i class="star yellow icon"></i>
-                                <div class="content"><strong>2 months free!</strong></div>
-                            </div>
-                        </div>
-                    </div>
+            <div class="bg-[#252525] rounded-xl border border-[#282828] shadow-xl overflow-hidden relative">
+                <div class="absolute top-4 right-4">
+                    <span class="bg-green-600 text-white px-3 py-1 rounded-full text-xs font-bold">Save 33%</span>
                 </div>
-                <div class="extra content">
-                    <button class="ui fluid teal button subscribe-btn" data-plan="yearly">
-                        <i class="credit card icon"></i>
-                        Subscribe Yearly
+                <div class="p-8">
+                    <div class="text-center mb-6">
+                        <h3 class="text-2xl font-bold text-white mb-2">Pro Yearly</h3>
+                        <div class="flex items-baseline justify-center">
+                            <span class="text-5xl font-bold text-white">$24</span>
+                            <span class="text-[#6a6a6a] ml-2">/year</span>
+                        </div>
+                        <p class="text-green-400 mt-2 font-medium">Only $2/month - Save $12!</p>
+                    </div>
+                    
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-start space-x-3">
+                            <svg class="w-6 h-6 text-[#00CFFF] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-[#b3b3b3]">Everything in Monthly</span>
+                        </li>
+                        <li class="flex items-start space-x-3">
+                            <svg class="w-6 h-6 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                            </svg>
+                            <span class="text-green-400 font-medium">Save $12 per year</span>
+                        </li>
+                        <li class="flex items-start space-x-3">
+                            <svg class="w-6 h-6 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-green-400 font-medium">2 months free</span>
+                        </li>
+                        <li class="flex items-start space-x-3">
+                            <svg class="w-6 h-6 text-[#00CFFF] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-[#b3b3b3]">Early access to features</span>
+                        </li>
+                    </ul>
+                    
+                    <button class="subscribe-btn w-full py-3 px-4 border-2 border-[#00CFFF] text-[#00CFFF] rounded-full font-bold hover:bg-[#00CFFF] hover:text-[#121212] transition-all duration-200" data-plan="yearly">
+                        Choose Yearly
                     </button>
                 </div>
             </div>
         </div>
         
-        <div class="ui segment" style="margin-top: 2rem;">
-            <h3 class="ui header">
-                <i class="shield icon"></i>
-                Secure Payment
-            </h3>
-            <p>Your payment is processed securely by Stripe. We never store your credit card information.</p>
-            <div class="ui horizontal list">
-                <div class="item">
-                    <i class="cc visa icon"></i>
-                    Visa
+        <!-- Trust Indicators -->
+        <div class="mt-16 text-center">
+            <div class="inline-flex items-center space-x-6 text-[#6a6a6a]">
+                <div class="flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                    <span class="text-sm">Secure payments by Stripe</span>
                 </div>
-                <div class="item">
-                    <i class="cc mastercard icon"></i>
-                    Mastercard
+                <div class="flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    </svg>
+                    <span class="text-sm">Cancel anytime</span>
                 </div>
-                <div class="item">
-                    <i class="cc amex icon"></i>
-                    American Express
-                </div>
-                <div class="item">
-                    <i class="lock icon"></i>
-                    SSL Encrypted
+                <div class="flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    <span class="text-sm">Instant activation</span>
                 </div>
             </div>
         </div>
-    {% endif %}
+        {% endif %}
+    </div>
 </div>
 
+{% block extra_js %}
 <script src="https://js.stripe.com/v3/"></script>
 <script>
-    // Initialize Stripe
+    // Initialize Stripe (only if we have a publishable key)
+    {% if stripe_publishable_key %}
     const stripe = Stripe('{{ stripe_publishable_key }}');
+    {% endif %}
     
     // Handle subscription button clicks
     document.querySelectorAll('.subscribe-btn').forEach(button => {
         button.addEventListener('click', async (e) => {
+            e.preventDefault();
             const planType = e.target.dataset.plan;
             
+            // For now, just show an alert since Stripe isn't configured
+            alert(`You selected the ${planType} plan! Stripe integration coming soon.`);
+            
+            {% if stripe_publishable_key %}
             // Show loading state
-            e.target.classList.add('loading');
+            const originalText = e.target.textContent;
+            e.target.textContent = 'Processing...';
+            e.target.disabled = true;
             
             try {
                 // Create checkout session
@@ -196,9 +291,11 @@
                 console.error('Error:', error);
                 alert('Error: ' + error.message);
             } finally {
-                // Remove loading state
-                e.target.classList.remove('loading');
+                // Reset button state
+                e.target.textContent = originalText;
+                e.target.disabled = false;
             }
+            {% endif %}
         });
     });
 </script>
