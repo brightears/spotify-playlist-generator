@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <!-- Semantic UI CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <!-- Custom CSS -->
+    <style>
+        .main-container {
+            margin-top: 4em;
+            margin-bottom: 2em;
+        }
+        .messages {
+            margin: 1em 0;
+        }
+        .flash-message {
+            margin-bottom: 1em;
+        }
+    </style>
+    
+</head>
+<body>
+    <!-- Navigation -->
+    <div class="ui fixed inverted menu">
+        <div class="ui container">
+            <a href="/" class="header item">
+                Spotify Playlist Generator
+            </a>
+            <div class="right menu">
+                
+                    <a href="/auth/login" class="item">Login</a>
+                    <a href="/auth/register" class="item">Register</a>
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ui main container main-container">
+        <!-- Flash Messages -->
+        <div class="messages">
+            
+                
+            
+        </div>
+        
+        <!-- Page Content -->
+        
+<div class="ui middle aligned center aligned grid" style="height: 80vh">
+  <div class="column" style="max-width: 450px;">
+    <h2 class="ui teal image header"><div class="content">Create your account</div></h2>
+    <form class="ui large form" method="POST" action="/auth/register">
+      <input id="csrf_token" name="csrf_token" type="hidden" value="ImYyNWIyMmM1MGRjOTU3OTcxYWQ1Yjc4ODA0ZWNiOTM5YzkzOGMxNTki.aD1FyQ.eUxMhOVYFSPauz769aAdrOCWfHc">
+      <div class="ui stacked segment">
+        <div class="field"><label for="email">Email</label> <input class="ui input" id="email" name="email" required type="text" value=""></div>
+        <div class="field"><label for="password">Password</label> <input class="ui input" id="password" minlength="8" name="password" required type="password" value=""></div>
+        <div class="field"><label for="password2">Confirm Password</label> <input class="ui input" id="password2" name="password2" required type="password" value=""></div>
+        <input class="ui fluid large teal submit button" id="submit" name="submit" type="submit" value="Register">
+      </div>
+      <div class="ui error message"></div>
+    </form>
+    <div class="ui message">
+      Already registered? <a href="/auth/login">Log In</a>
+    </div>
+  </div>
+</div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="ui inverted vertical footer segment">
+        <div class="ui container">
+            <div class="ui inverted divided grid">
+                <div class="sixteen wide column">
+                    <p>&copy; 2025 Spotify Playlist Generator</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+    <script>
+        // Initialize Semantic UI components
+        $(document).ready(function() {
+            // Make flash messages closable
+            $('.message .close').on('click', function() {
+                $(this).closest('.message').transition('fade');
+            });
+        });
+    </script>
+    
+</body>
+</html>

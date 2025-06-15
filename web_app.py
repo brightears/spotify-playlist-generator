@@ -11,6 +11,14 @@ from pathlib import Path
 from threading import Thread
 from queue import Queue
 
+# Load environment variables first
+from dotenv import load_dotenv
+load_dotenv()
+
+# Ensure 'src' and root directory are importable
+ROOT_DIR = Path(__file__).resolve().parent
+sys.path.append(str(ROOT_DIR))
+
 # Load configuration and API keys from environment variables
 # This is done first to ensure they're available for imports
 
@@ -28,36 +36,72 @@ if not spotify_client_id or not spotify_client_secret:
     logger.warning("Spotify credentials not set. Spotify authentication may fail.")
 
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
-from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, SelectMultipleField, BooleanField, IntegerField
-from wtforms.validators import DataRequired, NumberRange, Optional as OptionalValidator
+from flask_wtf import FlaskForm, CSRFProtect
 
 from utils.sources.base import MusicSource, Track
 from utils.destinations.base import PlaylistDestination, PlaylistResult
-from utils.sources.traxsource_new import TraxsourceSource
-from utils.sources.beatport import BeatportSource
 from utils.sources.youtube import YouTubeSource
 from utils.destinations.spotify import SpotifyDestination
 
-from models import db, User
-from auth import auth_bp
-from subscription import subscription_bp
+# Import the new FlaskSaaS auth & billing blueprints
+from src.flasksaas import db
+from src.flasksaas.models import User
+from src.flasksaas.auth.routes import auth_bp
+from src.flasksaas.billing.routes import billing_bp
+from src.flasksaas.main import main_bp
+from src.flasksaas.spotify_routes import spotify_bp
+from src.flasksaas.forms import PlaylistForm
 
 # -------------- Flask application setup --------------- #
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY', 'development-key')
+app = Flask(__name__, template_folder="templates")
+
+# Check if we're in production (Render sets RENDER environment variable)
+IS_PRODUCTION = os.environ.get('RENDER') is not None
+
+# Use a stable SECRET_KEY that doesn't change between restarts
+# This is the most important setting for session stability
+app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY', 'development-key-not-for-prod')
+app.config['TESTING'] = not IS_PRODUCTION
+app.config['DEBUG'] = not IS_PRODUCTION
+
+# Session configuration for development - ensures cookies work properly
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_PERMANENT'] = True
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=5)
+
+# Configure session cookies based on environment
+app.config['SESSION_COOKIE_SECURE'] = IS_PRODUCTION  # HTTPS only in production
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_NAME'] = 'spotify_session'
+
+# Make sessions permanent by default to improve persistence
+@app.before_request
+def make_session_permanent():
+    session.permanent = True
 
 # Set the SQLite database path to an absolute path
 base_dir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
-    'DATABASE_URL', 
-    f'sqlite:///{os.path.join(base_dir, "spotify_playlists.db")}'
-)
+
+# Handle database URL - Render uses 'postgres://' but SQLAlchemy needs 'postgresql://'
+database_url = os.environ.get('DATABASE_URL')
+if database_url and database_url.startswith('postgres://'):
+    database_url = database_url.replace('postgres://', 'postgresql://', 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url or f'sqlite:///{os.path.join(base_dir, "spotify_playlists.db")}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Temporarily disable CSRF for development; enable for production
-app.config['WTF_CSRF_ENABLED'] = False
+# Enable CSRF protection in production
+app.config['WTF_CSRF_ENABLED'] = IS_PRODUCTION
+
+# Initialize CSRFProtect but don't enforce it for now
+csrf = CSRFProtect()
+csrf.init_app(app)
+
+# Add a comment explaining this is for development only
+# TODO: Re-enable CSRF protection before deploying to production
+# This is temporarily disabled to troubleshoot authentication flow
 
 # Initialize database
 db.init_app(app)
@@ -73,9 +117,11 @@ login_manager.login_view = 'auth.login'
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# Register blueprints
+# Register blueprints (new auth + billing + main)
 app.register_blueprint(auth_bp, url_prefix='/auth')
-app.register_blueprint(subscription_bp)
+app.register_blueprint(billing_bp, url_prefix='/billing')
+app.register_blueprint(main_bp)  # No prefix for main blueprint to match existing URLs
+app.register_blueprint(spotify_bp, url_prefix='/spotify')  # Register the Spotify blueprint
 
 # -------------- Helper Functions --------------------- #
 
@@ -90,33 +136,6 @@ def subscription_required(f):
 
 # Task management for playlist creation
 tasks = {}
-
-# -------------- Form Definition --------------------- #
-
-class PlaylistForm(FlaskForm):
-    """Form for creating a new playlist."""
-    name = StringField('Playlist Name', validators=[DataRequired()])
-    description = StringField('Description')
-    genre = SelectField('Genre', choices=[
-        ('', 'All Genres'),
-        ('electronic', 'Electronic'),
-        ('house', 'House'),
-        ('techno', 'Techno'),
-        ('ambient', 'Ambient'),
-        ('pop', 'Pop'),
-        ('rock', 'Rock'),
-        ('indie', 'Indie'),
-        ('hip-hop', 'Hip Hop'),
-        ('rap', 'Rap'),
-        ('r-n-b', 'R&B'),
-        ('jazz', 'Jazz'),
-        ('classical', 'Classical'),
-        ('country', 'Country'),
-        ('folk', 'Folk'),
-        ('metal', 'Metal')
-    ])
-    days = IntegerField('Days to Look Back', default=7, validators=[NumberRange(min=1, max=90)])
-    public = BooleanField('Public Playlist', default=True)
 
 # -------------- Route Definitions ------------------ #
 
@@ -163,13 +182,7 @@ def index():
     return render_template('index.html', form=form, errors=errors)
 
 
-@app.route('/dashboard')
-@login_required
-def dashboard():
-    """User dashboard showing playlist history and stats."""
-    # In a real implementation, this would load playlists from the database
-    # For now, we'll just show a simple dashboard
-    return render_template('dashboard.html')
+# Dashboard route moved to main blueprint
 
 
 @app.route('/create')
@@ -192,6 +205,48 @@ def create_playlist_page():
     
     return render_template('index.html', form=form)
 
+
+# Auth status route for direct testing of authentication without redirects
+
+@app.route('/auth-status')
+def auth_status():
+    """Display current authentication status without redirects."""
+    user_data = {
+        'is_authenticated': current_user.is_authenticated,
+        'session_active': bool(session),
+        'session_keys': list(session.keys())
+    }
+    
+    if current_user.is_authenticated:
+        user_data.update({
+            'user_id': current_user.id,
+            'user_email': current_user.email
+        })
+    
+    return jsonify(user_data)
+
+@app.route('/direct-login-helper')
+def direct_login_helper():
+    """Helper page for testing authentication in browser preview environments."""
+    return render_template('direct_login.html')
+
+@app.route('/test-session')
+def test_session():
+    """Test route to verify session persistence with browser-based test."""
+    # Increment session counter
+    session['count'] = session.get('count', 0) + 1
+    session_keys = list(session.keys())
+    
+    from flask_wtf.csrf import generate_csrf
+    csrf_token = generate_csrf()
+    
+    # Render template showing session info
+    return render_template('test_session.html',
+                           session_count=session.get('count', 0),
+                           session_keys=session_keys,
+                           csrf_token=csrf_token,
+                           is_authenticated=current_user.is_authenticated,
+                           user_email=current_user.email if current_user.is_authenticated else None)
 
 @app.route('/status/<task_id>')
 def status(task_id):

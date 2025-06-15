@@ -1,1 +1,205 @@
-{% include code from templates/subscription.html %}
+{% extends "base.html" %}
+
+{% block title %}Subscription - Spotify Playlist Generator{% endblock %}
+
+{% block content %}
+<div class="ui container" style="margin-top: 2rem;">
+    <h1 class="ui header">
+        <i class="credit card icon"></i>
+        Choose Your Plan
+    </h1>
+    
+    {% if current_user.has_active_subscription %}
+        <div class="ui info message">
+            <div class="header">Current Subscription</div>
+            <p>You are currently subscribed to: <strong>{{ current_user.subscription_display_name }}</strong></p>
+            {% if current_user.subscription_current_period_end %}
+            <p>Your subscription renews on: {{ current_user.subscription_current_period_end.strftime('%B %d, %Y') }}</p>
+            {% endif %}
+        </div>
+        
+        <div class="ui red segment">
+            <h3 class="ui header">Cancel Subscription</h3>
+            <p>You can cancel your subscription at any time. You'll continue to have access until the end of your current billing period.</p>
+            <form method="POST" action="{{ url_for('billing.cancel') }}">
+                {{ csrf_token() }}
+                <button type="submit" class="ui red button" onclick="return confirm('Are you sure you want to cancel your subscription?')">
+                    <i class="cancel icon"></i>
+                    Cancel Subscription
+                </button>
+            </form>
+        </div>
+    {% else %}
+        <div class="ui warning message">
+            <div class="header">Free Account Limitations</div>
+            <p>You're currently using a free account. Upgrade to Pro for unlimited playlist generation and advanced features!</p>
+        </div>
+        
+        <div class="ui two stackable cards">
+            <!-- Monthly Plan -->
+            <div class="card">
+                <div class="content">
+                    <div class="header">Pro Monthly</div>
+                    <div class="meta">Perfect for regular users</div>
+                    <div class="description">
+                        <div class="ui huge text" style="color: #2185d0;">
+                            <strong>$3</strong>
+                            <span style="font-size: 0.6em; color: #999;">/month</span>
+                        </div>
+                        <div class="ui list" style="margin-top: 1rem;">
+                            <div class="item">
+                                <i class="check green icon"></i>
+                                <div class="content">Unlimited playlist generation</div>
+                            </div>
+                            <div class="item">
+                                <i class="check green icon"></i>
+                                <div class="content">CSV export of all tracks</div>
+                            </div>
+                            <div class="item">
+                                <i class="check green icon"></i>
+                                <div class="content">Advanced matching algorithms</div>
+                            </div>
+                            <div class="item">
+                                <i class="check green icon"></i>
+                                <div class="content">Priority support</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="extra content">
+                    <button class="ui fluid primary button subscribe-btn" data-plan="monthly">
+                        <i class="credit card icon"></i>
+                        Subscribe Monthly
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Yearly Plan -->
+            <div class="card">
+                <div class="content">
+                    <div class="ui corner label">
+                        <i class="star icon"></i>
+                    </div>
+                    <div class="header">Pro Yearly</div>
+                    <div class="meta">Best value - Save 33%!</div>
+                    <div class="description">
+                        <div class="ui huge text" style="color: #00b5ad;">
+                            <strong>$24</strong>
+                            <span style="font-size: 0.6em; color: #999;">/year</span>
+                        </div>
+                        <div class="ui small text" style="color: #00b5ad; margin-bottom: 1rem;">
+                            Only $2/month - Save $12/year!
+                        </div>
+                        <div class="ui list">
+                            <div class="item">
+                                <i class="check green icon"></i>
+                                <div class="content">Unlimited playlist generation</div>
+                            </div>
+                            <div class="item">
+                                <i class="check green icon"></i>
+                                <div class="content">CSV export of all tracks</div>
+                            </div>
+                            <div class="item">
+                                <i class="check green icon"></i>
+                                <div class="content">Advanced matching algorithms</div>
+                            </div>
+                            <div class="item">
+                                <i class="check green icon"></i>
+                                <div class="content">Priority support</div>
+                            </div>
+                            <div class="item">
+                                <i class="star yellow icon"></i>
+                                <div class="content"><strong>2 months free!</strong></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="extra content">
+                    <button class="ui fluid teal button subscribe-btn" data-plan="yearly">
+                        <i class="credit card icon"></i>
+                        Subscribe Yearly
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="ui segment" style="margin-top: 2rem;">
+            <h3 class="ui header">
+                <i class="shield icon"></i>
+                Secure Payment
+            </h3>
+            <p>Your payment is processed securely by Stripe. We never store your credit card information.</p>
+            <div class="ui horizontal list">
+                <div class="item">
+                    <i class="cc visa icon"></i>
+                    Visa
+                </div>
+                <div class="item">
+                    <i class="cc mastercard icon"></i>
+                    Mastercard
+                </div>
+                <div class="item">
+                    <i class="cc amex icon"></i>
+                    American Express
+                </div>
+                <div class="item">
+                    <i class="lock icon"></i>
+                    SSL Encrypted
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    // Initialize Stripe
+    const stripe = Stripe('{{ stripe_publishable_key }}');
+    
+    // Handle subscription button clicks
+    document.querySelectorAll('.subscribe-btn').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            const planType = e.target.dataset.plan;
+            
+            // Show loading state
+            e.target.classList.add('loading');
+            
+            try {
+                // Create checkout session
+                const response = await fetch('/billing/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        plan_type: planType
+                    })
+                });
+                
+                const session = await response.json();
+                
+                if (session.error) {
+                    throw new Error(session.error);
+                }
+                
+                // Redirect to Stripe Checkout
+                const result = await stripe.redirectToCheckout({
+                    sessionId: session.id
+                });
+                
+                if (result.error) {
+                    throw new Error(result.error.message);
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+            } finally {
+                // Remove loading state
+                e.target.classList.remove('loading');
+            }
+        });
+    });
+</script>
+{% endblock %}

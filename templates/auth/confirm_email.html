@@ -3,10 +3,13 @@
 {% block title %}Confirm Email - Spotify Playlist Generator{% endblock %}
 
 {% block content %}
-<div class="auth-container">
-  <div class="auth-form">
-    <h1 class="auth-title">Email Confirmation</h1>
-    
+<div class="ui text container">
+  <div class="ui segment">
+    <h1 class="ui header">Confirm Your Email</h1>
+    <p>Please check your email for confirmation instructions. You must confirm your email address before you can access all features.</p>
+    <p>If you didn't receive an email, please check your spam folder or <a href="#">click here to resend</a>.</p>
+    <div class="ui divider"></div>
+    <a href="{{ url_for('index') }}" class="ui button">Return to Home</a>
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}

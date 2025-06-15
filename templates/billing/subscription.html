@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}Subscription Management - Bright Ears{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-[#1a1a1a] to-[#242831] py-12">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-4xl font-bold text-white mb-8 text-center">Subscription Management</h1>
+        
+        {% if current_user.has_active_subscription %}
+        <!-- Active Subscription View -->
+        <div class="bg-[#252525] rounded-xl border border-[#282828] shadow-xl p-8 mb-6">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-2xl font-semibold text-white mb-2">Active Premium Subscription</h2>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                        <span class="text-green-400">Your premium subscription is active</span>
+                    </div>
+                </div>
+                <svg class="w-12 h-12 text-[#00CFFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                </svg>
+            </div>
+            
+            <div class="bg-[#1a1a1a] rounded-lg p-6 mb-6">
+                <h3 class="text-lg font-semibold text-white mb-4">Premium Features</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="flex items-start space-x-3">
+                        <svg class="w-5 h-5 text-[#00CFFF] mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <p class="text-[#b3b3b3]">Unlimited playlist generation</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <svg class="w-5 h-5 text-[#00CFFF] mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <p class="text-[#b3b3b3]">Advanced filtering options</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <svg class="w-5 h-5 text-[#00CFFF] mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <p class="text-[#b3b3b3]">Priority support</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <svg class="w-5 h-5 text-[#00CFFF] mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <p class="text-[#b3b3b3]">Early access to new features</p>
+                    </div>
+                </div>
+            </div>
+            
+            <a href="#" class="inline-flex items-center justify-center px-6 py-3 border border-red-500 rounded-full text-red-400 font-medium hover:bg-red-500 hover:text-white transition-all duration-200">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+                Cancel Subscription
+            </a>
+        </div>
+        {% else %}
+        <!-- No Subscription View -->
+        <div class="bg-yellow-900/20 border border-yellow-500 text-yellow-200 px-6 py-4 rounded-lg mb-8">
+            <h3 class="text-lg font-semibold mb-1">No Active Subscription</h3>
+            <p>You're currently on the free plan with limited features. Upgrade to Premium for unlimited access!</p>
+        </div>
+        
+        <!-- Premium Plan Card -->
+        <div class="bg-[#252525] rounded-xl border border-[#282828] shadow-xl overflow-hidden hover:border-[#00CFFF] transition-all duration-300">
+            <div class="bg-gradient-to-r from-[#00CFFF] to-[#00a8d9] py-1"></div>
+            <div class="p-8">
+                <div class="text-center mb-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Premium Plan</h3>
+                    <div class="flex items-baseline justify-center">
+                        <span class="text-5xl font-bold text-[#00CFFF]">$9.99</span>
+                        <span class="text-[#6a6a6a] ml-2">/month</span>
+                    </div>
+                </div>
+                
+                <div class="space-y-4 mb-8">
+                    <div class="flex items-start space-x-3">
+                        <svg class="w-6 h-6 text-[#00CFFF] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div>
+                            <p class="text-white font-medium">Unlimited playlist generation</p>
+                            <p class="text-sm text-[#6a6a6a]">Create as many playlists as you want</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <svg class="w-6 h-6 text-[#00CFFF] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div>
+                            <p class="text-white font-medium">Advanced filtering options</p>
+                            <p class="text-sm text-[#6a6a6a]">Fine-tune your music discovery</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <svg class="w-6 h-6 text-[#00CFFF] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div>
+                            <p class="text-white font-medium">Priority support</p>
+                            <p class="text-sm text-[#6a6a6a]">Get help when you need it</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <svg class="w-6 h-6 text-[#00CFFF] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div>
+                            <p class="text-white font-medium">Early access to new features</p>
+                            <p class="text-sm text-[#6a6a6a]">Be the first to try what's new</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="subscribe-button" class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-full shadow-sm text-sm font-bold text-[#121212] bg-[#00CFFF] hover:bg-[#00a8d9] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00CFFF] transition-all duration-200 transform hover:scale-105">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                    </svg>
+                    Subscribe Now
+                </button>
+                
+                <p class="text-center text-xs text-[#6a6a6a] mt-4">
+                    Secure payment powered by Stripe. Cancel anytime.
+                </p>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Security Badge -->
+        <div class="mt-8 text-center">
+            <div class="inline-flex items-center space-x-2 text-[#6a6a6a]">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+                <span class="text-sm">Secured by 256-bit SSL encryption</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

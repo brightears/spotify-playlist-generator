@@ -1,1 +1,86 @@
-{% include code from templates/base.html %}
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Bright Ears - YouTube to Spotify Playlist Generator{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Inter:wght@400;500;600;700;900&family=Noto+Sans:wght@400;500;700;900" media="print" onload="this.media='all'">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,">
+    {% block extra_css %}{% endblock %}
+    <style>
+        :root {
+            --select-button-svg: url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2724px%27 height=%2724px%27 fill=%27rgb(0,207,255)%27 viewBox=%270 0 256 256%27%3e%3cpath d=%27M181.66,170.34a8,8,0,0,1,0,11.32l-48,48a8,8,0,0,1-11.32,0l-48-48a8,8,0,0,1,11.32-11.32L128,212.69l42.34-42.35A8,8,0,0,1,181.66,170.34Zm-96-84.68L128,43.31l42.34,42.35a8,8,0,0,0,11.32-11.32l-48-48a8,8,0,0,0-11.32,0l-48,48A8,8,0,0,0,85.66,85.66Z%27%3e%3c/path%3e%3c/svg%3e');
+        }
+        body {
+            font-family: "Inter", "Noto Sans", sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-[#1a1a1a]">
+    <div class="relative flex size-full min-h-screen flex-col bg-[#1a1a1a] dark group/design-root overflow-x-hidden">
+        <div class="layout-container flex h-full grow flex-col">
+            
+            <!-- Header -->
+            <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#282828] px-10 py-4 shadow-lg bg-gradient-to-r from-[#f0fdff] to-[#e6fcff]">
+                <div class="flex items-center gap-4 text-[#121212]">
+                    <div class="w-10 h-10">
+                        <img src="{{ url_for('static', filename='images/BE_Logo_Transparent.png') }}" alt="Bright Ears Logo" class="w-full h-full object-contain">
+                    </div>
+                    <h2 class="text-[#121212] text-xl font-bold leading-tight tracking-[-0.015em]">
+                        <a href="{{ url_for('main.index') }}" class="text-[#121212] hover:text-[#00CFFF] transition-colors duration-200">Bright Ears</a>
+                    </h2>
+                </div>
+                <div class="flex flex-1 justify-end gap-6">
+                    {% if current_user.is_authenticated %}
+                    <div class="flex items-center gap-6">
+                        <a class="text-[#666666] hover:text-[#121212] text-sm font-medium leading-normal transition-colors duration-200" href="{{ url_for('main.dashboard') }}">Dashboard</a>
+                        <a class="text-[#666666] hover:text-[#121212] text-sm font-medium leading-normal transition-colors duration-200" href="#">Account</a>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-[#666666] text-sm">{{ current_user.email }}</span>
+                        <a href="{{ url_for('auth.logout') }}" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-6 bg-[#282828] text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-[#383838] transition-colors duration-200">
+                            <span class="truncate">Log Out</span>
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="flex items-center gap-6">
+                        <a class="text-[#666666] hover:text-[#121212] text-sm font-medium leading-normal transition-colors duration-200" href="{{ url_for('main.index') }}">Home</a>
+                        <a class="text-[#666666] hover:text-[#121212] text-sm font-medium leading-normal transition-colors duration-200" href="{{ url_for('auth.login') }}">Login</a>
+                    </div>
+                    <a href="{{ url_for('auth.register') }}" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-6 bg-[#00CFFF] text-[#121212] text-sm font-bold leading-normal tracking-[0.015em] hover:bg-[#00a8d9] transition-colors duration-200">
+                        <span class="truncate">Sign Up</span>
+                    </a>
+                    {% endif %
+                </div>
+            </header>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="px-10 py-4">
+                        {% for category, message in messages %}
+                            <div class="mb-4 px-4 py-3 rounded-lg border {% if category == 'error' or category == 'danger' %}bg-red-900/20 border-red-500 text-red-200{% elif category == 'warning' %}bg-yellow-900/20 border-yellow-500 text-yellow-200{% elif category == 'success' %}bg-green-900/20 border-green-500 text-green-200{% else %}bg-blue-900/20 border-blue-500 text-blue-200{% endif %}" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <!-- Main Content -->
+            <main class="flex-1">
+                {% block content %}{% endblock %}
+            </main>
+
+            <!-- Footer -->
+            <footer class="py-8 text-center border-t border-solid border-[#282828]">
+                <p class="text-[#6a6a6a] text-sm">© 2024 Bright Ears. All rights reserved.</p>
+            </footer>
+        </div>
+    </div>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

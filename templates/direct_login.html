@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direct Login Helper</title>
+    <!-- Semantic UI CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <style>
+        .main-container {
+            margin-top: 4em;
+            margin-bottom: 2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="ui main container main-container">
+        <h1 class="ui header">Direct Login Helper</h1>
+        <p>This page helps you test authentication without relying on form submissions that may fail in browser preview environments.</p>
+
+        <div class="ui segment">
+            <h3>Test Direct Login</h3>
+            <p>Click the button below to attempt direct login with test@example.com / password123:</p>
+            <button class="ui primary button" id="direct-login-btn">Login as test@example.com</button>
+            
+            <div class="ui hidden message" id="result-message">
+                <div class="header" id="result-header"></div>
+                <p id="result-content"></p>
+                <a href="/dashboard" class="ui button" id="dashboard-link">Go to Dashboard</a>
+            </div>
+        </div>
+
+        <div class="ui segment">
+            <h3>Check Authentication Status</h3>
+            <button class="ui button" id="check-auth-btn">Check Authentication Status</button>
+            <div class="ui hidden message" id="auth-message">
+                <div class="header">Authentication Status</div>
+                <pre id="auth-result"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Direct login button
+            $('#direct-login-btn').click(function() {
+                $.getJSON('/auth/direct-login/test@example.com/password123', function(data) {
+                    $('#result-header').text(data.success ? 'Success!' : 'Failed!');
+                    $('#result-content').text(data.message);
+                    $('#result-message').removeClass('hidden').addClass(data.success ? 'positive' : 'negative');
+                    if (data.success) {
+                        $('#dashboard-link').show();
+                    } else {
+                        $('#dashboard-link').hide();
+                    }
+                }).fail(function() {
+                    $('#result-header').text('Error');
+                    $('#result-content').text('Failed to connect to server');
+                    $('#result-message').removeClass('hidden').addClass('negative');
+                    $('#dashboard-link').hide();
+                });
+            });
+
+            // Check auth status button
+            $('#check-auth-btn').click(function() {
+                $.getJSON('/auth-status', function(data) {
+                    $('#auth-result').text(JSON.stringify(data, null, 2));
+                    $('#auth-message').removeClass('hidden');
+                }).fail(function() {
+                    $('#auth-result').text('Failed to check authentication status');
+                    $('#auth-message').removeClass('hidden').addClass('negative');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

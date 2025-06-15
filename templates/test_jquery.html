@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}jQuery Test{% endblock %}
+
+{% block content %}
+<div class="ui container">
+    <h1>jQuery Test Page</h1>
+    <div id="test-result">Testing...</div>
+    <button id="test-button" class="ui button">Test jQuery</button>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+console.log('Script loaded');
+console.log('jQuery available:', typeof $ !== 'undefined');
+console.log('jQuery version:', typeof $ !== 'undefined' ? $.fn.jquery : 'Not available');
+
+$(document).ready(function() {
+    console.log('Document ready fired');
+    $('#test-result').text('jQuery is working!').addClass('ui green message');
+    
+    $('#test-button').click(function() {
+        alert('jQuery click handler works!');
+    });
+});
+</script>
+{% endblock %}

@@ -1,1 +1,276 @@
-{% include code from templates/status.html %}
+{% extends "base.html" %}
+
+{% block title %}Playlist Status{% endblock %}
+
+{% block content %}
+<div class="ui container" id="status-container">
+    <h1 class="ui header">Playlist Generation Status</h1>
+    <div class="ui divider"></div>
+    
+    <div class="ui segment" id="status-box">
+        <div class="ui active dimmer" id="loading-dimmer">
+            <div class="ui text loader">Loading status...</div>
+        </div>
+        
+        <h2 class="ui header" id="status-header">Processing</h2>
+        
+        <div class="ui indicating progress" id="task-progress">
+            <div class="bar">
+                <div class="progress"></div>
+            </div>
+            <div class="label" id="status-message">Initializing task...</div>
+        </div>
+        
+        <div id="result-container" style="display: none;">
+            <div class="ui divider"></div>
+            <h3 class="ui header">Playlist Details</h3>
+            
+            <div class="ui list">
+                <div class="item">
+                    <i class="music icon"></i>
+                    <div class="content">
+                        <div class="header">Name</div>
+                        <div class="description" id="playlist-name"></div>
+                    </div>
+                </div>
+                <div class="item">
+                    <i class="list icon"></i>
+                    <div class="content">
+                        <div class="header">Tracks</div>
+                        <div class="description" id="track-count"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <a class="ui primary button" id="spotify-action-button" target="_blank">
+                <i class="spotify icon"></i> <span id="spotify-button-text">Connect to Spotify</span>
+            </a>
+            
+            <a class="ui blue button" id="csv-download-button" style="display: none;">
+                <i class="download icon"></i> Download CSV
+            </a>
+            
+            <div class="ui divider"></div>
+            <h3 class="ui header">Track Preview</h3>
+            <div class="ui relaxed divided list" id="track-list">
+                <!-- Track items will be inserted here -->
+            </div>
+            
+            <a href="{{ url_for('main.dashboard') }}" class="ui button">
+                <i class="arrow left icon"></i> Back to Dashboard
+            </a>
+        </div>
+        
+        <div id="error-container" style="display: none;">
+            <div class="ui negative message">
+                <div class="header">Error</div>
+                <p id="error-message">There was a problem creating your playlist.</p>
+            </div>
+            
+            <a href="{{ url_for('main.create', retry=task_id) }}" class="ui primary button">
+                <i class="redo icon"></i> Try Again
+            </a>
+            
+            <a href="{{ url_for('main.dashboard') }}" class="ui button">
+                <i class="arrow left icon"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Check if jQuery is available
+console.log('jQuery available:', typeof $ !== 'undefined');
+console.log('jQuery version:', typeof $ !== 'undefined' ? $.fn.jquery : 'Not available');
+
+$(document).ready(function() {
+    console.log('Document ready fired');
+    const taskId = '{{ task_id }}';
+    let pollInterval;
+    let failedAttempts = 0;
+    const maxFailedAttempts = 3;
+    
+    // Get CSRF token - use the one explicitly passed to the template
+    const csrfToken = '{{ csrf_token }}';
+    console.log('Task ID:', taskId);
+    console.log('CSRF Token available:', csrfToken ? 'Yes' : 'No');
+    
+    // Set CSRF token for all AJAX requests
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type)) {
+                xhr.setRequestHeader("X-CSRFToken", csrfToken);
+                console.log('Added CSRF token to request');
+            }
+        },
+        xhrFields: {
+            withCredentials: true  // This ensures cookies are sent with the request
+        }
+    });
+    
+    function updateStatus() {
+        console.log('Polling for task status...');
+        $.ajax({
+            url: '/api/status/' + taskId,
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                console.log('Status update received:', data);
+                // Reset failed attempts counter on success
+                failedAttempts = 0;
+                
+                // Update progress bar
+                $('#task-progress').progress('set percent', data.progress);
+                
+                // Update status message
+                $('#status-message').text(data.message);
+                
+                // Update header based on status
+                if (data.status === 'complete') {
+                    $('#status-header').text('Complete!').removeClass('processing').addClass('positive');
+                    $('#loading-dimmer').removeClass('active');
+                    
+                    // Show results if available
+                    if (data.result) {
+                        showResults(data);
+                    }
+                    
+                    // Stop polling
+                    if (pollInterval) {
+                        clearInterval(pollInterval);
+                    }
+                } else if (data.status === 'error') {
+                    $('#status-header').text('Error').removeClass('processing').addClass('negative');
+                    $('#status-message').text(data.error || 'An error occurred during playlist creation.');
+                    $('#loading-dimmer').removeClass('active');
+                    
+                    // Stop polling
+                    if (pollInterval) {
+                        clearInterval(pollInterval);
+                    }
+                } else {
+                    // Still processing
+                    $('#status-header').text('Processing...').addClass('processing');
+                    $('#loading-dimmer').addClass('active');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX error:', status, error);
+                console.error('Response:', xhr.responseText);
+                
+                failedAttempts++;
+                
+                if (failedAttempts >= maxFailedAttempts) {
+                    console.error('Max failed attempts reached, stopping polling');
+                    $('#status-header').text('Connection Error').removeClass('processing').addClass('negative');
+                    $('#status-message').text('Unable to connect to server. Please refresh the page.');
+                    $('#loading-dimmer').removeClass('active');
+                    
+                    // Stop polling
+                    if (pollInterval) {
+                        clearInterval(pollInterval);
+                    }
+                } else {
+                    console.log(`Failed attempt ${failedAttempts}/${maxFailedAttempts}, will retry...`);
+                }
+            }
+        });
+    }
+    
+    function showResults(data) {
+        // Show result container
+        $('#result-container').show();
+        
+        // Get the result object
+        const result = data.result;
+        
+        // Fill in playlist details
+        $('#playlist-name').text(result.playlist_name);
+        $('#track-count').text(result.track_count + ' tracks');
+        
+        // Handle Spotify button
+        const spotifyButton = $('#spotify-action-button');
+        const spotifyButtonText = $('#spotify-button-text');
+        
+        if (result.spotify_created && result.playlist_url) {
+            // Playlist already exists on Spotify - show "Open in Spotify" button
+            spotifyButtonText.text('Open in Spotify');
+            spotifyButton.attr('href', result.playlist_url);
+            spotifyButton.attr('target', '_blank'); // Open in new tab
+            spotifyButton.removeClass('ui primary button').addClass('ui green button');
+        } else {
+            // Playlist not yet on Spotify - show "Create on Spotify" button
+            spotifyButtonText.text('Create on Spotify');
+            spotifyButton.attr('href', `/spotify/connect/${taskId}`);
+            spotifyButton.removeAttr('target'); // Remove target for OAuth flow (stays on same page)
+        }
+        
+        // Handle CSV download button
+        const csvButton = $('#csv-download-button');
+        console.log('CSV Debug - full data object:', data);
+        console.log('CSV Debug - result object:', result);
+        console.log('CSV Debug - csv_data exists:', !!data.csv_data);
+        console.log('CSV Debug - csv_data value:', data.csv_data);
+        if (data.csv_data) {
+            csvButton.attr('href', `/download/${taskId}`);
+            csvButton.show();
+            console.log('CSV Debug - button shown');
+        } else {
+            console.log('CSV Debug - no csv_data, button hidden');
+        }
+        
+        // Add additional info if available
+        if (result.genre) {
+            $('#result-container').append(`
+                <div class="ui info message">
+                    <h4>Playlist Details</h4>
+                    <p><strong>Genre:</strong> ${result.genre}</p>
+                    <p><strong>Days Searched:</strong> ${result.days_searched}</p>
+                    ${result.sources_used ? `<p><strong>Sources:</strong> ${result.sources_used.join(', ')}</p>` : ''}
+                </div>
+            `);
+        }
+        
+        // Fill in track list
+        const trackList = $('#track-list');
+        trackList.empty();
+        
+        if (result.tracks && result.tracks.length > 0) {
+            result.tracks.forEach(function(track) {
+                const trackItem = $(`
+                    <div class="item">
+                        <i class="music icon"></i>
+                        <div class="content">
+                            <div class="header">${track.title}</div>
+                            <div class="description">
+                                ${track.artist} • ${track.duration}
+                                ${track.source ? ` • Source: ${track.source}` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `);
+                trackList.append(trackItem);
+            });
+        } else {
+            trackList.append('<div class="item">No tracks available</div>');
+        }
+    }
+    
+    // Initial status check
+    updateStatus();
+    
+    // Poll for updates every 3 seconds (increased from 2 to reduce server load)
+    pollInterval = setInterval(updateStatus, 3000);
+    
+    // Clean up the interval when leaving the page
+    $(window).on('beforeunload', function() {
+        if (pollInterval) {
+            clearInterval(pollInterval);
+        }
+    });
+});
+</script>
+{% endblock %}

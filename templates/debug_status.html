@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Playlist Status Debug{% endblock %}
+
+{% block content %}
+<div class="ui container" id="status-container">
+    <h1 class="ui header">Playlist Generation Status (Debug)</h1>
+    <div class="ui divider"></div>
+    
+    <div class="ui segment">
+        <div class="ui form">
+            <div class="field">
+                <label>Task ID</label>
+                <input type="text" id="task-id-display" value="{{ task_id }}" readonly>
+            </div>
+            
+            <div class="field">
+                <label>CSRF Token</label>
+                <input type="text" id="csrf-token-display" value="{{ csrf_token }}" readonly>
+            </div>
+            
+            <button class="ui primary button" id="check-status-btn">Check Status</button>
+            <button class="ui button" id="advance-task-btn">Advance Task</button>
+        </div>
+        
+        <h3 class="ui header">Status Response</h3>
+        <pre id="status-output" style="max-height: 200px; overflow-y: auto; background: #f5f5f5; padding: 10px;">Loading...</pre>
+        
+        <div class="ui divider"></div>
+        
+        <div class="ui progress" id="task-progress">
+            <div class="bar">
+                <div class="progress"></div>
+            </div>
+            <div class="label" id="status-message">Waiting for status...</div>
+        </div>
+        
+        <div class="ui divider"></div>
+        <a href="{{ url_for('main.dashboard') }}" class="ui button">Back to Dashboard</a>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    const taskId = '{{ task_id }}';
+    const csrfToken = '{{ csrf_token }}';
+    
+    // Set up AJAX defaults
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type)) {
+                xhr.setRequestHeader("X-CSRFToken", csrfToken);
+            }
+        },
+        xhrFields: {
+            withCredentials: true
+        }
+    });
+    
+    function checkStatus() {
+        $('#status-output').text('Checking status...');
+        
+        $.ajax({
+            url: '{{ url_for("main.api_status", task_id=task_id) }}',
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                // Format and display the response
+                $('#status-output').text(JSON.stringify(data, null, 2));
+                
+                // Update the progress bar
+                $('#task-progress').progress({
+                    percent: data.progress || 0
+                });
+                
+                // Update status message
+                $('#status-message').text(data.message || 'No message');
+                
+                // Color code based on status
+                if (data.status === 'complete') {
+                    $('#status-output').css('background', '#e8f5e9');
+                } else if (data.status === 'error') {
+                    $('#status-output').css('background', '#ffebee');
+                }
+            },
+            error: function(xhr, status, error) {
+                // Show the error
+                $('#status-output').text('Error: ' + error + '\n\nResponse: ' + xhr.responseText);
+                $('#status-output').css('background', '#ffebee');
+            }
+        });
+    }
+    
+    // Check status when button is clicked
+    $('#check-status-btn').click(function() {
+        checkStatus();
+    });
+    
+    // Manually advance the task
+    $('#advance-task-btn').click(function() {
+        $.ajax({
+            url: '{{ url_for("main.api_status", task_id=task_id) }}',
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                // After advancing, check the status again
+                checkStatus();
+            }
+        });
+    });
+    
+    // Initial status check
+    checkStatus();
+    
+    // Set up polling every 3 seconds
+    setInterval(checkStatus, 3000);
+});
+</script>
+{% endblock %}

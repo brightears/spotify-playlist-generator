@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bright Ears - Discover Fresh Music, Create Perfect Playlists</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Inter:wght@400;500;600;700;900&family=Noto+Sans:wght@400;500;700;900">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style>
+        body {
+            font-family: "Inter", "Noto Sans", sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-[#1a1a1a]">
+    <div class="relative flex size-full min-h-screen flex-col bg-[#1a1a1a] dark group/design-root overflow-x-hidden">
+        <div class="layout-container flex h-full grow flex-col">
+            
+            <!-- Header -->
+            <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#282828] px-10 py-4 shadow-lg bg-gradient-to-r from-[#f0fdff] to-[#e6fcff]">
+                <div class="flex items-center gap-4 text-[#121212]">
+                    <div class="w-10 h-10">
+                        <img src="static/images/BE_Logo_Transparent.png" alt="Bright Ears Logo" class="w-full h-full object-contain">
+                    </div>
+                    <h2 class="text-[#121212] text-xl font-bold leading-tight tracking-[-0.015em]">
+                        Bright Ears
+                    </h2>
+                </div>
+                <div class="flex flex-1 justify-end gap-6">
+                    <div class="flex items-center gap-6">
+                        <a class="text-[#666666] hover:text-[#121212] text-sm font-medium leading-normal transition-colors duration-200" href="#">Home</a>
+                        <a class="text-[#666666] hover:text-[#121212] text-sm font-medium leading-normal transition-colors duration-200" href="#">Login</a>
+                    </div>
+                    <a href="#" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-6 bg-[#00CFFF] text-[#121212] text-sm font-bold leading-normal tracking-[0.015em] hover:bg-[#00a8d9] transition-colors duration-200">
+                        <span class="truncate">Sign Up</span>
+                    </a>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="flex-1">
+                <!-- Hero Section -->
+                <section class="relative overflow-hidden bg-gradient-to-br from-[#1a1a1a] to-[#242831]">
+                    <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%2300CFFF" fill-opacity="0.03"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-50"></div>
+                    
+                    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
+                        <div class="text-center">
+                            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight">
+                                Discover Fresh Music
+                                <span class="block text-[#00CFFF] mt-2">Every Single Day</span>
+                            </h1>
+                            <p class="mt-6 text-xl text-[#b3b3b3] max-w-3xl mx-auto">
+                                Bright Ears scans YouTube's hottest music channels and automatically creates Spotify playlists with the freshest tracks. Never miss a beat.
+                            </p>
+                            <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+                                <a href="#" class="inline-flex items-center justify-center px-8 py-4 rounded-full bg-[#00CFFF] text-[#121212] font-bold text-lg hover:bg-[#00a8d9] transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                                    Start Free Trial
+                                    <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                                    </svg>
+                                </a>
+                                <a href="#how-it-works" class="inline-flex items-center justify-center px-8 py-4 rounded-full border border-[#282828] text-white font-bold text-lg hover:bg-[#282828] transition-all duration-200">
+                                    See How It Works
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Features Section -->
+                <section class="py-24 bg-[#1a1a1a]">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="text-center mb-16">
+                            <h2 class="text-3xl sm:text-4xl font-bold text-white">Why Music Lovers Choose Bright Ears</h2>
+                            <p class="mt-4 text-lg text-[#b3b3b3]">Automated music discovery that actually works</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <!-- Feature 1 -->
+                            <div class="bg-[#252525] rounded-xl p-8 border border-[#282828] hover:border-[#00CFFF] transition-all duration-300 hover:transform hover:scale-105">
+                                <div class="w-12 h-12 bg-[#00CFFF]/20 rounded-lg flex items-center justify-center mb-6">
+                                    <svg class="w-6 h-6 text-[#00CFFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="text-xl font-bold text-white mb-3">Multi-Source Discovery</h3>
+                                <p class="text-[#b3b3b3]">Scans YouTube channels, Beatport, Traxsource, and more to find the latest releases in your favorite genres.</p>
+                            </div>
+                            
+                            <!-- Feature 2 -->
+                            <div class="bg-[#252525] rounded-xl p-8 border border-[#282828] hover:border-[#00CFFF] transition-all duration-300 hover:transform hover:scale-105">
+                                <div class="w-12 h-12 bg-[#00CFFF]/20 rounded-lg flex items-center justify-center mb-6">
+                                    <svg class="w-6 h-6 text-[#00CFFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="text-xl font-bold text-white mb-3">Automatic Sync</h3>
+                                <p class="text-[#b3b3b3]">Set it and forget it. Your Spotify playlists update automatically with fresh tracks based on your preferences.</p>
+                            </div>
+                            
+                            <!-- Feature 3 -->
+                            <div class="bg-[#252525] rounded-xl p-8 border border-[#282828] hover:border-[#00CFFF] transition-all duration-300 hover:transform hover:scale-105">
+                                <div class="w-12 h-12 bg-[#00CFFF]/20 rounded-lg flex items-center justify-center mb-6">
+                                    <svg class="w-6 h-6 text-[#00CFFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="text-xl font-bold text-white mb-3">Smart Matching</h3>
+                                <p class="text-[#b3b3b3]">Our AI matches YouTube tracks to Spotify with incredible accuracy, ensuring your playlists sound perfect.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- How It Works -->
+                <section id="how-it-works" class="py-24 bg-gradient-to-br from-[#1a1a1a] to-[#242831]">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="text-center mb-16">
+                            <h2 class="text-3xl sm:text-4xl font-bold text-white">How Bright Ears Works</h2>
+                            <p class="mt-4 text-lg text-[#b3b3b3]">Three simple steps to music discovery bliss</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+                            <!-- Connection Line -->
+                            <div class="hidden md:block absolute top-16 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-[#00CFFF]/20 via-[#00CFFF] to-[#00CFFF]/20"></div>
+                            
+                            <!-- Step 1 -->
+                            <div class="relative">
+                                <div class="bg-[#252525] rounded-xl p-8 border border-[#282828] relative z-10">
+                                    <div class="w-16 h-16 bg-[#00CFFF] rounded-full flex items-center justify-center text-[#121212] font-bold text-2xl mb-6">
+                                        1
+                                    </div>
+                                    <h3 class="text-xl font-bold text-white mb-3">Connect Your Accounts</h3>
+                                    <p class="text-[#b3b3b3]">Link your Spotify account and choose your favorite music genres and YouTube channels to follow.</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Step 2 -->
+                            <div class="relative">
+                                <div class="bg-[#252525] rounded-xl p-8 border border-[#282828] relative z-10">
+                                    <div class="w-16 h-16 bg-[#00CFFF] rounded-full flex items-center justify-center text-[#121212] font-bold text-2xl mb-6">
+                                        2
+                                    </div>
+                                    <h3 class="text-xl font-bold text-white mb-3">Set Your Preferences</h3>
+                                    <p class="text-[#b3b3b3]">Choose how often to update, how many tracks to add, and set your discovery timeframe.</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Step 3 -->
+                            <div class="relative">
+                                <div class="bg-[#252525] rounded-xl p-8 border border-[#282828] relative z-10">
+                                    <div class="w-16 h-16 bg-[#00CFFF] rounded-full flex items-center justify-center text-[#121212] font-bold text-2xl mb-6">
+                                        3
+                                    </div>
+                                    <h3 class="text-xl font-bold text-white mb-3">Enjoy Fresh Music</h3>
+                                    <p class="text-[#b3b3b3]">Sit back and let Bright Ears keep your playlists fresh with the latest tracks automatically.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Preview Notice -->
+                <div class="fixed bottom-8 right-8 bg-[#00CFFF] text-[#121212] px-6 py-3 rounded-lg shadow-xl font-bold">
+                    🎨 Landing Page Design Preview
+                </div>
+            </main>
+
+            <!-- Footer -->
+            <footer class="py-8 text-center border-t border-solid border-[#282828]">
+                <p class="text-[#6a6a6a] text-sm">© 2024 Bright Ears. All rights reserved.</p>
+            </footer>
+        </div>
+    </div>
+</body>
+</html>

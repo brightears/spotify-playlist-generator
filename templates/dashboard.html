@@ -1,1 +1,96 @@
-{% include code from templates/dashboard.html %}
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Bright Ears{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-[#1a1a1a] to-[#242831] py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-4xl font-bold text-white mb-8">Welcome to your Dashboard</h1>
+        
+        {% if current_user.is_authenticated %}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Account Overview -->
+            <div class="lg:col-span-1">
+                <div class="bg-[#252525] rounded-xl border border-[#282828] shadow-xl p-6">
+                    <h2 class="text-xl font-semibold text-white mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-[#00CFFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                        Your Account
+                    </h2>
+                    <div class="space-y-3 text-[#b3b3b3]">
+                        <p>Email: <span class="text-white font-medium">{{ current_user.email }}</span></p>
+                        <p>Member since: <span class="text-white font-medium">{{ current_user.created_at.strftime('%B %Y') }}</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Your Playlists -->
+            <div class="lg:col-span-2">
+                <div class="bg-[#252525] rounded-xl border border-[#282828] shadow-xl p-6">
+                    <h2 class="text-xl font-semibold text-white mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-[#00CFFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+                        </svg>
+                        Your Playlists
+                    </h2>
+                    <div class="text-center py-12">
+                        <svg class="w-16 h-16 mx-auto text-[#6a6a6a] mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                        <p class="text-[#b3b3b3] mb-6">You haven't created any playlists yet.</p>
+                        <a href="{{ url_for('main.create') }}" class="inline-flex items-center justify-center px-8 py-3 bg-[#00CFFF] text-[#121212] rounded-full font-bold hover:bg-[#00a8d9] transition-all duration-200 transform hover:scale-105">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            Create New Playlist
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Links -->
+        <div class="mt-8 bg-[#252525] rounded-xl border border-[#282828] shadow-xl p-6">
+            <h2 class="text-xl font-semibold text-white mb-6">Quick Links</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="{{ url_for('auth.profile') }}" class="group flex items-center p-4 bg-[#1a1a1a] rounded-lg border border-[#282828] hover:border-[#00CFFF] transition-all duration-200">
+                    <svg class="w-8 h-8 text-[#00CFFF] mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                    <div>
+                        <h3 class="text-white font-medium group-hover:text-[#00CFFF] transition-colors">Edit Profile</h3>
+                        <p class="text-sm text-[#6a6a6a]">Manage your account</p>
+                    </div>
+                </a>
+                
+                <a href="#" class="group flex items-center p-4 bg-[#1a1a1a] rounded-lg border border-[#282828] hover:border-[#00CFFF] transition-all duration-200">
+                    <svg class="w-8 h-8 text-[#1DB954] mr-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+                    </svg>
+                    <div>
+                        <h3 class="text-white font-medium group-hover:text-[#00CFFF] transition-colors">Connect Spotify</h3>
+                        <p class="text-sm text-[#6a6a6a]">Link your account</p>
+                    </div>
+                </a>
+                
+                <a href="{{ url_for('billing.subscription') }}" class="group flex items-center p-4 bg-[#1a1a1a] rounded-lg border border-[#282828] hover:border-[#00CFFF] transition-all duration-200">
+                    <svg class="w-8 h-8 text-[#00CFFF] mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                    </svg>
+                    <div>
+                        <h3 class="text-white font-medium group-hover:text-[#00CFFF] transition-colors">Subscription</h3>
+                        <p class="text-sm text-[#6a6a6a]">Manage your plan</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div class="bg-yellow-900/20 border border-yellow-500 text-yellow-200 px-6 py-4 rounded-lg" role="alert">
+            <h3 class="text-lg font-semibold mb-1">Not Logged In</h3>
+            <p>Please <a href="{{ url_for('auth.login') }}" class="text-[#00CFFF] hover:text-[#00a8d9] font-medium">login</a> to view your dashboard.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

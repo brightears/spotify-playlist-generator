@@ -1,1 +1,125 @@
-{% include code from templates/index.html %}
+{% extends "base.html" %}
+{% block title %}Bright Ears - YouTube to Spotify Playlist Generator{% endblock %}
+
+{% block content %}
+<div class="flex flex-1 justify-center py-10 px-4 sm:px-8 md:px-16 bg-gradient-to-br from-[#1a1a1a] to-[#242831]">
+    <div class="layout-content-container flex flex-col w-full max-w-lg py-8 px-6 sm:px-10 bg-[#252525] rounded-xl shadow-2xl">
+        <h2 class="text-white tracking-tight text-3xl font-bold leading-tight text-center pb-8 pt-2">Create Your Perfect Playlist</h2>
+        
+        {% if current_user.is_authenticated %}
+            <!-- Authenticated user form -->
+            <form method="POST" action="{{ url_for('main.create') }}" class="space-y-6">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                
+                <div>
+                    <label class="block text-sm font-medium text-[#b3b3b3] mb-1.5" for="genre">Music Genre</label>
+                    <select class="form-select block w-full rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#00CFFF] border border-[#282828] bg-[#222222] focus:border-[#00CFFF] h-12 px-4 text-base font-normal leading-normal appearance-none" id="genre" name="genre" style="background-image: var(--select-button-svg); background-position: right 0.75rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em;">
+                        <option value="">Select Genre</option>
+                        <option value="all">All Genres</option>
+                        <option value="house">House</option>
+                        <option value="deep-house">Deep House</option>
+                        <option value="nu-disco">Nu Disco</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-[#b3b3b3] mb-1.5" for="name">Playlist Name</label>
+                    <input class="form-input block w-full rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#00CFFF] border border-[#282828] bg-[#222222] focus:border-[#00CFFF] h-12 placeholder:text-[#6a6a6a] p-4 text-base font-normal leading-normal" id="name" name="name" placeholder="My Awesome Mix" type="text" required/>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-[#b3b3b3] mb-1.5" for="description">Description (Optional)</label>
+                    <input class="form-input block w-full rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#00CFFF] border border-[#282828] bg-[#222222] focus:border-[#00CFFF] h-12 placeholder:text-[#6a6a6a] p-4 text-base font-normal leading-normal" id="description" name="description" placeholder="Describe your playlist..." type="text"/>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-[#b3b3b3] mb-1.5" for="days">Days to Look Back</label>
+                        <input class="form-input block w-full rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#00CFFF] border border-[#282828] bg-[#222222] focus:border-[#00CFFF] h-12 placeholder:text-[#6a6a6a] p-4 text-base font-normal leading-normal" id="days" name="days" placeholder="30" type="number" min="1" max="90" value="30"/>
+                    </div>
+                    <div class="flex items-center pt-8">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" name="public" value="y" checked class="sr-only">
+                            <div class="relative">
+                                <div class="block bg-[#282828] w-14 h-8 rounded-full"></div>
+                                <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div>
+                            </div>
+                            <div class="ml-3 text-[#b3b3b3] font-medium">
+                                Public Playlist
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="pt-6 flex justify-center">
+                    <button class="flex w-full sm:w-auto min-w-[180px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 px-8 bg-[#00CFFF] text-[#121212] text-base font-bold leading-normal tracking-[0.015em] hover:bg-[#00a8d9] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#00CFFF] focus:ring-offset-2 focus:ring-offset-[#181818]" type="submit">
+                        <span class="truncate">Generate Playlist</span>
+                    </button>
+                </div>
+            </form>
+        {% else %}
+            <!-- Non-authenticated user -->
+            <div class="text-center space-y-6">
+                <p class="text-[#b3b3b3] text-lg">Discover new music from YouTube and create Spotify playlists automatically.</p>
+                
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3 text-[#b3b3b3]">
+                        <div class="w-8 h-8 rounded-full bg-[#00CFFF] flex items-center justify-center">
+                            <span class="text-[#121212] font-bold text-sm">1</span>
+                        </div>
+                        <span>Connect your Spotify account</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-[#b3b3b3]">
+                        <div class="w-8 h-8 rounded-full bg-[#00CFFF] flex items-center justify-center">
+                            <span class="text-[#121212] font-bold text-sm">2</span>
+                        </div>
+                        <span>Choose your music genre and preferences</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-[#b3b3b3]">
+                        <div class="w-8 h-8 rounded-full bg-[#00CFFF] flex items-center justify-center">
+                            <span class="text-[#121212] font-bold text-sm">3</span>
+                        </div>
+                        <span>Get fresh tracks from YouTube music channels</span>
+                    </div>
+                </div>
+                
+                <div class="pt-6 space-y-3">
+                    <a href="{{ url_for('auth.register') }}" class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 px-8 bg-[#00CFFF] text-[#121212] text-base font-bold leading-normal tracking-[0.015em] hover:bg-[#00a8d9] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#00CFFF] focus:ring-offset-2 focus:ring-offset-[#181818]">
+                        <span class="truncate">Get Started Free</span>
+                    </a>
+                    <a href="{{ url_for('auth.login') }}" class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 px-8 bg-transparent border border-[#282828] text-[#b3b3b3] text-base font-bold leading-normal tracking-[0.015em] hover:bg-[#282828] hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#00CFFF] focus:ring-offset-2 focus:ring-offset-[#181818]">
+                        <span class="truncate">Already have an account?</span>
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Toggle switch functionality for public/private playlist
+document.addEventListener('DOMContentLoaded', function() {
+    const toggle = document.querySelector('input[name="public"]');
+    const dot = document.querySelector('.dot');
+    const bg = document.querySelector('.dot').parentElement.querySelector('div');
+    
+    if (toggle) {
+        function updateToggle() {
+            if (toggle.checked) {
+                dot.style.transform = 'translateX(1.5rem)';
+                bg.style.backgroundColor = '#00CFFF';
+            } else {
+                dot.style.transform = 'translateX(0)';
+                bg.style.backgroundColor = '#282828';
+            }
+        }
+        
+        // Set initial state
+        updateToggle();
+        
+        // Handle changes
+        toggle.addEventListener('change', updateToggle);
+    }
+});
+</script>
+{% endblock %}

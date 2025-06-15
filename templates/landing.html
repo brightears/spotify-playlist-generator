@@ -1,199 +1,268 @@
 {% extends "base.html" %}
-
-{% block title %}Spotify Playlist Generator - Create Amazing Playlists{% endblock %}
+{% block title %}Bright Ears - Discover Fresh Music, Create Perfect Playlists{% endblock %}
 
 {% block content %}
-<div class="landing-page">
-  <!-- Hero Section -->
-  <section class="hero">
-    <div class="container">
-      <div class="row align-items-center">
-        <div class="col-lg-6">
-          <h1 class="hero-title">Generate Amazing Spotify Playlists</h1>
-          <p class="hero-subtitle">Create personalized playlists from YouTube videos with just a few clicks.</p>
-          <div class="cta-buttons">
-            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">Get Started</a>
-            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-secondary btn-lg">Log In</a>
-          </div>
+<!-- Hero Section -->
+<section class="relative overflow-hidden bg-gradient-to-br from-[#1a1a1a] to-[#242831]">
+    <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%2300CFFF" fill-opacity="0.03"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-50"></div>
+    
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
+        <div class="text-center">
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight">
+                Discover Fresh Music
+                <span class="block text-[#00CFFF] mt-2">Every Single Day</span>
+            </h1>
+            <p class="mt-6 text-xl text-[#b3b3b3] max-w-3xl mx-auto">
+                Bright Ears scans YouTube's hottest music channels and automatically creates Spotify playlists with the freshest tracks. Never miss a beat.
+            </p>
+            <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{{ url_for('auth.register') }}" class="inline-flex items-center justify-center px-8 py-4 rounded-full bg-[#00CFFF] text-[#121212] font-bold text-lg hover:bg-[#00a8d9] transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                    Start Free Trial
+                    <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                    </svg>
+                </a>
+                <a href="#how-it-works" class="inline-flex items-center justify-center px-8 py-4 rounded-full border border-[#282828] text-white font-bold text-lg hover:bg-[#282828] transition-all duration-200">
+                    See How It Works
+                </a>
+            </div>
         </div>
-        <div class="col-lg-6">
-          <img src="{{ url_for('static', filename='img/hero-image.svg') }}" alt="Spotify Playlist Generator" class="img-fluid hero-image">
-        </div>
-      </div>
     </div>
-  </section>
+</section>
 
-  <!-- Features Section -->
-  <section class="features">
-    <div class="container">
-      <h2 class="section-title text-center">How It Works</h2>
-      <div class="row">
-        <div class="col-md-4">
-          <div class="feature-card">
-            <div class="feature-icon">
-              <i class="bi bi-music-note-list"></i>
-            </div>
-            <h3>1. Connect with Spotify</h3>
-            <p>Link your Spotify account to our secure platform with just one click.</p>
-          </div>
+<!-- Features Section -->
+<section class="py-24 bg-[#1a1a1a]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl sm:text-4xl font-bold text-white">Why Music Lovers Choose Bright Ears</h2>
+            <p class="mt-4 text-lg text-[#b3b3b3]">Automated music discovery that actually works</p>
         </div>
-        <div class="col-md-4">
-          <div class="feature-card">
-            <div class="feature-icon">
-              <i class="bi bi-youtube"></i>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="bg-[#252525] rounded-xl p-8 border border-[#282828] hover:border-[#00CFFF] transition-all duration-300 hover:transform hover:scale-105">
+                <div class="w-12 h-12 bg-[#00CFFF]/20 rounded-lg flex items-center justify-center mb-6">
+                    <svg class="w-6 h-6 text-[#00CFFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">Multi-Source Discovery</h3>
+                <p class="text-[#b3b3b3]">Scans YouTube channels, Beatport, Traxsource, and more to find the latest releases in your favorite genres.</p>
             </div>
-            <h3>2. Configure Your Playlist</h3>
-            <p>Choose your desired genre and customize your playlist settings.</p>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="feature-card">
-            <div class="feature-icon">
-              <i class="bi bi-spotify"></i>
+            
+            <!-- Feature 2 -->
+            <div class="bg-[#252525] rounded-xl p-8 border border-[#282828] hover:border-[#00CFFF] transition-all duration-300 hover:transform hover:scale-105">
+                <div class="w-12 h-12 bg-[#00CFFF]/20 rounded-lg flex items-center justify-center mb-6">
+                    <svg class="w-6 h-6 text-[#00CFFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">Automatic Sync</h3>
+                <p class="text-[#b3b3b3]">Set it and forget it. Your Spotify playlists update automatically with fresh tracks based on your preferences.</p>
             </div>
-            <h3>3. Generate & Enjoy</h3>
-            <p>We'll create your playlist on Spotify automatically and share the results.</p>
-          </div>
+            
+            <!-- Feature 3 -->
+            <div class="bg-[#252525] rounded-xl p-8 border border-[#282828] hover:border-[#00CFFF] transition-all duration-300 hover:transform hover:scale-105">
+                <div class="w-12 h-12 bg-[#00CFFF]/20 rounded-lg flex items-center justify-center mb-6">
+                    <svg class="w-6 h-6 text-[#00CFFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">Smart Matching</h3>
+                <p class="text-[#b3b3b3]">Our AI matches YouTube tracks to Spotify with incredible accuracy, ensuring your playlists sound perfect.</p>
+            </div>
         </div>
-      </div>
     </div>
-  </section>
+</section>
 
-  <!-- Pricing Section -->
-  <section class="pricing">
-    <div class="container">
-      <h2 class="section-title text-center">Simple, Transparent Pricing</h2>
-      <div class="row justify-content-center">
-        <div class="col-lg-4 col-md-6">
-          <div class="pricing-card">
-            <div class="pricing-header">
-              <h3>Monthly Subscription</h3>
-              <div class="price">$3<span>/month</span></div>
-            </div>
-            <div class="pricing-features">
-              <ul>
-                <li><i class="bi bi-check-circle"></i> Unlimited playlist creation</li>
-                <li><i class="bi bi-check-circle"></i> Export playlists to CSV</li>
-                <li><i class="bi bi-check-circle"></i> Public & private playlists</li>
-                <li><i class="bi bi-check-circle"></i> Customizable genre selection</li>
-                <li><i class="bi bi-check-circle"></i> Discover new music automatically</li>
-              </ul>
-            </div>
-            <div class="pricing-footer">
-              <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-block">Get Started</a>
-            </div>
-          </div>
+<!-- How It Works -->
+<section id="how-it-works" class="py-24 bg-gradient-to-br from-[#1a1a1a] to-[#242831]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl sm:text-4xl font-bold text-white">How Bright Ears Works</h2>
+            <p class="mt-4 text-lg text-[#b3b3b3]">Three simple steps to music discovery bliss</p>
         </div>
-      </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+            <!-- Connection Line -->
+            <div class="hidden md:block absolute top-16 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-[#00CFFF]/20 via-[#00CFFF] to-[#00CFFF]/20"></div>
+            
+            <!-- Step 1 -->
+            <div class="relative">
+                <div class="bg-[#252525] rounded-xl p-8 border border-[#282828] relative z-10">
+                    <div class="w-16 h-16 bg-[#00CFFF] rounded-full flex items-center justify-center text-[#121212] font-bold text-2xl mb-6">
+                        1
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">Connect Your Accounts</h3>
+                    <p class="text-[#b3b3b3]">Link your Spotify account and choose your favorite music genres and YouTube channels to follow.</p>
+                </div>
+            </div>
+            
+            <!-- Step 2 -->
+            <div class="relative">
+                <div class="bg-[#252525] rounded-xl p-8 border border-[#282828] relative z-10">
+                    <div class="w-16 h-16 bg-[#00CFFF] rounded-full flex items-center justify-center text-[#121212] font-bold text-2xl mb-6">
+                        2
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">Set Your Preferences</h3>
+                    <p class="text-[#b3b3b3]">Choose how often to update, how many tracks to add, and set your discovery timeframe.</p>
+                </div>
+            </div>
+            
+            <!-- Step 3 -->
+            <div class="relative">
+                <div class="bg-[#252525] rounded-xl p-8 border border-[#282828] relative z-10">
+                    <div class="w-16 h-16 bg-[#00CFFF] rounded-full flex items-center justify-center text-[#121212] font-bold text-2xl mb-6">
+                        3
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">Enjoy Fresh Music</h3>
+                    <p class="text-[#b3b3b3]">Sit back and let Bright Ears keep your playlists fresh with the latest tracks automatically.</p>
+                </div>
+            </div>
+        </div>
     </div>
-  </section>
+</section>
 
-  <!-- Testimonials Section -->
-  <section class="testimonials">
-    <div class="container">
-      <h2 class="section-title text-center">What Our Users Say</h2>
-      <div class="row">
-        <div class="col-lg-4">
-          <div class="testimonial-card">
-            <div class="testimonial-text">
-              <p>"This tool saved me hours of searching for tracks. The playlists it generates are surprisingly good!"</p>
-            </div>
-            <div class="testimonial-author">
-              <div class="author-name">Alex Johnson</div>
-              <div class="author-title">Music Enthusiast</div>
-            </div>
-          </div>
+<!-- Pricing Section -->
+<section class="py-24 bg-[#1a1a1a]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl sm:text-4xl font-bold text-white">Simple, Transparent Pricing</h2>
+            <p class="mt-4 text-lg text-[#b3b3b3]">Start free, upgrade when you're ready</p>
         </div>
-        <div class="col-lg-4">
-          <div class="testimonial-card">
-            <div class="testimonial-text">
-              <p>"I love how easy it is to discover new music based on YouTube videos. The genre filtering works great too."</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <!-- Free Plan -->
+            <div class="bg-[#252525] rounded-xl p-8 border border-[#282828]">
+                <h3 class="text-2xl font-bold text-white mb-2">Free</h3>
+                <p class="text-[#b3b3b3] mb-6">Perfect for trying out Bright Ears</p>
+                <div class="text-4xl font-bold text-white mb-6">$0<span class="text-lg font-normal text-[#b3b3b3]">/month</span></div>
+                <ul class="space-y-3 mb-8">
+                    <li class="flex items-center text-[#b3b3b3]">
+                        <svg class="w-5 h-5 text-[#00CFFF] mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        1 playlist per month
+                    </li>
+                    <li class="flex items-center text-[#b3b3b3]">
+                        <svg class="w-5 h-5 text-[#00CFFF] mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Up to 50 tracks
+                    </li>
+                    <li class="flex items-center text-[#b3b3b3]">
+                        <svg class="w-5 h-5 text-[#00CFFF] mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Manual updates only
+                    </li>
+                </ul>
+                <a href="{{ url_for('auth.register') }}" class="block w-full text-center py-3 rounded-full border border-[#282828] text-white font-bold hover:bg-[#282828] transition-colors duration-200">
+                    Start Free
+                </a>
             </div>
-            <div class="testimonial-author">
-              <div class="author-name">Maria Garcia</div>
-              <div class="author-title">Spotify User</div>
+            
+            <!-- Pro Plan -->
+            <div class="bg-[#252525] rounded-xl p-8 border-2 border-[#00CFFF] relative transform scale-105">
+                <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-[#00CFFF] text-[#121212] px-4 py-1 rounded-full text-sm font-bold">
+                    MOST POPULAR
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-2">Pro</h3>
+                <p class="text-[#b3b3b3] mb-6">For serious music discoverers</p>
+                <div class="text-4xl font-bold text-white mb-6">$5<span class="text-lg font-normal text-[#b3b3b3]">/month</span></div>
+                <ul class="space-y-3 mb-8">
+                    <li class="flex items-center text-[#b3b3b3]">
+                        <svg class="w-5 h-5 text-[#00CFFF] mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Unlimited playlists
+                    </li>
+                    <li class="flex items-center text-[#b3b3b3]">
+                        <svg class="w-5 h-5 text-[#00CFFF] mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Automatic daily updates
+                    </li>
+                    <li class="flex items-center text-[#b3b3b3]">
+                        <svg class="w-5 h-5 text-[#00CFFF] mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Advanced genre filtering
+                    </li>
+                    <li class="flex items-center text-[#b3b3b3]">
+                        <svg class="w-5 h-5 text-[#00CFFF] mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        CSV export & analytics
+                    </li>
+                </ul>
+                <a href="{{ url_for('auth.register') }}" class="block w-full text-center py-3 rounded-full bg-[#00CFFF] text-[#121212] font-bold hover:bg-[#00a8d9] transition-colors duration-200 transform hover:scale-105">
+                    Start Free Trial
+                </a>
             </div>
-          </div>
+            
+            <!-- Team Plan -->
+            <div class="bg-[#252525] rounded-xl p-8 border border-[#282828]">
+                <h3 class="text-2xl font-bold text-white mb-2">Team</h3>
+                <p class="text-[#b3b3b3] mb-6">For labels and DJ collectives</p>
+                <div class="text-4xl font-bold text-white mb-6">$20<span class="text-lg font-normal text-[#b3b3b3]">/month</span></div>
+                <ul class="space-y-3 mb-8">
+                    <li class="flex items-center text-[#b3b3b3]">
+                        <svg class="w-5 h-5 text-[#00CFFF] mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Everything in Pro
+                    </li>
+                    <li class="flex items-center text-[#b3b3b3]">
+                        <svg class="w-5 h-5 text-[#00CFFF] mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        5 team members
+                    </li>
+                    <li class="flex items-center text-[#b3b3b3]">
+                        <svg class="w-5 h-5 text-[#00CFFF] mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Shared playlists
+                    </li>
+                    <li class="flex items-center text-[#b3b3b3]">
+                        <svg class="w-5 h-5 text-[#00CFFF] mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Priority support
+                    </li>
+                </ul>
+                <a href="{{ url_for('auth.register') }}" class="block w-full text-center py-3 rounded-full border border-[#282828] text-white font-bold hover:bg-[#282828] transition-colors duration-200">
+                    Contact Sales
+                </a>
+            </div>
         </div>
-        <div class="col-lg-4">
-          <div class="testimonial-card">
-            <div class="testimonial-text">
-              <p>"The playlist quality is impressive. It finds tracks that match perfectly with my music taste."</p>
-            </div>
-            <div class="testimonial-author">
-              <div class="author-name">David Chen</div>
-              <div class="author-title">Casual Listener</div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
-  </section>
+</section>
 
-  <!-- FAQ Section -->
-  <section class="faq">
-    <div class="container">
-      <h2 class="section-title text-center">Frequently Asked Questions</h2>
-      <div class="accordion" id="faqAccordion">
-        <div class="accordion-item">
-          <h2 class="accordion-header" id="headingOne">
-            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-              How does the playlist generation work?
-            </button>
-          </h2>
-          <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
-            <div class="accordion-body">
-              Our system analyzes YouTube videos to identify tracks, then searches for them on Spotify. It creates a playlist with all the successfully matched songs and provides a list of any tracks it couldn't find.
-            </div>
-          </div>
+<!-- CTA Section -->
+<section class="py-24 bg-gradient-to-br from-[#1a1a1a] to-[#242831]">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl sm:text-4xl font-bold text-white mb-6">
+            Ready to Revolutionize Your Music Discovery?
+        </h2>
+        <p class="text-xl text-[#b3b3b3] mb-10">
+            Join thousands of DJs, producers, and music lovers who never miss a fresh track.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{{ url_for('auth.register') }}" class="inline-flex items-center justify-center px-8 py-4 rounded-full bg-[#00CFFF] text-[#121212] font-bold text-lg hover:bg-[#00a8d9] transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                Start Your Free Trial
+                <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                </svg>
+            </a>
+            <a href="{{ url_for('auth.login') }}" class="inline-flex items-center justify-center px-8 py-4 rounded-full border border-[#282828] text-white font-bold text-lg hover:bg-[#282828] transition-all duration-200">
+                Sign In
+            </a>
         </div>
-        <div class="accordion-item">
-          <h2 class="accordion-header" id="headingTwo">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-              Can I use this with any YouTube video?
-            </button>
-          </h2>
-          <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
-            <div class="accordion-body">
-              Yes, our system works best with music compilation videos, DJ mixes, and "best of" genre collections. It extracts track information and finds the corresponding songs on Spotify.
-            </div>
-          </div>
-        </div>
-        <div class="accordion-item">
-          <h2 class="accordion-header" id="headingThree">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-              Is my Spotify account information secure?
-            </button>
-          </h2>
-          <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
-            <div class="accordion-body">
-              Absolutely. We use Spotify's official OAuth process, which means we never see or store your password. You can revoke our access to your Spotify account at any time from your Spotify settings.
-            </div>
-          </div>
-        </div>
-        <div class="accordion-item">
-          <h2 class="accordion-header" id="headingFour">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-              Can I cancel my subscription anytime?
-            </button>
-          </h2>
-          <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
-            <div class="accordion-body">
-              Yes, you can cancel your subscription at any time. Your subscription will remain active until the end of your current billing period.
-            </div>
-          </div>
-        </div>
-      </div>
+        <p class="mt-6 text-sm text-[#6a6a6a]">
+            No credit card required • 14-day free trial • Cancel anytime
+        </p>
     </div>
-  </section>
-
-  <!-- CTA Section -->
-  <section class="cta">
-    <div class="container text-center">
-      <h2>Ready to Create Amazing Playlists?</h2>
-      <p>Start your journey to better music discovery today.</p>
-      <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">Get Started Now</a>
-    </div>
-  </section>
-</div>
+</section>
 {% endblock %}

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Spotify Playlist Generator{% endblock %}</title>
+    <!-- Semantic UI CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <!-- Custom CSS -->
+    <style>
+        .main-container {
+            margin-top: 2em;
+            margin-bottom: 2em;
+        }
+        .messages {
+            margin: 1em 0;
+        }
+        .flash-message {
+            margin-bottom: 1em;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <div class="ui fixed inverted menu">
+        <div class="ui container">
+            <a href="{{ url_for('main.index') }}" class="header item">
+                Spotify Playlist Generator
+            </a>
+            <div class="right menu">
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('main.dashboard') }}" class="item">Dashboard</a>
+                    <a href="{{ url_for('auth.logout') }}" class="item">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="item">Login</a>
+                    <a href="{{ url_for('auth.register') }}" class="item">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ui main container main-container">
+        <!-- Flash Messages -->
+        <div class="messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="ui {{ category }} message flash-message">
+                            <i class="close icon"></i>
+                            <div class="content">{{ message }}</div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+        
+        <!-- Page Content -->
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <div class="ui inverted vertical footer segment">
+        <div class="ui container">
+            <div class="ui inverted divided grid">
+                <div class="sixteen wide column">
+                    <p>&copy; 2025 Spotify Playlist Generator</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+    <script>
+        // Initialize Semantic UI components
+        $(document).ready(function() {
+            // Make flash messages closable
+            $('.message .close').on('click', function() {
+                $(this).closest('.message').transition('fade');
+            });
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

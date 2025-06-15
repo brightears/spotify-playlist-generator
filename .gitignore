@@ -49,3 +49,27 @@ youtube_api_key.txt
 .youtube_credentials.json
 .youtube_token.pickle
 .spotify_auth.json
+cookies.txt
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+spotify_playlists.db
+
+# Flask specific
+instance/
+flask_session/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.bak

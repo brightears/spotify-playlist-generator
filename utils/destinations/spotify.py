@@ -50,6 +50,14 @@ class SpotifyDestination(PlaylistDestination):
         """
         if auth_data:
             self.auth_data = auth_data
+            # Check if the token needs to be refreshed
+            if self.auth_data.get("expires_at", 0) < datetime.now().timestamp():
+                print("DEBUG: Token expired, attempting to refresh...")
+                try:
+                    await self._refresh_token()
+                except Exception as e:
+                    print(f"DEBUG: Token refresh failed: {e}")
+                    return False
             return True
         
         try:
@@ -262,7 +270,15 @@ class SpotifyDestination(PlaylistDestination):
         async with aiohttp.ClientSession() as session:
             for i, batch in enumerate(batches):
                 if progress_callback:
-                    await progress_callback(i, len(batches), f"Adding tracks batch {i+1}/{len(batches)}")
+                    try:
+                        if asyncio.iscoroutinefunction(progress_callback):
+                            await progress_callback(i, len(batches), f"Adding tracks batch {i+1}/{len(batches)}")
+                        else:
+                            progress_callback(i, len(batches), f"Adding tracks batch {i+1}/{len(batches)}")
+                    except Exception as e:
+                        print(f"DEBUG: Progress callback error: {e}")
+                        # Continue without progress callback
+                        progress_callback = None
                 
                 async with session.post(
                     f"{self.API_BASE_URL}/playlists/{playlist_id}/tracks",
@@ -277,49 +293,44 @@ class SpotifyDestination(PlaylistDestination):
         
         return True
     
-    def _generate_csv_data(self, matched_tracks: List[MatchResult], unmatched_tracks: List[MatchResult]) -> str:
-        """
-        Generate CSV data for export.
+    def _generate_csv_data(self, tracks: List[Track], matched_results: List, unmatched_results: List) -> str:
+        """Generate CSV data for the playlist tracks."""
+        import csv
+        import io
         
-        Args:
-            matched_tracks: List of matched tracks
-            unmatched_tracks: List of unmatched tracks
-            
-        Returns:
-            CSV data as a string
-        """
         output = io.StringIO()
         writer = csv.writer(output)
         
-        # Write headers
+        # Write header
         writer.writerow([
-            "Title", "Artist", "Source", "Matched", "Spotify Title", "Spotify Artist", "Spotify URL", "Match Score"
+            'Title', 'Artist', 'Source', 'Matched', 'Spotify Title', 
+            'Spotify Artist', 'Spotify URL', 'Match Score'
         ])
         
         # Write matched tracks
-        for match in matched_tracks:
+        for match_result in matched_results:
             writer.writerow([
-                match.track.title,
-                match.track.artist,
-                match.track.source,
-                "Yes",
-                match.match_name,
-                match.match_artist,
-                match.match_url,
-                f"{match.score:.2f}"
+                match_result.track.title,
+                match_result.track.artist,
+                getattr(match_result.track, 'source', 'YouTube'),
+                'Yes',
+                match_result.match_name,
+                match_result.match_artist,
+                match_result.match_url,
+                f"{match_result.score:.2f}"
             ])
         
         # Write unmatched tracks
-        for match in unmatched_tracks:
+        for match_result in unmatched_results:
             writer.writerow([
-                match.track.title,
-                match.track.artist,
-                match.track.source,
-                "No",
-                "",
-                "",
-                "",
-                f"{match.score:.2f}"
+                match_result.track.title,
+                match_result.track.artist,
+                getattr(match_result.track, 'source', 'YouTube'),
+                'No',
+                '',
+                '',
+                '',
+                f"{match_result.score:.2f}"
             ])
         
         return output.getvalue()
@@ -327,38 +338,49 @@ class SpotifyDestination(PlaylistDestination):
     async def create_playlist(
         self, 
         name: str,
-        description: str,
         tracks: List[Track],
-        public: bool = True,
-        min_match_score: float = 0.85,
-        progress_callback = None,
-        export_unmatched: bool = False
+        description: str = "",
+        public: bool = False,
+        min_match_score: float = 0.7,
+        progress_callback=None
     ) -> PlaylistResult:
         """
-        Create a playlist with the given tracks.
+        Create a new playlist on Spotify with the given tracks.
         
         Args:
-            name: Playlist name
-            description: Playlist description
-            tracks: List of tracks to add to the playlist
+            name: Name of the playlist
+            tracks: List of Track objects to add
+            description: Optional description
             public: Whether the playlist should be public
-            min_match_score: Minimum score required for a track to be considered a match
+            min_match_score: Minimum match score for tracks (0.0-1.0)
             progress_callback: Optional callback for progress updates
-            export_unmatched: Whether to export unmatched tracks in the result
             
         Returns:
-            Result of playlist creation
+            PlaylistResult with success status and details
         """
+        print(f"DEBUG: SpotifyDestination.create_playlist called with {len(tracks)} tracks")
+        print(f"DEBUG: Auth data available: {bool(self.auth_data)}")
+        
         if not self.auth_data:
+            print("DEBUG: No auth data - returning failure")
             return PlaylistResult(
                 success=False,
                 message="Not authenticated"
             )
         
         if progress_callback:
-            await progress_callback(0, 100, "Creating playlist...")
+            try:
+                if asyncio.iscoroutinefunction(progress_callback):
+                    await progress_callback(0, 100, "Creating playlist...")
+                else:
+                    progress_callback(0, 100, "Creating playlist...")
+            except Exception as e:
+                print(f"DEBUG: Progress callback error: {e}")
+                # Continue without progress callback
+                progress_callback = None
         
         try:
+            print("DEBUG: Starting playlist creation process...")
             # Create the playlist
             async with aiohttp.ClientSession() as session:
                 headers = {
@@ -366,12 +388,16 @@ class SpotifyDestination(PlaylistDestination):
                     "Content-Type": "application/json"
                 }
                 
+                print("DEBUG: Getting user profile...")
                 # Get user ID
                 async with session.get(
                     f"{self.API_BASE_URL}/me",
                     headers=headers
                 ) as response:
+                    print(f"DEBUG: User profile response status: {response.status}")
                     if response.status != 200:
+                        error_text = await response.text()
+                        print(f"DEBUG: User profile error: {error_text}")
                         return PlaylistResult(
                             success=False,
                             message=f"Failed to get user profile: {response.status}"
@@ -379,7 +405,9 @@ class SpotifyDestination(PlaylistDestination):
                     
                     user_data = await response.json()
                     user_id = user_data["id"]
+                    print(f"DEBUG: Got user ID: {user_id}")
                 
+                print("DEBUG: Creating playlist...")
                 # Create a new playlist
                 async with session.post(
                     f"{self.API_BASE_URL}/users/{user_id}/playlists",
@@ -390,7 +418,10 @@ class SpotifyDestination(PlaylistDestination):
                         "public": public
                     }
                 ) as response:
+                    print(f"DEBUG: Create playlist response status: {response.status}")
                     if response.status != 201:
+                        error_text = await response.text()
+                        print(f"DEBUG: Create playlist error: {error_text}")
                         return PlaylistResult(
                             success=False,
                             message=f"Failed to create playlist: {response.status}"
@@ -399,24 +430,52 @@ class SpotifyDestination(PlaylistDestination):
                     playlist_data = await response.json()
                     playlist_id = playlist_data["id"]
                     playlist_url = playlist_data["external_urls"]["spotify"]
+                    print(f"DEBUG: Created playlist {playlist_id} at {playlist_url}")
                 
                 if progress_callback:
-                    await progress_callback(10, 100, f"Playlist created: {name}")
+                    try:
+                        if asyncio.iscoroutinefunction(progress_callback):
+                            await progress_callback(10, 100, f"Playlist created: {name}")
+                        else:
+                            progress_callback(10, 100, f"Playlist created: {name}")
+                    except Exception as e:
+                        print(f"DEBUG: Progress callback error: {e}")
+                        # Continue without progress callback
+                        progress_callback = None
                 
+                print("DEBUG: Starting track matching...")
                 # Match tracks with Spotify
                 matched_track_ids = []
                 matched_results = []
                 unmatched_results = []
                 
                 for i, track in enumerate(tracks):
+                    if i < 3:  # Debug first 3 tracks
+                        print(f"DEBUG: Processing track {i+1}: '{track.title}' by '{track.artist}'")
+                    
                     if progress_callback:
-                        await progress_callback(
-                            10 + int((i / len(tracks)) * 70),
-                            100,
-                            f"Matching track {i+1}/{len(tracks)}: {track.title} by {track.artist}"
-                        )
+                        try:
+                            if asyncio.iscoroutinefunction(progress_callback):
+                                await progress_callback(
+                                    10 + int((i / len(tracks)) * 70),
+                                    100,
+                                    f"Matching track {i+1}/{len(tracks)}: {track.title} by {track.artist}"
+                                )
+                            else:
+                                progress_callback(
+                                    10 + int((i / len(tracks)) * 70),
+                                    100,
+                                    f"Matching track {i+1}/{len(tracks)}: {track.title} by {track.artist}"
+                                )
+                        except Exception as e:
+                            print(f"DEBUG: Progress callback error: {e}")
+                            # Continue without progress callback
+                            progress_callback = None
                     
                     match_result = await self.search_track(track)
+                    
+                    if i < 3:  # Debug first 3 results
+                        print(f"DEBUG: Track {i+1} match result: matched={match_result.matched}, score={getattr(match_result, 'score', 'N/A')}")
                     
                     # Add to appropriate lists for later CSV generation
                     if match_result.matched and match_result.score >= min_match_score:
@@ -425,11 +484,22 @@ class SpotifyDestination(PlaylistDestination):
                     else:
                         unmatched_results.append(match_result)
                 
+                print(f"DEBUG: Track matching complete. Matched: {len(matched_track_ids)}, Unmatched: {len(unmatched_results)}")
+                
                 if progress_callback:
-                    await progress_callback(80, 100, f"Found {len(matched_track_ids)} matching tracks")
+                    try:
+                        if asyncio.iscoroutinefunction(progress_callback):
+                            await progress_callback(80, 100, f"Found {len(matched_track_ids)} matching tracks")
+                        else:
+                            progress_callback(80, 100, f"Found {len(matched_track_ids)} matching tracks")
+                    except Exception as e:
+                        print(f"DEBUG: Progress callback error: {e}")
+                        # Continue without progress callback
+                        progress_callback = None
                 
                 # Add tracks to playlist
                 if matched_track_ids:
+                    print(f"DEBUG: Adding {len(matched_track_ids)} tracks to playlist...")
                     success = await self.add_tracks_to_playlist(
                         playlist_id,
                         matched_track_ids,
@@ -440,6 +510,8 @@ class SpotifyDestination(PlaylistDestination):
                         ) if progress_callback else None
                     )
                     
+                    print(f"DEBUG: Add tracks result: {success}")
+                    
                     if not success:
                         return PlaylistResult(
                             success=False,
@@ -447,31 +519,39 @@ class SpotifyDestination(PlaylistDestination):
                             playlist_url=playlist_url,
                             message="Failed to add tracks to playlist"
                         )
+                else:
+                    print("DEBUG: No tracks to add to playlist")
                 
                 if progress_callback:
-                    await progress_callback(95, 100, "Generating CSV data...")
+                    try:
+                        if asyncio.iscoroutinefunction(progress_callback):
+                            await progress_callback(100, 100, "Playlist creation complete!")
+                        else:
+                            progress_callback(100, 100, "Playlist creation complete!")
+                    except Exception as e:
+                        print(f"DEBUG: Progress callback error: {e}")
+                        # Continue without progress callback
+                        progress_callback = None
                 
-                # Generate CSV data
-                csv_data = None
-                if export_unmatched:
-                    csv_data = self._generate_csv_data(matched_results, unmatched_results)
+                print("DEBUG: Playlist creation successful!")
                 
-                if progress_callback:
-                    await progress_callback(100, 100, "Playlist creation complete")
+                # Generate CSV data for export
+                csv_data = self._generate_csv_data(tracks, matched_results, unmatched_results)
                 
                 return PlaylistResult(
                     success=True,
                     playlist_id=playlist_id,
                     playlist_url=playlist_url,
-                    tracks_added=len(matched_track_ids),
-                    message=f"Created playlist with {len(matched_track_ids)} tracks",
+                    message=f"Successfully created playlist '{name}' with {len(matched_track_ids)} tracks",
                     added_tracks=matched_results,
                     unmatched_tracks=unmatched_results,
                     csv_data=csv_data
                 )
-        
+                
         except Exception as e:
-            logger.exception(f"Error creating playlist: {e}")
+            print(f"DEBUG: Exception in create_playlist: {str(e)}")
+            import traceback
+            print(f"DEBUG: Traceback: {traceback.format_exc()}")
             return PlaylistResult(
                 success=False,
                 message=f"Error creating playlist: {str(e)}"

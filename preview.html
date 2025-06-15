@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bright Ears - Preview</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Inter:wght@400;500;600;700;900&family=Noto+Sans:wght@400;500;700;900">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style>
+        :root {
+            --select-button-svg: url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2724px%27 height=%2724px%27 fill=%27rgb(0,207,255)%27 viewBox=%270 0 256 256%27%3e%3cpath d=%27M181.66,170.34a8,8,0,0,1,0,11.32l-48,48a8,8,0,0,1-11.32,0l-48-48a8,8,0,0,1,11.32-11.32L128,212.69l42.34-42.35A8,8,0,0,1,181.66,170.34Zm-96-84.68L128,43.31l42.34,42.35a8,8,0,0,0,11.32-11.32l-48-48a8,8,0,0,0-11.32,0l-48,48A8,8,0,0,0,85.66,85.66Z%27%3e%3c/path%3e%3c/svg%3e');
+        }
+        body {
+            font-family: "Inter", "Noto Sans", sans-serif;
+        }
+        .toggle-dot {
+            transform: translateX(0);
+            transition: transform 0.3s ease;
+        }
+        .toggle-checked .toggle-dot {
+            transform: translateX(1.5rem);
+        }
+        .toggle-checked .toggle-bg {
+            background-color: #00CFFF;
+        }
+    </style>
+</head>
+<body class="bg-[#1a1a1a]">
+    <div class="relative flex size-full min-h-screen flex-col bg-[#1a1a1a] dark group/design-root overflow-x-hidden">
+        <div class="layout-container flex h-full grow flex-col">
+            
+            <!-- Header -->
+            <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#282828] px-10 py-4 shadow-lg bg-gradient-to-r from-[#f0fdff] to-[#e6fcff]">
+                <div class="flex items-center gap-4 text-[#121212]">
+                    <div class="w-10 h-10">
+                        <img src="static/images/BE_Logo_Transparent.png" alt="Bright Ears Logo" class="w-full h-full object-contain">
+                    </div>
+                    <h2 class="text-[#121212] text-xl font-bold leading-tight tracking-[-0.015em]">
+                        Bright Ears
+                    </h2>
+                </div>
+                <div class="flex flex-1 justify-end gap-6">
+                    <div class="flex items-center gap-6">
+                        <a class="text-[#666666] hover:text-[#121212] text-sm font-medium leading-normal transition-colors duration-200" href="#">Home</a>
+                        <a class="text-[#666666] hover:text-[#121212] text-sm font-medium leading-normal transition-colors duration-200" href="#">Login</a>
+                    </div>
+                    <a href="#" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-6 bg-[#00CFFF] text-[#121212] text-sm font-bold leading-normal tracking-[0.015em] hover:bg-[#00a8d9] transition-colors duration-200">
+                        <span class="truncate">Sign Up</span>
+                    </a>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="flex-1">
+                <div class="flex flex-1 justify-center py-10 px-4 sm:px-8 md:px-16 bg-gradient-to-br from-[#1a1a1a] to-[#242831]">
+                    <div class="layout-content-container flex flex-col w-full max-w-lg py-8 px-6 sm:px-10 bg-[#252525] rounded-xl shadow-2xl">
+                        <h2 class="text-white tracking-tight text-3xl font-bold leading-tight text-center pb-8 pt-2">Create Your Perfect Playlist</h2>
+                        
+                        <!-- Demo Form -->
+                        <form class="space-y-6" onsubmit="event.preventDefault(); alert('This is a preview - Flask integration complete!');">
+                            <div>
+                                <label class="block text-sm font-medium text-[#b3b3b3] mb-1.5" for="genre">Music Genre</label>
+                                <select class="form-select block w-full rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#00CFFF] border border-[#282828] bg-[#222222] focus:border-[#00CFFF] h-12 px-4 text-base font-normal leading-normal appearance-none" id="genre" name="genre" style="background-image: var(--select-button-svg); background-position: right 0.75rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em;">
+                                    <option value="">Select Genre</option>
+                                    <option value="all">All Genres</option>
+                                    <option value="house">House</option>
+                                    <option value="deep-house">Deep House</option>
+                                    <option value="nu-disco">Nu Disco</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-[#b3b3b3] mb-1.5" for="name">Playlist Name</label>
+                                <input class="form-input block w-full rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#00CFFF] border border-[#282828] bg-[#222222] focus:border-[#00CFFF] h-12 placeholder:text-[#6a6a6a] p-4 text-base font-normal leading-normal" id="name" name="name" placeholder="My Awesome Mix" type="text" value="Fresh Electronic Vibes"/>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-[#b3b3b3] mb-1.5" for="description">Description (Optional)</label>
+                                <input class="form-input block w-full rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#00CFFF] border border-[#282828] bg-[#222222] focus:border-[#00CFFF] h-12 placeholder:text-[#6a6a6a] p-4 text-base font-normal leading-normal" id="description" name="description" placeholder="Describe your playlist..." type="text" value="Latest tracks from YouTube music channels"/>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-[#b3b3b3] mb-1.5" for="days">Days to Look Back</label>
+                                    <input class="form-input block w-full rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#00CFFF] border border-[#282828] bg-[#222222] focus:border-[#00CFFF] h-12 placeholder:text-[#6a6a6a] p-4 text-base font-normal leading-normal" id="days" name="days" placeholder="30" type="number" min="1" max="90" value="30"/>
+                                </div>
+                                <div class="flex items-center pt-8">
+                                    <label class="flex items-center cursor-pointer" onclick="toggleSwitch()">
+                                        <input type="checkbox" name="public" value="y" checked class="sr-only" id="public-toggle">
+                                        <div class="relative">
+                                            <div class="toggle-bg block bg-[#00CFFF] w-14 h-8 rounded-full"></div>
+                                            <div class="toggle-dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition" style="transform: translateX(1.5rem);"></div>
+                                        </div>
+                                        <div class="ml-3 text-[#b3b3b3] font-medium">
+                                            Public Playlist
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="pt-6 flex justify-center">
+                                <button class="flex w-full sm:w-auto min-w-[180px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 px-8 bg-[#00CFFF] text-[#121212] text-base font-bold leading-normal tracking-[0.015em] hover:bg-[#00a8d9] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#00CFFF] focus:ring-offset-2 focus:ring-offset-[#181818]" type="submit">
+                                    <span class="truncate">Generate Playlist</span>
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- Preview Notice -->
+                        <div class="mt-8 p-4 bg-[#00CFFF]/10 border border-[#00CFFF]/30 rounded-lg">
+                            <p class="text-[#00CFFF] text-sm text-center">
+                                🎉 <strong>Design Preview</strong> - Your Google Stitch design is fully integrated into the Flask app!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Footer -->
+            <footer class="py-8 text-center border-t border-solid border-[#282828]">
+                <p class="text-[#6a6a6a] text-sm">© 2024 Bright Ears. All rights reserved.</p>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        function toggleSwitch() {
+            const toggle = document.getElementById('public-toggle');
+            const dot = document.querySelector('.toggle-dot');
+            const bg = document.querySelector('.toggle-bg');
+            
+            toggle.checked = !toggle.checked;
+            
+            if (toggle.checked) {
+                dot.style.transform = 'translateX(1.5rem)';
+                bg.style.backgroundColor = '#00CFFF';
+            } else {
+                dot.style.transform = 'translateX(0)';
+                bg.style.backgroundColor = '#282828';
+            }
+        }
+        
+        // Set genre dropdown to show selection
+        document.getElementById('genre').value = 'house';
+    </script>
+</body>
+</html>

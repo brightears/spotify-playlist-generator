@@ -15,12 +15,19 @@ login_manager = LoginManager()
 # ---------------------------------------------------------------------------
 
 def create_flasksaas_app(config_object: str | None = None) -> Flask:
-    app = Flask(__name__, instance_relative_config=True)
+    app = Flask(__name__, 
+              instance_relative_config=True)
+
+    # Handle database URL - Render uses 'postgres://' but SQLAlchemy needs 'postgresql://'
+    import os
+    database_url = os.environ.get('DATABASE_URL')
+    if database_url and database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
 
     # defaults so the app can boot without env vars
     app.config.update(
-        SECRET_KEY="change-me",
-        SQLALCHEMY_DATABASE_URI="sqlite:///instance/flasksaas.db",
+        SECRET_KEY=os.environ.get('FLASK_SECRET_KEY', 'change-me'),
+        SQLALCHEMY_DATABASE_URI=database_url or "sqlite:///instance/flasksaas.db",
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
     )
 
@@ -33,9 +40,13 @@ def create_flasksaas_app(config_object: str | None = None) -> Flask:
 
     # late imports to avoid circular deps
     from .auth.routes import auth_bp
-    from .billing.routes import billing_bp
+    from .billing.routes import billing_bp, init_stripe
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(billing_bp, url_prefix="/billing")
+    
+    # Initialize Stripe when the app is created
+    with app.app_context():
+        init_stripe()
 
     return app
 

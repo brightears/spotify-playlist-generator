@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Simple Status{% endblock %}
+
+{% block content %}
+<div class="ui container">
+    <h1 class="ui header">Playlist Generation Status (Simple)</h1>
+    <div class="ui divider"></div>
+    
+    <div class="ui segment">
+        <h3>Task ID: {{ task_id }}</h3>
+        
+        <div class="ui buttons">
+            <button class="ui primary button" onclick="window.location.reload()">Refresh Status</button>
+            <a href="{{ url_for('main.test_api', task_id=task_id) }}" class="ui button">Debug Info</a>
+            <a href="{{ url_for('main.dashboard') }}" class="ui button">Back to Dashboard</a>
+        </div>
+        
+        <div class="ui divider"></div>
+        
+        <div id="status-info">
+            <p><strong>Status:</strong> {{ task.status if task else 'Unknown' }}</p>
+            <p><strong>Progress:</strong> {{ task.progress if task else 0 }}%</p>
+            <p><strong>Message:</strong> {{ task.message if task else 'No message' }}</p>
+            <p><strong>Step:</strong> {{ task.step if task else 'Unknown' }}</p>
+            
+            {% if task and task.status == 'complete' and task.result %}
+            <div class="ui success message">
+                <h4>Playlist Created Successfully!</h4>
+                <p><strong>Name:</strong> {{ task.result.playlist_name }}</p>
+                <p><strong>Tracks:</strong> {{ task.result.track_count }}</p>
+                {% if task.matched_tracks is defined and task.unmatched_tracks is defined %}
+                <p><strong>Spotify Matches:</strong> {{ task.matched_tracks }} matched, {{ task.unmatched_tracks }} unmatched</p>
+                <p><strong>Match Rate:</strong> {{ "%.1f"|format((task.matched_tracks / (task.matched_tracks + task.unmatched_tracks) * 100) if (task.matched_tracks + task.unmatched_tracks) > 0 else 0) }}%</p>
+                {% endif %}
+                {% if task.result.genre %}
+                <p><strong>Genre:</strong> {{ task.result.genre }}</p>
+                <p><strong>Days Searched:</strong> {{ task.result.days_searched }}</p>
+                {% if task.result.sources_used %}
+                <p><strong>Sources:</strong> {{ task.result.sources_used|join(', ') }}</p>
+                {% endif %}
+                {% endif %}
+                <a href="{{ task.result.playlist_url }}" class="ui green button" target="_blank">Open Playlist</a>
+                {% if task.csv_data %}
+                <a href="{{ url_for('main.download', task_id=task_id) }}" class="ui blue button">
+                    <i class="download icon"></i>Download CSV
+                </a>
+                {% endif %}
+                
+                {% if task.result.tracks %}
+                <div class="ui divider"></div>
+                <h5>Track Preview:</h5>
+                <div class="ui list">
+                    {% for track in task.result.tracks[:5] %}
+                    <div class="item">
+                        <i class="music icon"></i>
+                        <div class="content">
+                            <div class="header">{{ track.title }}</div>
+                            <div class="description">
+                                {{ track.artist }}
+                                {% if track.source %} • From: {{ track.source }}{% endif %}
+                                {% if track.duration %} • {{ track.duration }}{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% elif task and task.status == 'error' %}
+            <div class="ui error message">
+                <h4>Error Creating Playlist</h4>
+                <p>{{ task.message }}</p>
+            </div>
+            {% elif task and task.status == 'processing' %}
+            <div class="ui info message">
+                <h4>Processing...</h4>
+                <p>{{ task.message }}</p>
+                <div class="ui indicating progress" data-percent="{{ task.progress }}">
+                    <div class="bar"></div>
+                    <div class="label">{{ task.progress }}% Complete</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if task and task.status not in ['complete', 'error'] %}
+<script>
+$(document).ready(function() {
+    // Initialize progress bar
+    $('.ui.progress').progress();
+    
+    // Auto-refresh every 3 seconds if task is not complete
+    setTimeout(function(){ 
+        window.location.reload();
+    }, 3000);
+});
+</script>
+{% endif %}
+{% endblock %}

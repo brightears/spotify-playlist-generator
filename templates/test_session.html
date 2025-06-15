@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Session Test{% endblock %}
+
+{% block content %}
+<div class="ui segment">
+  <h1 class="ui header">Session Test</h1>
+  <div class="ui divider"></div>
+  
+  <div class="ui message">
+    <div class="header">Session Count</div>
+    <p>You have visited this page {{ session_count }} time(s).</p>
+  </div>
+
+  <div class="ui message">
+    <div class="header">Session Keys</div>
+    <p>{{ session_keys }}</p>
+  </div>
+
+  <div class="ui message">
+    <div class="header">CSRF Token</div>
+    <p>{{ csrf_token }}</p>
+  </div>
+
+  <div class="ui message">
+    <div class="header">Authentication Status</div>
+    <p>Authenticated: {{ is_authenticated }}</p>
+    {% if is_authenticated %}
+      <p>User Email: {{ user_email }}</p>
+    {% endif %}
+  </div>
+
+  <a href="{{ url_for('test_session') }}" class="ui primary button">Refresh (Should Increment Count)</a>
+  <a href="{{ url_for('index') }}" class="ui button">Back to Home</a>
+</div>
+{% endblock %}
