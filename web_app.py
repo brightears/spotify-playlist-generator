@@ -128,16 +128,19 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 # Initialize database tables on first run
-with app.app_context():
-    try:
-        print("Checking if database tables exist...")
-        # Try to query the User table
-        User.query.first()
-        print("Database tables already exist.")
-    except:
-        print("Database tables don't exist. Creating them...")
-        db.create_all()
-        print("Database tables created successfully!")
+# Move this after all imports and blueprints are registered
+def init_db():
+    with app.app_context():
+        try:
+            print("Checking if database tables exist...")
+            # Try to query the User table
+            User.query.first()
+            print("Database tables already exist.")
+        except Exception as e:
+            print(f"Database check error: {e}")
+            print("Creating database tables...")
+            db.create_all()
+            print("Database tables created successfully!")
 
 # Debug endpoint to manually create tables
 @app.route('/debug/create-tables')
@@ -168,6 +171,9 @@ app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(billing_bp, url_prefix='/billing')
 app.register_blueprint(main_bp)  # No prefix for main blueprint to match existing URLs
 app.register_blueprint(spotify_bp, url_prefix='/spotify')  # Register the Spotify blueprint
+
+# Initialize database after everything is set up
+init_db()
 
 # -------------- Helper Functions --------------------- #
 
