@@ -105,18 +105,37 @@ def register():
 
     form = RegisterForm()
     if form.validate_on_submit():
+        print(f"Registration form validated for email: {form.email.data}")
+        
         if User.query.filter_by(email=form.email.data.lower()).first():
+            print("Email already registered")
             flash("Email already registered", "warning")
         else:
-            user = User(email=form.email.data.lower())
-            user.set_password(form.password.data)
-            db.session.add(user)
-            db.session.commit()
-            
-            # Automatically log in the new user
-            login_user(user, remember=True)
-            flash("Registration successful! Let's get you started with a subscription.", "success")
-            return redirect(url_for("billing.subscription"))
+            try:
+                print("Creating new user...")
+                user = User(email=form.email.data.lower())
+                print("Setting password...")
+                user.set_password(form.password.data)
+                print("Adding to database session...")
+                db.session.add(user)
+                print("Committing to database...")
+                db.session.commit()
+                print("User created successfully!")
+                
+                # Automatically log in the new user
+                print("Logging in new user...")
+                login_user(user, remember=True)
+                print("User logged in successfully!")
+                flash("Registration successful! Let's get you started with a subscription.", "success")
+                return redirect(url_for("billing.subscription"))
+            except Exception as e:
+                print(f"Error during registration: {str(e)}")
+                db.session.rollback()
+                flash("Registration failed. Please try again.", "error")
+    else:
+        if request.method == "POST":
+            print(f"Form validation failed: {form.errors}")
+    
     return render_template("auth/register.html", form=form)
 
 

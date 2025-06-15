@@ -106,6 +106,10 @@ csrf.init_app(app)
 # Initialize database
 db.init_app(app)
 
+# Initialize bcrypt for password hashing
+from src.flasksaas.models import bcrypt
+bcrypt.init_app(app)
+
 # Set up Flask-Login
 from flask_login import LoginManager, login_required, current_user
 

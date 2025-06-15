@@ -8,6 +8,7 @@ from sqlalchemy.orm import validates
 
 from . import db
 
+# Bcrypt instance will be initialized in the main app
 bcrypt = Bcrypt()
 
 class User(db.Model, UserMixin):
