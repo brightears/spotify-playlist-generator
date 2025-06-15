@@ -8,7 +8,7 @@ from google_auth_oauthlib.flow import Flow
 
 from .. import db
 from ..models import User
-from .forms import LoginForm, RegisterForm
+from ..forms import LoginForm, RegisterForm
 
 auth_bp = Blueprint("auth", __name__, template_folder="templates")
 
