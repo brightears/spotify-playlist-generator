@@ -68,6 +68,10 @@ class User(db.Model, UserMixin):
         """Check if the user has an active subscription."""
         from datetime import datetime
         
+        # TEMPORARY: Grant Pro access for testing
+        if self.email in ['norli@gmail.com', 'platzer.norbert@gmail.com']:
+            return True
+        
         if not self.subscription_status:
             return False
             
