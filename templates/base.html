@@ -38,6 +38,9 @@
                     {% if current_user.is_authenticated %}
                     <div class="flex items-center gap-6">
                         <a class="text-[#666666] hover:text-[#121212] text-sm font-medium leading-normal transition-colors duration-200" href="{{ url_for('main.dashboard') }}">Dashboard</a>
+                        {% if current_user.has_active_subscription %}
+                        <a class="text-[#666666] hover:text-[#121212] text-sm font-medium leading-normal transition-colors duration-200" href="{{ url_for('main.sources') }}">My Sources</a>
+                        {% endif %}
                         <a class="text-[#666666] hover:text-[#121212] text-sm font-medium leading-normal transition-colors duration-200" href="#">Account</a>
                     </div>
                     <div class="flex items-center gap-3">

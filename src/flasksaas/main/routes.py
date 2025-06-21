@@ -12,7 +12,8 @@ from flask_wtf.csrf import generate_csrf
 # Import the PlaylistForm from the correct location
 from src.flasksaas.forms import PlaylistForm
 from src.flasksaas.main.task_manager import create_new_task, process_task_step, get_task, get_user_tasks, tasks, TaskManager
-from ..models import User
+from ..models import User, UserSource
+from .. import db
 
 main_bp = Blueprint('main', __name__, template_folder="templates")
 task_manager = TaskManager()
@@ -44,7 +45,8 @@ def create():
             description=form.description.data,
             genre=form.genre.data,
             days=form.days.data,
-            public=form.public.data
+            public=form.public.data,
+            source_selection=form.source_selection.data
         )
         
         flash("Playlist creation started! You'll be redirected to track progress.", "success")
@@ -253,3 +255,106 @@ def download(task_id):
     response.headers['Content-Type'] = 'text/csv'
     
     return response
+
+
+@main_bp.route("/sources")
+@login_required
+def sources():
+    """Manage custom YouTube sources (paid users only)."""
+    if not current_user.has_active_subscription:
+        flash("Custom sources are available for Pro subscribers only.", "warning")
+        return redirect(url_for('main.dashboard'))
+    
+    user_sources = UserSource.query.filter_by(user_id=current_user.id).order_by(UserSource.created_at.desc()).all()
+    return render_template("sources.html", sources=user_sources)
+
+
+@main_bp.route("/sources/add", methods=["GET", "POST"])
+@login_required
+def add_source():
+    """Add a new custom YouTube source."""
+    if not current_user.has_active_subscription:
+        flash("Custom sources are available for Pro subscribers only.", "warning")
+        return redirect(url_for('main.dashboard'))
+    
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        source_url = request.form.get("source_url", "").strip()
+        source_type = request.form.get("source_type", "").strip()
+        
+        if not name or not source_url or not source_type:
+            flash("All fields are required.", "error")
+            return render_template("add_source.html")
+        
+        try:
+            # Create new source
+            new_source = UserSource(
+                user_id=current_user.id,
+                name=name,
+                source_url=source_url,
+                source_type=source_type
+            )
+            db.session.add(new_source)
+            db.session.commit()
+            
+            flash(f"Successfully added '{name}' to your custom sources!", "success")
+            return redirect(url_for('main.sources'))
+            
+        except ValueError as e:
+            flash(str(e), "error")
+            return render_template("add_source.html")
+        except Exception as e:
+            flash("An error occurred while adding the source. Please try again.", "error")
+            current_app.logger.error(f"Error adding source: {e}")
+            return render_template("add_source.html")
+    
+    return render_template("add_source.html")
+
+
+@main_bp.route("/sources/<int:source_id>/delete", methods=["POST"])
+@login_required
+def delete_source(source_id):
+    """Delete a custom YouTube source."""
+    if not current_user.has_active_subscription:
+        flash("Access denied.", "error")
+        return redirect(url_for('main.dashboard'))
+    
+    source = UserSource.query.filter_by(id=source_id, user_id=current_user.id).first()
+    if not source:
+        flash("Source not found.", "error")
+        return redirect(url_for('main.sources'))
+    
+    try:
+        db.session.delete(source)
+        db.session.commit()
+        flash(f"Successfully deleted '{source.name}'.", "success")
+    except Exception as e:
+        flash("An error occurred while deleting the source.", "error")
+        current_app.logger.error(f"Error deleting source: {e}")
+    
+    return redirect(url_for('main.sources'))
+
+
+@main_bp.route("/sources/<int:source_id>/toggle", methods=["POST"])
+@login_required
+def toggle_source(source_id):
+    """Toggle a custom YouTube source active/inactive."""
+    if not current_user.has_active_subscription:
+        flash("Access denied.", "error")
+        return redirect(url_for('main.dashboard'))
+    
+    source = UserSource.query.filter_by(id=source_id, user_id=current_user.id).first()
+    if not source:
+        flash("Source not found.", "error")
+        return redirect(url_for('main.sources'))
+    
+    try:
+        source.is_active = not source.is_active
+        db.session.commit()
+        status = "enabled" if source.is_active else "disabled"
+        flash(f"Successfully {status} '{source.name}'.", "success")
+    except Exception as e:
+        flash("An error occurred while updating the source.", "error")
+        current_app.logger.error(f"Error toggling source: {e}")
+    
+    return redirect(url_for('main.sources'))

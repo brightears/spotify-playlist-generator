@@ -92,3 +92,52 @@ class User(db.Model, UserMixin):
             'yearly': 'Pro Yearly ($24/year)'
         }
         return plan_names.get(self.subscription_plan, 'Pro')
+
+
+class UserSource(db.Model):
+    """User's custom YouTube sources for music discovery."""
+    __tablename__ = "user_sources"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    name = db.Column(db.String(200), nullable=False)  # User-friendly name for the source
+    source_url = db.Column(db.Text, nullable=False)  # YouTube channel/playlist URL
+    source_type = db.Column(db.String(20), nullable=False)  # 'channel' or 'playlist'
+    is_active = db.Column(db.Boolean, default=True)  # Whether to include in discovery
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationship
+    user = db.relationship('User', backref=db.backref('custom_sources', lazy=True))
+    
+    @validates("source_url")
+    def _validate_source_url(self, key, url: str):
+        """Validate that the URL is a YouTube channel or playlist."""
+        if not url:
+            raise ValueError("Source URL is required")
+        
+        url = url.strip()
+        youtube_patterns = [
+            'youtube.com/channel/',
+            'youtube.com/c/',
+            'youtube.com/@',
+            'youtube.com/user/',
+            'youtube.com/playlist?list=',
+            'youtu.be/playlist?list='
+        ]
+        
+        if not any(pattern in url.lower() for pattern in youtube_patterns):
+            raise ValueError("URL must be a valid YouTube channel or playlist")
+        
+        return url
+    
+    @validates("source_type")
+    def _validate_source_type(self, key, source_type: str):
+        """Validate source type is either 'channel' or 'playlist'."""
+        valid_types = ['channel', 'playlist']
+        if source_type not in valid_types:
+            raise ValueError(f"Source type must be one of: {valid_types}")
+        return source_type
+    
+    def __repr__(self):
+        return f'<UserSource {self.name} ({self.source_type})>'

@@ -139,6 +139,65 @@ class YouTubeSource(MusicSource):
         random.shuffle(all_tracks)
         return all_tracks[:limit]
     
+    async def get_tracks_from_sources(self, sources: List[Dict], days_to_look_back: int = 14, limit: int = 100) -> List[Track]:
+        """
+        Fetch tracks from provided sources list (can include custom user sources).
+        
+        Args:
+            sources: List of source dictionaries with 'id', 'name', 'type' keys
+            days_to_look_back: Number of days to look back for tracks
+            limit: Maximum number of tracks to return
+            
+        Returns:
+            List of Track objects
+        """
+        # Calculate the date threshold
+        date_threshold = datetime.utcnow() - timedelta(days=days_to_look_back)
+        
+        # Use API key if available, otherwise fallback to scraping
+        api_key = os.environ.get("YOUTUBE_API_KEY")
+        
+        if not api_key:
+            logger.warning("No YouTube API key found, results will be limited")
+            return await self._scrape_youtube_tracks(sources, limit, date_threshold)
+        
+        # Initialize YouTube API client
+        youtube = build("youtube", "v3", developerKey=api_key)
+        
+        all_tracks = []
+        per_source_limit = max(limit // len(sources), 10) if sources else limit
+        
+        # Process each source (playlist or channel)
+        for source in sources:
+            source_tracks = []
+            source_type = source["type"]
+            source_id = source["id"]
+            source_name = source["name"]
+            
+            try:
+                if source_type == "playlist":
+                    # Fetch videos from playlist
+                    source_tracks = await self._get_playlist_tracks(youtube, source_id, source_name, date_threshold, per_source_limit)
+                elif source_type == "channel":
+                    # Fetch videos from channel
+                    source_tracks = await self._get_channel_tracks(youtube, source_id, source_name, date_threshold, per_source_limit)
+            except HttpError as e:
+                logger.error(f"YouTube API error for {source_name}: {e}")
+            except Exception as e:
+                logger.error(f"Error fetching tracks from {source_name}: {e}", exc_info=True)
+            
+            logger.info(f"Found {len(source_tracks)} tracks from {source_name}")
+            all_tracks.extend(source_tracks)
+            
+            # Respect the overall limit
+            if len(all_tracks) >= limit:
+                break
+        
+        # Shuffle tracks to ensure variety, then limit
+        import random
+        random.shuffle(all_tracks)
+        return all_tracks[:limit]
+    
     async def _get_playlist_tracks(self, youtube, playlist_id: str, playlist_name: str, 
                                    date_threshold: datetime, limit: int) -> List[Track]:
         """Fetch tracks from a YouTube playlist."""

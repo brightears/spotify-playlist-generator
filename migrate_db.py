@@ -54,6 +54,26 @@ def migrate_database():
                 cursor.execute(f"ALTER TABLE users ADD COLUMN {column} VARCHAR(50)")
                 cursor.execute(f"CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_id ON users({column})")
     
+    # Create user_sources table if it doesn't exist
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS user_sources (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            name VARCHAR(200) NOT NULL,
+            source_url TEXT NOT NULL,
+            source_type VARCHAR(20) NOT NULL,
+            is_active BOOLEAN DEFAULT 1,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users (id)
+        )
+    """)
+    print("Created user_sources table")
+    
+    # Create index for better performance
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_user_sources_user_id ON user_sources(user_id)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_user_sources_active ON user_sources(is_active)")
+    
     conn.commit()
     conn.close()
     print("Database migration completed successfully!")

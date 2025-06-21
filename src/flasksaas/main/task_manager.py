@@ -3,6 +3,7 @@ Task manager for handling playlist creation tasks.
 """
 import time
 import asyncio
+import re
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Callable, Any
 import uuid
@@ -12,7 +13,7 @@ import logging
 from utils.sources.youtube import YouTubeSource
 from utils.destinations.spotify import SpotifyDestination
 from playlist_generator import create_playlist
-from src.flasksaas.models import User
+from src.flasksaas.models import User, UserSource
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -128,22 +129,84 @@ class TaskManager:
         """Get the YouTube sources for a given genre (instance method)."""
         return get_genre_sources(genre)
 
-def get_genre_sources(genre: str) -> List[Dict]:
-    """Get the YouTube sources for a given genre."""
-    youtube_source = YouTubeSource()
-    genre_channels = youtube_source.GENRE_CHANNELS.get(genre, youtube_source.GENRE_CHANNELS.get("all", []))
-    
+def get_genre_sources(genre: str, user_id: Optional[int] = None, include_predefined: bool = True, include_custom: bool = True) -> List[Dict]:
+    """Get the YouTube sources for a given genre, optionally including user custom sources."""
     sources = []
-    for channel in genre_channels:
-        sources.append({
-            'id': channel['id'],
-            'name': channel['name'],
-            'type': channel['type']
-        })
+    
+    # Add predefined sources if requested
+    if include_predefined:
+        youtube_source = YouTubeSource()
+        genre_channels = youtube_source.GENRE_CHANNELS.get(genre, youtube_source.GENRE_CHANNELS.get("all", []))
+        
+        for channel in genre_channels:
+            sources.append({
+                'id': channel['id'],
+                'name': channel['name'],
+                'type': channel['type'],
+                'custom': False
+            })
+    
+    # Add user custom sources if requested and user has subscription
+    if include_custom and user_id:
+        try:
+            user = User.query.get(user_id)
+            if user and user.has_active_subscription:
+                custom_sources = UserSource.query.filter_by(
+                    user_id=user_id, 
+                    is_active=True
+                ).all()
+                
+                for custom_source in custom_sources:
+                    # Parse the URL to extract the ID
+                    source_id = extract_youtube_id(custom_source.source_url)
+                    if source_id:
+                        sources.append({
+                            'id': source_id,
+                            'name': custom_source.name,
+                            'type': custom_source.source_type,
+                            'custom': True,
+                            'url': custom_source.source_url
+                        })
+        except Exception as e:
+            logger.error(f"Error fetching custom sources for user {user_id}: {e}")
     
     return sources
 
-def create_new_task(user_id: int, playlist_name: str, description: str, genre: str, days: int, public: bool) -> str:
+
+def extract_youtube_id(url: str) -> Optional[str]:
+    """Extract YouTube channel or playlist ID from URL."""
+    try:
+        # Playlist patterns
+        playlist_patterns = [
+            r'(?:youtube\.com/playlist\?list=|youtu\.be/playlist\?list=)([a-zA-Z0-9_-]+)',
+        ]
+        
+        # Channel patterns
+        channel_patterns = [
+            r'youtube\.com/channel/([a-zA-Z0-9_-]+)',
+            r'youtube\.com/c/([a-zA-Z0-9_-]+)',
+            r'youtube\.com/@([a-zA-Z0-9_-]+)',
+            r'youtube\.com/user/([a-zA-Z0-9_-]+)',
+        ]
+        
+        # Check playlist patterns first
+        for pattern in playlist_patterns:
+            match = re.search(pattern, url)
+            if match:
+                return match.group(1)
+        
+        # Check channel patterns
+        for pattern in channel_patterns:
+            match = re.search(pattern, url)
+            if match:
+                return match.group(1)
+        
+        return None
+    except Exception as e:
+        logger.error(f"Error extracting YouTube ID from URL {url}: {e}")
+        return None
+
+def create_new_task(user_id: int, playlist_name: str, description: str, genre: str, days: int, public: bool, source_selection: str = 'both') -> str:
     """Create a new playlist generation task."""
     task_id = str(uuid.uuid4())
     
@@ -163,7 +226,8 @@ def create_new_task(user_id: int, playlist_name: str, description: str, genre: s
         'description': description,
         'genre': genre,
         'days': days,
-        'public': public
+        'public': public,
+        'source_selection': source_selection
     }
     
     tasks[task_id] = task
@@ -200,7 +264,17 @@ async def process_task_step(task_id: str) -> bool:
             print(f"Task {task_id}: Starting initialization (step 0)")
             task['message'] = 'Initializing playlist creation...'
             task['progress'] = 10
-            task['sources'] = get_genre_sources(task['genre'])
+            # Get source selection preference
+            source_selection = task.get('source_selection', 'both')
+            include_predefined = source_selection in ['both', 'predefined']
+            include_custom = source_selection in ['both', 'custom']
+            
+            task['sources'] = get_genre_sources(
+                task['genre'], 
+                user_id=task.get('user_id'),
+                include_predefined=include_predefined,
+                include_custom=include_custom
+            )
             task['step'] = 1
             print(f"Task {task_id}: Initialization complete, moving to step 1. Found {len(task['sources'])} sources for genre {task['genre']}")
             
@@ -216,10 +290,23 @@ async def process_task_step(task_id: str) -> bool:
                 # Initialize YouTube source
                 youtube_source = YouTubeSource()
                 
-                # Fetch tracks from YouTube 
-                tracks = await youtube_source.get_tracks(
+                # Get sources based on user's selection
+                user_id = task.get('user_id')
+                source_selection = task.get('source_selection', 'both')
+                include_predefined = source_selection in ['both', 'predefined']
+                include_custom = source_selection in ['both', 'custom']
+                
+                custom_sources = get_genre_sources(
+                    genre, 
+                    user_id=user_id, 
+                    include_predefined=include_predefined, 
+                    include_custom=include_custom
+                )
+                
+                # Fetch tracks from YouTube using both predefined and custom sources
+                tracks = await youtube_source.get_tracks_from_sources(
+                    sources=custom_sources,
                     days_to_look_back=days,
-                    genre=genre,
                     limit=50  # Get 50 tracks instead of just 3
                 )
                 

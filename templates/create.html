@@ -61,6 +61,33 @@
                     {% endif %}
                 </div>
                 
+                <!-- Source Selection (Pro users only) -->
+                {% if current_user.has_active_subscription %}
+                <div>
+                    <label class="block text-sm font-medium text-[#b3b3b3] mb-3">
+                        {{ form.source_selection.label.text }}
+                    </label>
+                    <div class="space-y-3">
+                        {% for value, label in form.source_selection.choices %}
+                        <div class="flex items-center">
+                            <input type="radio" 
+                                   id="source_selection_{{ value }}" 
+                                   name="source_selection" 
+                                   value="{{ value }}" 
+                                   {% if form.source_selection.data == value %}checked{% endif %}
+                                   class="h-4 w-4 text-[#00CFFF] bg-[#1a1a1a] border-[#282828] focus:ring-[#00CFFF] focus:ring-2">
+                            <label for="source_selection_{{ value }}" class="ml-3 text-sm text-[#b3b3b3]">
+                                {{ label }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <p class="mt-2 text-sm text-[#6a6a6a]">
+                        Choose which music sources to use for discovery. <a href="{{ url_for('main.sources') }}" class="text-[#00CFFF] hover:text-[#00a8d9]">Manage your custom sources</a>
+                    </p>
+                </div>
+                {% endif %}
+                
                 <!-- Public Checkbox -->
                 <div class="flex items-center">
                     {{ form.public(class="h-4 w-4 text-[#00CFFF] bg-[#1a1a1a] border-[#282828] rounded focus:ring-[#00CFFF] focus:ring-2") }}
