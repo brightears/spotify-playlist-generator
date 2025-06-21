@@ -16,4 +16,10 @@ if [ -f "migrate_db.py" ]; then
     python migrate_db.py
 fi
 
+# Run PostgreSQL migrations if DATABASE_URL is set
+if [ ! -z "$DATABASE_URL" ] && [ -f "migrate_postgres.py" ]; then
+    echo "Running PostgreSQL migrations..."
+    python migrate_postgres.py
+fi
+
 echo "Build complete!"
