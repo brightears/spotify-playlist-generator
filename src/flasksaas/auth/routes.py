@@ -83,7 +83,7 @@ def login():
                 print(f"User logged in successfully. Remember me: {form.remember.data}")
                 print(f"Current user authenticated after login: {current_user.is_authenticated}")
                 
-                flash("Logged in successfully!", "success")
+                # No flash message needed - being on dashboard is enough confirmation
                 
                 # Check if the request prefers JSON (for AJAX requests from browser preview)
                 if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -317,7 +317,7 @@ def google_callback():
         else:
             # Log in existing user
             login_user(user, remember=True)
-            flash(f"Welcome back {user.name or user.email}!", "success")
+            # No flash message needed - being on dashboard is enough confirmation
             return redirect(url_for("main.dashboard"))
             
     except Exception as e:
