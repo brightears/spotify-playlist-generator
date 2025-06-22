@@ -61,11 +61,11 @@
         <div class="bg-[#252525] rounded-xl border border-[#282828] shadow-xl p-6">
           <h3 class="text-lg font-semibold text-white mb-4">Subscription Status</h3>
           {% if current_user.has_active_subscription %}
-            <div class="bg-green-900/20 border border-green-500 text-green-200 px-4 py-3 rounded-lg mb-4 flex items-center">
-              <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="bg-[#00CFFF]/10 border border-[#00CFFF]/30 px-4 py-3 rounded-lg mb-4 flex items-center">
+              <svg class="w-5 h-5 mr-2 flex-shrink-0 text-[#00CFFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
-              <span>Active subscription</span>
+              <span class="text-[#00CFFF]">Pro {% if current_user.subscription_plan == 'yearly' %}Yearly{% else %}Monthly{% endif %} Active</span>
             </div>
             <a href="{{ url_for('billing.subscription') }}" class="inline-flex items-center justify-center px-6 py-3 border border-[#282828] rounded-full text-white font-medium hover:bg-[#282828] transition-all duration-200">
               Manage Subscription
@@ -87,13 +87,13 @@
         <div class="bg-[#252525] rounded-xl border border-[#282828] shadow-xl p-6">
           <h3 class="text-lg font-semibold text-white mb-4">Account Settings</h3>
           {% if current_user.google_id %}
-            <div class="bg-blue-900/20 border border-blue-500/30 text-blue-200 px-4 py-3 rounded-lg flex items-start">
-              <svg class="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="bg-[#282828]/50 border border-[#383838] px-4 py-3 rounded-lg flex items-start">
+              <svg class="w-5 h-5 mr-3 mt-0.5 flex-shrink-0 text-[#b3b3b3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
               <div>
-                <p class="font-medium">Google Account Login</p>
-                <p class="text-sm mt-1">Your account is linked to Google. Password changes should be made through your Google account settings.</p>
+                <p class="font-medium text-white">Google Account Login</p>
+                <p class="text-sm mt-1 text-[#b3b3b3]">Your account is linked to Google. Password changes should be made through your Google account settings.</p>
               </div>
             </div>
           {% else %}
