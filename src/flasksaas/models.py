@@ -76,7 +76,7 @@ class User(db.Model, UserMixin):
             return False
             
         # Check if subscription is active and not expired
-        active_statuses = ['active', 'trialing']
+        active_statuses = ['active', 'trialing', 'canceled']
         if self.subscription_status in active_statuses:
             # Check if subscription hasn't expired
             if self.subscription_current_period_end:
