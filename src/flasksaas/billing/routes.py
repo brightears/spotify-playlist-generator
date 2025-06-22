@@ -111,7 +111,7 @@ def cancel():
         current_user.subscription_status = 'canceled'
         db.session.commit()
         
-        flash('Your subscription has been canceled. You will have access until the end of the current billing period.', 'success')
+        # No flash message - the subscription page will show the cancellation confirmation
     except Exception as e:
         flash(f'Failed to cancel subscription: {e}', 'danger')
 
