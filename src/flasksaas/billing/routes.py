@@ -13,9 +13,7 @@ import stripe
 billing_bp = Blueprint('billing', __name__, template_folder='templates')
 
 # Initialize Stripe with our secret key (from environment variables)
-# This will be set at import time, but we'll also check it in each function
 stripe.api_key = os.environ.get('STRIPE_SECRET_KEY', '')
-print(f"Stripe API key loaded at import: {bool(stripe.api_key)}, length: {len(stripe.api_key) if stripe.api_key else 0}")
 
 @billing_bp.route('/subscription')
 @login_required
@@ -37,18 +35,11 @@ def create_checkout_session():
     try:
         # Ensure Stripe API key is set
         stripe_secret_key = os.environ.get('STRIPE_SECRET_KEY', '')
-        if stripe_secret_key:
-            stripe.api_key = stripe_secret_key
-        
-        # Debug Stripe configuration
-        current_app.logger.info(f"Environment STRIPE_SECRET_KEY exists: {bool(os.environ.get('STRIPE_SECRET_KEY'))}")
-        current_app.logger.info(f"Stripe API key configured: {bool(stripe.api_key)}")
-        current_app.logger.info(f"Stripe API key starts with: {stripe.api_key[:7] if stripe.api_key else 'None'}")
-        
-        # Validate Stripe API key
-        if not stripe.api_key:
+        if not stripe_secret_key:
             current_app.logger.error("Stripe API key not configured")
             return jsonify(error="Payment system not configured"), 500
+            
+        stripe.api_key = stripe_secret_key
             
         plan_type = request.json.get('plan_type', 'monthly')  # monthly or yearly
         
