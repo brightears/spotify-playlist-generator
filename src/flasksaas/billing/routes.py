@@ -157,7 +157,7 @@ def stripe_webhook():
 def success():
     """Handle successful subscription."""
     plan_type = request.args.get('plan', 'monthly')
-    flash(f'Subscription successful! Thank you for subscribing to our {plan_type} plan.', 'success')
+    # No flash message needed - dashboard will show active subscription status
     return redirect(url_for('main.dashboard'))
 
 
