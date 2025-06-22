@@ -26,6 +26,26 @@ def get_spotify_oauth():
         scope='playlist-modify-public playlist-modify-private user-read-private'
     )
 
+@spotify_bp.route('/connect')
+@login_required
+def connect_account():
+    """Initiate Spotify OAuth to connect user's account."""
+    # Store state in session for after OAuth
+    session['spotify_state'] = secrets.token_urlsafe(32)
+    session['spotify_connect_only'] = True  # Flag to indicate this is just for connection
+    
+    # Get Spotify OAuth URL
+    spotify_oauth = get_spotify_oauth()
+    auth_url = spotify_oauth.get_auth_url(state=session['spotify_state'])
+    
+    # Debug logging
+    print(f"DEBUG: Spotify OAuth Configuration (Account Connect):")
+    print(f"  Client ID: {spotify_oauth.client_id[:10]}...{spotify_oauth.client_id[-10:] if len(spotify_oauth.client_id) > 20 else spotify_oauth.client_id}")
+    print(f"  Redirect URI: {spotify_oauth.redirect_uri}")
+    print(f"  Auth URL: {auth_url[:100]}...")
+    
+    return redirect(auth_url)
+
 @spotify_bp.route('/connect/<task_id>')
 @login_required
 def connect(task_id):
@@ -98,6 +118,13 @@ def callback():
         current_user.spotify_refresh_token = token_data.get('refresh_token')
         current_user.spotify_token_expires = token_data.get('expires_in')
         db.session.commit()
+        
+        # Check if this was just a connection request or playlist creation
+        if session.get('spotify_connect_only'):
+            # Clean up session
+            session.pop('spotify_connect_only', None)
+            flash('Spotify connected successfully!', 'success')
+            return redirect(url_for('main.dashboard'))
         
         # Get the task to create playlist for
         task_id = session.get('spotify_task_id')
