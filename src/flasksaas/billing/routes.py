@@ -6,13 +6,16 @@ from .. import db
 from ..models import User
 import os
 from datetime import datetime, timedelta
+import traceback
 
 import stripe
 
 billing_bp = Blueprint('billing', __name__, template_folder='templates')
 
 # Initialize Stripe with our secret key (from environment variables)
+# This will be set at import time, but we'll also check it in each function
 stripe.api_key = os.environ.get('STRIPE_SECRET_KEY', '')
+print(f"Stripe API key loaded at import: {bool(stripe.api_key)}, length: {len(stripe.api_key) if stripe.api_key else 0}")
 
 @billing_bp.route('/subscription')
 @login_required
@@ -32,6 +35,16 @@ def subscription():
 def create_checkout_session():
     """Create a Stripe checkout session for subscription payment."""
     try:
+        # Ensure Stripe API key is set
+        stripe_secret_key = os.environ.get('STRIPE_SECRET_KEY', '')
+        if stripe_secret_key:
+            stripe.api_key = stripe_secret_key
+        
+        # Debug Stripe configuration
+        current_app.logger.info(f"Environment STRIPE_SECRET_KEY exists: {bool(os.environ.get('STRIPE_SECRET_KEY'))}")
+        current_app.logger.info(f"Stripe API key configured: {bool(stripe.api_key)}")
+        current_app.logger.info(f"Stripe API key starts with: {stripe.api_key[:7] if stripe.api_key else 'None'}")
+        
         # Validate Stripe API key
         if not stripe.api_key:
             current_app.logger.error("Stripe API key not configured")
@@ -85,6 +98,7 @@ def create_checkout_session():
         return jsonify(error=f"Payment error: {str(e)}"), 500
     except Exception as e:
         current_app.logger.error(f"Unexpected error in create_checkout_session: {str(e)}")
+        current_app.logger.error(f"Traceback: {traceback.format_exc()}")
         return jsonify(error="An unexpected error occurred. Please try again."), 500
 
 
