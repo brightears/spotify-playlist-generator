@@ -216,7 +216,7 @@ def subscription_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated or not current_user.has_active_subscription:
-            return redirect(url_for('subscription.subscription'))
+            return redirect(url_for('billing.subscription'))
         return f(*args, **kwargs)
     return decorated_function
 
@@ -237,7 +237,7 @@ def index():
                 return redirect(url_for('auth.login'))
                 
             if not current_user.has_active_subscription:
-                return redirect(url_for('subscription.subscription'))
+                return redirect(url_for('billing.subscription'))
                 
             # Set up task ID and initial status
             task_id = str(int(time.time()))
