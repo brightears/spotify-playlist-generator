@@ -51,7 +51,7 @@
               </svg>
               <span>Active subscription</span>
             </div>
-            <a href="{{ url_for('subscription.subscription') }}" class="inline-flex items-center justify-center px-6 py-3 border border-[#282828] rounded-full text-white font-medium hover:bg-[#282828] transition-all duration-200">
+            <a href="{{ url_for('billing.subscription') }}" class="inline-flex items-center justify-center px-6 py-3 border border-[#282828] rounded-full text-white font-medium hover:bg-[#282828] transition-all duration-200">
               Manage Subscription
             </a>
           {% else %}
@@ -61,7 +61,7 @@
               </svg>
               <span>No active subscription</span>
             </div>
-            <a href="{{ url_for('subscription.subscription') }}" class="inline-flex items-center justify-center px-6 py-3 bg-[#00CFFF] text-[#121212] rounded-full font-bold hover:bg-[#00a8d9] transition-all duration-200 transform hover:scale-105">
+            <a href="{{ url_for('billing.subscription') }}" class="inline-flex items-center justify-center px-6 py-3 bg-[#00CFFF] text-[#121212] rounded-full font-bold hover:bg-[#00a8d9] transition-all duration-200 transform hover:scale-105">
               Upgrade Now
             </a>
           {% endif %}
