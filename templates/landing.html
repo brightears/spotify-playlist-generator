@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Bright Ears - Discover Fresh Music, Create Perfect Playlists{% endblock %}
+{% block title %}Bright Ears - Professional Music Discovery Tool for DJs{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
@@ -9,15 +9,16 @@
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
         <div class="text-center">
             <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight">
-                Discover Fresh Music
-                <span class="block text-[#00CFFF] mt-2">Every Single Day</span>
+                Never Miss a Fresh Release
+                <span class="block text-[#00CFFF] mt-2">Your AI Music Research Assistant</span>
             </h1>
             <p class="mt-6 text-xl text-[#b3b3b3] max-w-3xl mx-auto">
-                Bright Ears scans YouTube's hottest music channels and automatically creates Spotify playlists with the freshest tracks. Never miss a beat.
+                Bright Ears automatically discovers the latest tracks from your favorite YouTube channels and labels. 
+                Get organized CSV lists for purchasing or create Spotify playlists instantly. Built by DJs, for DJs.
             </p>
             <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="{{ url_for('auth.register') }}" class="inline-flex items-center justify-center px-8 py-4 rounded-full bg-[#00CFFF] text-[#121212] font-bold text-lg hover:bg-[#00a8d9] transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                    Start Free Trial
+                    Start Free Research
                     <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
                     </svg>
@@ -34,8 +35,8 @@
 <section class="py-24 bg-[#1a1a1a]">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
-            <h2 class="text-3xl sm:text-4xl font-bold text-white">Why Music Lovers Choose Bright Ears</h2>
-            <p class="mt-4 text-lg text-[#b3b3b3]">Automated music discovery that actually works</p>
+            <h2 class="text-3xl sm:text-4xl font-bold text-white">The Smart Way to Research New Music</h2>
+            <p class="mt-4 text-lg text-[#b3b3b3]">Stop manually checking YouTube channels. Let AI do the heavy lifting.</p>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -43,33 +44,33 @@
             <div class="bg-[#252525] rounded-xl p-8 border border-[#282828] hover:border-[#00CFFF] transition-all duration-300 hover:transform hover:scale-105">
                 <div class="w-12 h-12 bg-[#00CFFF]/20 rounded-lg flex items-center justify-center mb-6">
                     <svg class="w-6 h-6 text-[#00CFFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
                     </svg>
                 </div>
-                <h3 class="text-xl font-bold text-white mb-3">Multi-Source Discovery</h3>
-                <p class="text-[#b3b3b3]">Scans YouTube channels, Beatport, Traxsource, and more to find the latest releases in your favorite genres.</p>
+                <h3 class="text-xl font-bold text-white mb-3">CSV Track Lists</h3>
+                <p class="text-[#b3b3b3]">Export comprehensive CSV files with all track details. Perfect shopping lists for Beatport, Juno, or any record store.</p>
             </div>
             
             <!-- Feature 2 -->
             <div class="bg-[#252525] rounded-xl p-8 border border-[#282828] hover:border-[#00CFFF] transition-all duration-300 hover:transform hover:scale-105">
                 <div class="w-12 h-12 bg-[#00CFFF]/20 rounded-lg flex items-center justify-center mb-6">
                     <svg class="w-6 h-6 text-[#00CFFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </div>
-                <h3 class="text-xl font-bold text-white mb-3">Automatic Sync</h3>
-                <p class="text-[#b3b3b3]">Set it and forget it. Your Spotify playlists update automatically with fresh tracks based on your preferences.</p>
+                <h3 class="text-xl font-bold text-white mb-3">Latest Releases Only</h3>
+                <p class="text-[#b3b3b3]">Focus on what's new. Set your timeframe (1-90 days) and get only the freshest tracks from your sources.</p>
             </div>
             
             <!-- Feature 3 -->
             <div class="bg-[#252525] rounded-xl p-8 border border-[#282828] hover:border-[#00CFFF] transition-all duration-300 hover:transform hover:scale-105">
                 <div class="w-12 h-12 bg-[#00CFFF]/20 rounded-lg flex items-center justify-center mb-6">
                     <svg class="w-6 h-6 text-[#00CFFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
                     </svg>
                 </div>
-                <h3 class="text-xl font-bold text-white mb-3">Smart Matching</h3>
-                <p class="text-[#b3b3b3]">Our AI matches YouTube tracks to Spotify with incredible accuracy, ensuring your playlists sound perfect.</p>
+                <h3 class="text-xl font-bold text-white mb-3">Personalized Sources</h3>
+                <p class="text-[#b3b3b3]">Add your own YouTube channels and playlists. Your custom sources are saved and ready for one-click discovery.</p>
             </div>
         </div>
     </div>
@@ -79,8 +80,8 @@
 <section id="how-it-works" class="py-24 bg-gradient-to-br from-[#1a1a1a] to-[#242831]">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
-            <h2 class="text-3xl sm:text-4xl font-bold text-white">How Bright Ears Works</h2>
-            <p class="mt-4 text-lg text-[#b3b3b3]">Three simple steps to music discovery bliss</p>
+            <h2 class="text-3xl sm:text-4xl font-bold text-white">Your Music Research Workflow</h2>
+            <p class="mt-4 text-lg text-[#b3b3b3]">From discovery to playlist in minutes, not hours</p>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
@@ -93,8 +94,8 @@
                     <div class="w-16 h-16 bg-[#00CFFF] rounded-full flex items-center justify-center text-[#121212] font-bold text-2xl mb-6">
                         1
                     </div>
-                    <h3 class="text-xl font-bold text-white mb-3">Connect Your Accounts</h3>
-                    <p class="text-[#b3b3b3]">Link your Spotify account and choose your favorite music genres and YouTube channels to follow.</p>
+                    <h3 class="text-xl font-bold text-white mb-3">Add Your Sources</h3>
+                    <p class="text-[#b3b3b3]">Use our curated channels or add your own favorite YouTube labels and DJs. Sources are saved for future use.</p>
                 </div>
             </div>
             
@@ -104,8 +105,8 @@
                     <div class="w-16 h-16 bg-[#00CFFF] rounded-full flex items-center justify-center text-[#121212] font-bold text-2xl mb-6">
                         2
                     </div>
-                    <h3 class="text-xl font-bold text-white mb-3">Set Your Preferences</h3>
-                    <p class="text-[#b3b3b3]">Choose how often to update, how many tracks to add, and set your discovery timeframe.</p>
+                    <h3 class="text-xl font-bold text-white mb-3">Discover & Export</h3>
+                    <p class="text-[#b3b3b3]">AI scans your sources for latest releases. Get a CSV list for shopping or see what can be matched on Spotify.</p>
                 </div>
             </div>
             
@@ -115,46 +116,88 @@
                     <div class="w-16 h-16 bg-[#00CFFF] rounded-full flex items-center justify-center text-[#121212] font-bold text-2xl mb-6">
                         3
                     </div>
-                    <h3 class="text-xl font-bold text-white mb-3">Enjoy Fresh Music</h3>
-                    <p class="text-[#b3b3b3]">Sit back and let Bright Ears keep your playlists fresh with the latest tracks automatically.</p>
+                    <h3 class="text-xl font-bold text-white mb-3">Create or Purchase</h3>
+                    <p class="text-[#b3b3b3]">Create Spotify playlists for matched tracks instantly, or use your CSV to purchase unmatched gems elsewhere.</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Pricing Section -->
+<!-- FAQ Section -->
 <section class="py-24 bg-[#1a1a1a]">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl sm:text-4xl font-bold text-white">Frequently Asked Questions</h2>
+            <p class="mt-4 text-lg text-[#b3b3b3]">Everything you need to know about Bright Ears</p>
+        </div>
+        
+        <div class="space-y-6">
+            <!-- FAQ 1 -->
+            <div class="bg-[#252525] rounded-lg p-6 border border-[#282828]">
+                <h3 class="text-lg font-bold text-white mb-2">Is this just another YouTube to Spotify converter?</h3>
+                <p class="text-[#b3b3b3]">No! Bright Ears is a professional music research tool. We help DJs discover the latest releases from their favorite sources, providing CSV export lists for purchasing tracks and optional Spotify playlist creation for tracks that can be matched.</p>
+            </div>
+            
+            <!-- FAQ 2 -->
+            <div class="bg-[#252525] rounded-lg p-6 border border-[#282828]">
+                <h3 class="text-lg font-bold text-white mb-2">What makes Bright Ears different?</h3>
+                <p class="text-[#b3b3b3]">Unlike simple converters, we focus on latest releases discovery with personalized sources that save across sessions. You get comprehensive CSV exports for track shopping and can filter by timeframe to see only what's new.</p>
+            </div>
+            
+            <!-- FAQ 3 -->
+            <div class="bg-[#252525] rounded-lg p-6 border border-[#282828]">
+                <h3 class="text-lg font-bold text-white mb-2">Can I add my own YouTube sources?</h3>
+                <p class="text-[#b3b3b3]">Yes! Pro users can add unlimited custom YouTube channels and playlists. Your sources are saved permanently, so you can run one-click discoveries whenever you return.</p>
+            </div>
+            
+            <!-- FAQ 4 -->
+            <div class="bg-[#252525] rounded-lg p-6 border border-[#282828]">
+                <h3 class="text-lg font-bold text-white mb-2">What if tracks aren't on Spotify?</h3>
+                <p class="text-[#b3b3b3]">That's why we provide CSV exports! Use the comprehensive track list as your shopping guide on Beatport, Juno, Bandcamp, or wherever you buy music. No more missing out on exclusive releases.</p>
+            </div>
+            
+            <!-- FAQ 5 -->
+            <div class="bg-[#252525] rounded-lg p-6 border border-[#282828]">
+                <h3 class="text-lg font-bold text-white mb-2">How fresh are the "latest releases"?</h3>
+                <p class="text-[#b3b3b3]">You control the timeframe! Set anywhere from 1 to 90 days to discover tracks. Most DJs use 7-30 days to catch all new releases without overwhelming their research time.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Pricing Section -->
+<section class="py-24 bg-gradient-to-br from-[#1a1a1a] to-[#242831]">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
-            <h2 class="text-3xl sm:text-4xl font-bold text-white">Simple, Transparent Pricing</h2>
-            <p class="mt-4 text-lg text-[#b3b3b3]">Start free, upgrade when you're ready</p>
+            <h2 class="text-3xl sm:text-4xl font-bold text-white">Simple Pricing for Music Professionals</h2>
+            <p class="mt-4 text-lg text-[#b3b3b3]">Start free, upgrade for unlimited sources and automation</p>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             <!-- Free Plan -->
             <div class="bg-[#252525] rounded-xl p-8 border border-[#282828]">
                 <h3 class="text-2xl font-bold text-white mb-2">Free</h3>
-                <p class="text-[#b3b3b3] mb-6">Perfect for trying out Bright Ears</p>
+                <p class="text-[#b3b3b3] mb-6">Try Bright Ears risk-free</p>
                 <div class="text-4xl font-bold text-white mb-6">$0<span class="text-lg font-normal text-[#b3b3b3]">/month</span></div>
                 <ul class="space-y-3 mb-8">
                     <li class="flex items-center text-[#b3b3b3]">
                         <svg class="w-5 h-5 text-[#00CFFF] mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                         </svg>
-                        1 playlist per month
+                        Curated sources only
                     </li>
                     <li class="flex items-center text-[#b3b3b3]">
                         <svg class="w-5 h-5 text-[#00CFFF] mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                         </svg>
-                        Up to 50 tracks
+                        CSV export
                     </li>
                     <li class="flex items-center text-[#b3b3b3]">
                         <svg class="w-5 h-5 text-[#00CFFF] mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                         </svg>
-                        Manual updates only
+                        Spotify playlist creation
                     </li>
                 </ul>
                 <a href="{{ url_for('auth.register') }}" class="block w-full text-center py-3 rounded-full border border-[#282828] text-white font-bold hover:bg-[#282828] transition-colors duration-200">
@@ -162,68 +205,32 @@
                 </a>
             </div>
             
-            <!-- Pro Plan -->
+            <!-- Pro Monthly -->
             <div class="bg-[#252525] rounded-xl p-8 border-2 border-[#00CFFF] relative transform scale-105">
                 <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-[#00CFFF] text-[#121212] px-4 py-1 rounded-full text-sm font-bold">
                     MOST POPULAR
                 </div>
-                <h3 class="text-2xl font-bold text-white mb-2">Pro</h3>
-                <p class="text-[#b3b3b3] mb-6">For serious music discoverers</p>
-                <div class="text-4xl font-bold text-white mb-6">$5<span class="text-lg font-normal text-[#b3b3b3]">/month</span></div>
+                <h3 class="text-2xl font-bold text-white mb-2">Pro Monthly</h3>
+                <p class="text-[#b3b3b3] mb-6">For serious music researchers</p>
+                <div class="text-4xl font-bold text-white mb-6">$3<span class="text-lg font-normal text-[#b3b3b3]">/month</span></div>
                 <ul class="space-y-3 mb-8">
                     <li class="flex items-center text-[#b3b3b3]">
                         <svg class="w-5 h-5 text-[#00CFFF] mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                         </svg>
-                        Unlimited playlists
+                        <strong>Unlimited custom sources</strong>
                     </li>
                     <li class="flex items-center text-[#b3b3b3]">
                         <svg class="w-5 h-5 text-[#00CFFF] mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                         </svg>
-                        Automatic daily updates
+                        Sources saved permanently
                     </li>
                     <li class="flex items-center text-[#b3b3b3]">
                         <svg class="w-5 h-5 text-[#00CFFF] mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                         </svg>
-                        Advanced genre filtering
-                    </li>
-                    <li class="flex items-center text-[#b3b3b3]">
-                        <svg class="w-5 h-5 text-[#00CFFF] mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                        </svg>
-                        CSV export & analytics
-                    </li>
-                </ul>
-                <a href="{{ url_for('auth.register') }}" class="block w-full text-center py-3 rounded-full bg-[#00CFFF] text-[#121212] font-bold hover:bg-[#00a8d9] transition-colors duration-200 transform hover:scale-105">
-                    Start Free Trial
-                </a>
-            </div>
-            
-            <!-- Team Plan -->
-            <div class="bg-[#252525] rounded-xl p-8 border border-[#282828]">
-                <h3 class="text-2xl font-bold text-white mb-2">Team</h3>
-                <p class="text-[#b3b3b3] mb-6">For labels and DJ collectives</p>
-                <div class="text-4xl font-bold text-white mb-6">$20<span class="text-lg font-normal text-[#b3b3b3]">/month</span></div>
-                <ul class="space-y-3 mb-8">
-                    <li class="flex items-center text-[#b3b3b3]">
-                        <svg class="w-5 h-5 text-[#00CFFF] mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                        </svg>
-                        Everything in Pro
-                    </li>
-                    <li class="flex items-center text-[#b3b3b3]">
-                        <svg class="w-5 h-5 text-[#00CFFF] mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                        </svg>
-                        5 team members
-                    </li>
-                    <li class="flex items-center text-[#b3b3b3]">
-                        <svg class="w-5 h-5 text-[#00CFFF] mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                        </svg>
-                        Shared playlists
+                        One-click discovery
                     </li>
                     <li class="flex items-center text-[#b3b3b3]">
                         <svg class="w-5 h-5 text-[#00CFFF] mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -232,8 +239,38 @@
                         Priority support
                     </li>
                 </ul>
+                <a href="{{ url_for('auth.register') }}" class="block w-full text-center py-3 rounded-full bg-[#00CFFF] text-[#121212] font-bold hover:bg-[#00a8d9] transition-colors duration-200 transform hover:scale-105">
+                    Start 14-Day Free Trial
+                </a>
+            </div>
+            
+            <!-- Pro Yearly -->
+            <div class="bg-[#252525] rounded-xl p-8 border border-[#282828]">
+                <h3 class="text-2xl font-bold text-white mb-2">Pro Yearly</h3>
+                <p class="text-[#b3b3b3] mb-6">Best value - save 33%</p>
+                <div class="text-4xl font-bold text-white mb-6">$24<span class="text-lg font-normal text-[#b3b3b3]">/year</span></div>
+                <ul class="space-y-3 mb-8">
+                    <li class="flex items-center text-[#b3b3b3]">
+                        <svg class="w-5 h-5 text-[#00CFFF] mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Everything in Pro Monthly
+                    </li>
+                    <li class="flex items-center text-[#b3b3b3]">
+                        <svg class="w-5 h-5 text-[#00CFFF] mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        4 months free
+                    </li>
+                    <li class="flex items-center text-[#b3b3b3]">
+                        <svg class="w-5 h-5 text-[#00CFFF] mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Early access to new features
+                    </li>
+                </ul>
                 <a href="{{ url_for('auth.register') }}" class="block w-full text-center py-3 rounded-full border border-[#282828] text-white font-bold hover:bg-[#282828] transition-colors duration-200">
-                    Contact Sales
+                    Start 14-Day Free Trial
                 </a>
             </div>
         </div>
@@ -241,17 +278,17 @@
 </section>
 
 <!-- CTA Section -->
-<section class="py-24 bg-gradient-to-br from-[#1a1a1a] to-[#242831]">
+<section class="py-24 bg-[#1a1a1a]">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 class="text-3xl sm:text-4xl font-bold text-white mb-6">
-            Ready to Revolutionize Your Music Discovery?
+            Stop Missing Fresh Releases
         </h2>
         <p class="text-xl text-[#b3b3b3] mb-10">
-            Join thousands of DJs, producers, and music lovers who never miss a fresh track.
+            Join professional DJs who use Bright Ears to stay ahead of the curve. Research smarter, not harder.
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
             <a href="{{ url_for('auth.register') }}" class="inline-flex items-center justify-center px-8 py-4 rounded-full bg-[#00CFFF] text-[#121212] font-bold text-lg hover:bg-[#00a8d9] transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                Start Your Free Trial
+                Start Your Free Research
                 <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
                 </svg>
@@ -261,7 +298,7 @@
             </a>
         </div>
         <p class="mt-6 text-sm text-[#6a6a6a]">
-            No credit card required • 14-day free trial • Cancel anytime
+            No credit card required • 14-day Pro trial • Cancel anytime
         </p>
     </div>
 </section>

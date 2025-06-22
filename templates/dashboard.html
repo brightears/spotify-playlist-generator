@@ -53,7 +53,7 @@
         <!-- Quick Links -->
         <div class="mt-8 bg-[#252525] rounded-xl border border-[#282828] shadow-xl p-6">
             <h2 class="text-xl font-semibold text-white mb-6">Quick Links</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-{% if current_user.has_active_subscription %}4{% else %}3{% endif %} gap-4">
                 <a href="{{ url_for('auth.profile') }}" class="group flex items-center p-4 bg-[#1a1a1a] rounded-lg border border-[#282828] hover:border-[#00CFFF] transition-all duration-200">
                     <svg class="w-8 h-8 text-[#00CFFF] mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
@@ -83,6 +83,18 @@
                         <p class="text-sm text-[#6a6a6a]">Manage your plan</p>
                     </div>
                 </a>
+                
+                {% if current_user.has_active_subscription %}
+                <a href="{{ url_for('main.sources') }}" class="group flex items-center p-4 bg-[#1a1a1a] rounded-lg border border-[#282828] hover:border-[#00CFFF] transition-all duration-200">
+                    <svg class="w-8 h-8 text-[#00CFFF] mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    </svg>
+                    <div>
+                        <h3 class="text-white font-medium group-hover:text-[#00CFFF] transition-colors">My Sources</h3>
+                        <p class="text-sm text-[#6a6a6a]">Custom YouTube sources</p>
+                    </div>
+                </a>
+                {% endif %}
             </div>
         </div>
         {% else %}

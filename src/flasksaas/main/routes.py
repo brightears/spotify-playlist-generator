@@ -21,8 +21,10 @@ task_manager = TaskManager()
 @main_bp.route("/")
 def index():
     """Home page."""
-    # Render index template directly
-    return render_template("index.html")
+    # Show landing page for non-authenticated users, dashboard for authenticated
+    if current_user.is_authenticated:
+        return redirect(url_for('main.dashboard'))
+    return render_template("landing.html")
 
 @main_bp.route("/dashboard")
 @login_required
