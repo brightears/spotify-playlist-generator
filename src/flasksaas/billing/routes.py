@@ -55,17 +55,18 @@ def create_checkout_session():
         if not current_user.stripe_customer_id:
             customer = stripe.Customer.create(
                 email=current_user.email,
-                metadata={'user_id': current_user.id},
+                metadata={'user_id': str(current_user.id)},
             )
             current_user.stripe_customer_id = customer.id
             db.session.commit()
             current_app.logger.info(f"Created new Stripe customer: {customer.id}")
+            customer_id = customer.id
         else:
-            customer = stripe.Customer.retrieve(current_user.stripe_customer_id)
-            current_app.logger.info(f"Retrieved existing Stripe customer: {customer.id}")
+            customer_id = current_user.stripe_customer_id
+            current_app.logger.info(f"Using existing Stripe customer: {customer_id}")
 
         checkout_session = stripe.checkout.Session.create(
-            customer=customer.id,
+            customer=customer_id,
             payment_method_types=['card'],
             line_items=[{
                 'price': price_id,
