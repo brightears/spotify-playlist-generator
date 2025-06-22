@@ -49,10 +49,22 @@ When you return, you might want to:
 4. Add subscription analytics/metrics
 5. Consider adding a subscription management dashboard
 
-## Restore Point
-If anything goes wrong, you can restore to the checkpoint:
+## Additional Fix (After Initial Session)
+
+### My Sources Access for Cancelled Subscriptions
+- **Issue**: "My Sources" link disappeared from dashboard for cancelled subscriptions
+- **Root Cause**: `has_active_subscription` property didn't include 'canceled' status
+- **Fix**: Added 'canceled' to active_statuses list in User model
+- **Result**: Cancelled subscriptions retain Pro features until expiration date
+
+## Restore Points
+If anything goes wrong, you can restore to either checkpoint:
 ```bash
+# Initial checkpoint (before My Sources fix)
 git checkout v1.0-subscription-ui-complete
+
+# Complete checkpoint (with all fixes)
+git checkout v1.1-subscription-complete-with-fixes
 ```
 
-The application is currently stable with all subscription UI improvements implemented and deployed.
+The application is currently stable with all subscription UI improvements implemented and deployed, including proper access control for cancelled subscriptions.
