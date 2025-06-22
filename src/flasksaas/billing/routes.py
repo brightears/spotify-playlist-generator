@@ -157,6 +157,34 @@ def stripe_webhook():
 def success():
     """Handle successful subscription."""
     plan_type = request.args.get('plan', 'monthly')
+    
+    # Try to retrieve the subscription immediately if we have a customer ID
+    if current_user.stripe_customer_id:
+        try:
+            # Get the customer's subscriptions
+            subscriptions = stripe.Subscription.list(
+                customer=current_user.stripe_customer_id,
+                limit=1
+            )
+            
+            if subscriptions.data:
+                subscription = subscriptions.data[0]
+                # Update user's subscription info immediately
+                current_user.subscription_id = subscription.id
+                current_user.subscription_status = subscription.status
+                current_user.subscription_plan = plan_type
+                
+                if subscription.current_period_end:
+                    current_user.subscription_current_period_end = datetime.fromtimestamp(
+                        subscription.current_period_end
+                    )
+                
+                db.session.commit()
+                current_app.logger.info(f"Updated subscription for user {current_user.id} immediately after checkout")
+        except Exception as e:
+            # Log the error but don't block the redirect
+            current_app.logger.error(f"Error retrieving subscription after checkout: {e}")
+    
     # No flash message needed - dashboard will show active subscription status
     return redirect(url_for('main.dashboard'))
 
