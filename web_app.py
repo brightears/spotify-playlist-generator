@@ -105,9 +105,6 @@ app.config['WTF_CSRF_ENABLED'] = IS_PRODUCTION
 csrf = CSRFProtect()
 csrf.init_app(app)
 
-# Exempt Stripe webhook from CSRF protection
-csrf.exempt_views.add('billing.stripe_webhook')
-
 # Add a comment explaining this is for development only
 # TODO: Re-enable CSRF protection before deploying to production
 # This is temporarily disabled to troubleshoot authentication flow
@@ -174,6 +171,11 @@ app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(billing_bp, url_prefix='/billing')
 app.register_blueprint(main_bp)  # No prefix for main blueprint to match existing URLs
 app.register_blueprint(spotify_bp, url_prefix='/spotify')  # Register the Spotify blueprint
+
+# Exempt Stripe webhook from CSRF protection
+# This needs to be done after blueprints are registered
+if hasattr(csrf, '_exempt_views'):
+    csrf._exempt_views.add('billing.stripe_webhook')
 
 # Initialize database after everything is set up
 init_db()
