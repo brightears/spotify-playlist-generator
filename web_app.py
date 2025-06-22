@@ -105,6 +105,9 @@ app.config['WTF_CSRF_ENABLED'] = IS_PRODUCTION
 csrf = CSRFProtect()
 csrf.init_app(app)
 
+# Exempt Stripe webhook from CSRF protection
+csrf.exempt_views.add('billing.stripe_webhook')
+
 # Add a comment explaining this is for development only
 # TODO: Re-enable CSRF protection before deploying to production
 # This is temporarily disabled to troubleshoot authentication flow
