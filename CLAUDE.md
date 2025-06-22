@@ -72,17 +72,25 @@ YOUTUBE_API_KEY=your_api_key
 FLASK_SECRET_KEY=your_secret_key
 DATABASE_URL=sqlite:///spotify_playlists.db
 
-# Google OAuth (optional - for Gmail login)
+# Google OAuth (required for login)
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+# Stripe (required for subscriptions)
+STRIPE_SECRET_KEY=your_stripe_secret_key
+STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
+STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
+STRIPE_MONTHLY_PRICE_ID=your_monthly_price_id
+STRIPE_YEARLY_PRICE_ID=your_yearly_price_id
 ```
 
 ## Current Branch Context
 
-On `auth-rebuild` branch - migrating from simple Flask app to full SaaS architecture:
-- User authentication and subscription system being implemented
-- Blueprint modularization in progress
-- Many untracked files from the restructuring
+On `auth-rebuild` branch - SaaS architecture with subscription system:
+- User authentication fully implemented with Google OAuth
+- Stripe subscription system integrated (Pro Monthly: $3/mo, Pro Yearly: $24/yr)
+- Blueprint modularization complete
+- Subscription UI improvements implemented (Dec 22, 2024)
 
 ## Testing & Quality
 
@@ -97,3 +105,25 @@ On `auth-rebuild` branch - migrating from simple Flask app to full SaaS architec
 - Task system stores playlist generation status in memory - should be moved to persistent storage
 - Real-time progress tracking implemented via background threads and AJAX polling
 - Multiple template directories due to blueprint restructuring - consolidation may be needed
+
+## Recent Changes (Dec 22, 2024)
+
+### Subscription UI Improvements
+- Fixed subscription page routing (now uses `/billing/subscription`)
+- Removed CSRF token display bug on subscription page
+- Implemented proper cancellation flow with confirmation page
+- Updated cancelled subscription display to show "Active until [date]"
+- Replaced jarring color alerts with subtle dark theme styling
+- Added custom sources feature instead of "priority support"
+- Profile page now correctly shows cancelled subscription status
+
+### Design System Updates
+- Flash messages redesigned with dark theme colors and icons
+- Removed yellow/green warning boxes in favor of subtle grays
+- Cancel subscription button uses collapsible "Subscription Settings"
+- Consistent use of brand color (#00CFFF) for CTAs
+
+### Deployment
+- Application deployed on Render.com
+- GitHub integration for automatic deployments
+- Backup checkpoint created: `v1.0-subscription-ui-complete`
