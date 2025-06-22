@@ -20,7 +20,7 @@ stripe.api_key = os.environ.get('STRIPE_SECRET_KEY', '')
 def subscription():
     """Render the subscription page."""
     return render_template(
-        'subscription.html',
+        'billing/subscription.html',
         current_user=current_user,
         stripe_publishable_key=os.environ.get('STRIPE_PUBLISHABLE_KEY', ''),
         monthly_price_id=os.environ.get('STRIPE_MONTHLY_PRICE_ID', ''),
