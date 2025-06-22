@@ -243,6 +243,8 @@
     // Initialize Stripe (only if we have a publishable key)
     {% if stripe_publishable_key %}
     const stripe = Stripe('{{ stripe_publishable_key }}');
+    {% else %}
+    console.warn('Stripe publishable key not configured');
     {% endif %}
     
     // Handle subscription button clicks
@@ -256,18 +258,52 @@
             e.target.textContent = 'Processing...';
             e.target.disabled = true;
             
-            // Simulate processing for demo
-            setTimeout(() => {
-                // Reset button
+            try {
+                // Check if Stripe is configured
+                if (typeof stripe === 'undefined') {
+                    alert('Payment system is not configured yet. Please contact support.');
+                    e.target.textContent = originalText;
+                    e.target.disabled = false;
+                    return;
+                }
+                
+                // Create checkout session
+                const response = await fetch('/billing/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        plan_type: planType
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                    e.target.textContent = originalText;
+                    e.target.disabled = false;
+                    return;
+                }
+                
+                // Redirect to Stripe Checkout
+                const result = await stripe.redirectToCheckout({
+                    sessionId: data.id
+                });
+                
+                if (result.error) {
+                    alert('Error: ' + result.error.message);
+                    e.target.textContent = originalText;
+                    e.target.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Something went wrong. Please try again.');
                 e.target.textContent = originalText;
                 e.target.disabled = false;
-                
-                // Show demo message
-                alert(`Great choice! You selected the ${planType} plan.\n\nStripe payment integration will be added when ready to launch.\n\nFor now, you can explore the dashboard and playlist creation features!`);
-                
-                // Optionally redirect to dashboard
-                window.location.href = '/dashboard';
-            }, 1500);
+            }
         });
     });
 </script>
