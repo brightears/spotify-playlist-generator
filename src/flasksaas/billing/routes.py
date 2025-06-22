@@ -1,6 +1,7 @@
 """Skeleton Stripe billing blueprint – to be fleshed out later."""
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
 from flask_login import login_required, current_user
+from flask_wtf.csrf import csrf_exempt
 
 from .. import db
 from ..models import User
@@ -31,29 +32,39 @@ def subscription():
 @login_required
 def create_checkout_session():
     """Create a Stripe checkout session for subscription payment."""
-    plan_type = request.json.get('plan_type', 'monthly')  # monthly or yearly
-    
-    # Get the appropriate price ID
-    if plan_type == 'yearly':
-        price_id = os.environ.get('STRIPE_YEARLY_PRICE_ID', '')
-    else:
-        price_id = os.environ.get('STRIPE_MONTHLY_PRICE_ID', '')
-    
-    if not price_id:
-        return jsonify(error=f"Configuration error: Missing Stripe {plan_type} price ID"), 500
-    
-    # Create a new customer or get existing one
-    if not current_user.stripe_customer_id:
-        customer = stripe.Customer.create(
-            email=current_user.email,
-            metadata={'user_id': current_user.id},
-        )
-        current_user.stripe_customer_id = customer.id
-        db.session.commit()
-    else:
-        customer = stripe.Customer.retrieve(current_user.stripe_customer_id)
-
     try:
+        # Validate Stripe API key
+        if not stripe.api_key:
+            current_app.logger.error("Stripe API key not configured")
+            return jsonify(error="Payment system not configured"), 500
+            
+        plan_type = request.json.get('plan_type', 'monthly')  # monthly or yearly
+        
+        # Get the appropriate price ID
+        if plan_type == 'yearly':
+            price_id = os.environ.get('STRIPE_YEARLY_PRICE_ID', '')
+        else:
+            price_id = os.environ.get('STRIPE_MONTHLY_PRICE_ID', '')
+        
+        if not price_id:
+            current_app.logger.error(f"Missing Stripe {plan_type} price ID")
+            return jsonify(error=f"Configuration error: Missing Stripe {plan_type} price ID"), 500
+        
+        current_app.logger.info(f"Creating checkout session for {plan_type} plan with price ID: {price_id}")
+        
+        # Create a new customer or get existing one
+        if not current_user.stripe_customer_id:
+            customer = stripe.Customer.create(
+                email=current_user.email,
+                metadata={'user_id': current_user.id},
+            )
+            current_user.stripe_customer_id = customer.id
+            db.session.commit()
+            current_app.logger.info(f"Created new Stripe customer: {customer.id}")
+        else:
+            customer = stripe.Customer.retrieve(current_user.stripe_customer_id)
+            current_app.logger.info(f"Retrieved existing Stripe customer: {customer.id}")
+
         checkout_session = stripe.checkout.Session.create(
             customer=customer.id,
             payment_method_types=['card'],
@@ -66,9 +77,15 @@ def create_checkout_session():
             cancel_url=url_for('billing.subscription', _external=True),
             metadata={'plan_type': plan_type},
         )
+        current_app.logger.info(f"Created checkout session: {checkout_session.id}")
         return jsonify(id=checkout_session.id)
+        
+    except stripe.error.StripeError as e:
+        current_app.logger.error(f"Stripe error: {str(e)}")
+        return jsonify(error=f"Payment error: {str(e)}"), 500
     except Exception as e:
-        return jsonify(error=str(e)), 500
+        current_app.logger.error(f"Unexpected error in create_checkout_session: {str(e)}")
+        return jsonify(error="An unexpected error occurred. Please try again."), 500
 
 
 @billing_bp.route('/cancel', methods=['POST'])
@@ -97,6 +114,7 @@ def cancel():
 
 
 @billing_bp.route('/webhook', methods=['POST'])
+@csrf_exempt
 def stripe_webhook():
     """Handle Stripe webhooks to keep subscription status in sync."""
     payload = request.data
