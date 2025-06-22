@@ -176,6 +176,11 @@ def get_genre_sources(genre: str, user_id: Optional[int] = None, include_predefi
 def extract_youtube_id(url: str) -> Optional[str]:
     """Extract YouTube channel or playlist ID from URL."""
     try:
+        # For @username format, we'll need to keep the full URL since the API 
+        # needs to resolve the username to a channel ID
+        if '@' in url:
+            return url  # Return the full URL for @username format
+        
         # Playlist patterns
         playlist_patterns = [
             r'(?:youtube\.com/playlist\?list=|youtu\.be/playlist\?list=)([a-zA-Z0-9_-]+)',
@@ -185,7 +190,6 @@ def extract_youtube_id(url: str) -> Optional[str]:
         channel_patterns = [
             r'youtube\.com/channel/([a-zA-Z0-9_-]+)',
             r'youtube\.com/c/([a-zA-Z0-9_-]+)',
-            r'youtube\.com/@([a-zA-Z0-9_-]+)',
             r'youtube\.com/user/([a-zA-Z0-9_-]+)',
         ]
         
@@ -201,7 +205,7 @@ def extract_youtube_id(url: str) -> Optional[str]:
             if match:
                 return match.group(1)
         
-        return None
+        return url  # Return the full URL as fallback
     except Exception as e:
         logger.error(f"Error extracting YouTube ID from URL {url}: {e}")
         return None
