@@ -176,7 +176,7 @@
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             <!-- Free Plan -->
-            <div class="bg-[#252525] rounded-xl p-8 border border-[#282828] hover:border-[#00CFFF] transition-all duration-300">
+            <div class="bg-[#252525] rounded-xl p-8 border border-[#282828] hover:border-[#00CFFF] transition-all duration-300 flex flex-col h-full">
                 <h3 class="text-2xl font-bold text-white mb-2">Free</h3>
                 <p class="text-[#b3b3b3] mb-6">Perfect for trying out</p>
                 <div class="text-4xl font-bold text-white mb-6">$0<span class="text-lg font-normal text-[#b3b3b3]">/month</span></div>
@@ -206,13 +206,15 @@
                         Spotify playlist creation
                     </li>
                 </ul>
-                <a href="{{ url_for('auth.register') }}" class="block w-full text-center py-3 rounded-full bg-[#00CFFF] text-[#121212] font-bold hover:bg-[#00a8d9] transition-colors duration-200 transform hover:scale-105">
-                    Start Free
-                </a>
+                <div class="mt-auto">
+                    <a href="{{ url_for('auth.register') }}" class="block w-full text-center py-3 rounded-full bg-[#00CFFF] text-[#121212] font-bold hover:bg-[#00a8d9] transition-colors duration-200 transform hover:scale-105">
+                        Start Free
+                    </a>
+                </div>
             </div>
             
             <!-- Pro Monthly -->
-            <div class="bg-[#252525] rounded-xl p-8 border border-[#282828] hover:border-[#00CFFF] transition-all duration-300 relative transform scale-105">
+            <div class="bg-[#252525] rounded-xl p-8 border border-[#282828] hover:border-[#00CFFF] transition-all duration-300 relative flex flex-col h-full">
                 <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-[#00CFFF] text-[#121212] px-4 py-1 rounded-full text-sm font-bold">
                     MOST POPULAR
                 </div>
@@ -245,13 +247,15 @@
                         Priority support
                     </li>
                 </ul>
-                <a href="{{ url_for('auth.register') }}" class="block w-full text-center py-3 rounded-full bg-[#00CFFF] text-[#121212] font-bold hover:bg-[#00a8d9] transition-colors duration-200 transform hover:scale-105">
-                    Get Pro Monthly
-                </a>
+                <div class="mt-auto">
+                    <a href="{{ url_for('auth.register') }}" class="block w-full text-center py-3 rounded-full bg-[#00CFFF] text-[#121212] font-bold hover:bg-[#00a8d9] transition-colors duration-200 transform hover:scale-105">
+                        Get Pro Monthly
+                    </a>
+                </div>
             </div>
             
             <!-- Pro Yearly -->
-            <div class="bg-[#252525] rounded-xl p-8 border border-[#282828] hover:border-[#00CFFF] transition-all duration-300">
+            <div class="bg-[#252525] rounded-xl p-8 border border-[#282828] hover:border-[#00CFFF] transition-all duration-300 flex flex-col h-full">
                 <h3 class="text-2xl font-bold text-white mb-2">Pro Yearly</h3>
                 <p class="text-[#b3b3b3] mb-6">Best value - save 33%</p>
                 <div class="text-4xl font-bold text-white mb-6">$24<span class="text-lg font-normal text-[#b3b3b3]">/year</span></div>
@@ -275,9 +279,11 @@
                         Early access to new features
                     </li>
                 </ul>
-                <a href="{{ url_for('auth.register') }}" class="block w-full text-center py-3 rounded-full bg-[#00CFFF] text-[#121212] font-bold hover:bg-[#00a8d9] transition-colors duration-200 transform hover:scale-105">
-                    Get Pro Yearly
-                </a>
+                <div class="mt-auto">
+                    <a href="{{ url_for('auth.register') }}" class="block w-full text-center py-3 rounded-full bg-[#00CFFF] text-[#121212] font-bold hover:bg-[#00a8d9] transition-colors duration-200 transform hover:scale-105">
+                        Get Pro Yearly
+                    </a>
+                </div>
             </div>
         </div>
     </div>
