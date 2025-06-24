@@ -123,7 +123,7 @@ def callback():
         if session.get('spotify_connect_only'):
             # Clean up session
             session.pop('spotify_connect_only', None)
-            flash('Spotify connected successfully!', 'success')
+            # Removed success flash - connection status is shown in dashboard
             return redirect(url_for('main.dashboard'))
         
         # Get the task to create playlist for
@@ -132,7 +132,7 @@ def callback():
         if task_id:
             return redirect(url_for('spotify.create_playlist', task_id=task_id))
         else:
-            flash('Spotify connected successfully!', 'success')
+            # Removed success flash - connection status is shown in dashboard
             return redirect(url_for('main.dashboard'))
             
     except Exception as e:
