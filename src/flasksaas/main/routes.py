@@ -390,8 +390,8 @@ def contact():
                 # Create email message
                 msg = Message(
                     subject=f"[Bright Ears Support] {form.subject.data}",
-                    sender=current_app.config.get('MAIL_DEFAULT_SENDER', 'noreply@brightears.com'),
-                    recipients=['support@brightears.com'],
+                    sender=current_app.config.get('MAIL_DEFAULT_SENDER', 'support@brightears.io'),
+                    recipients=['support@brightears.io'],
                     reply_to=form.email.data
                 )
                 

@@ -88,9 +88,9 @@ MAIL_SERVER=smtp.gmail.com
 MAIL_PORT=587
 MAIL_USE_TLS=True
 MAIL_USE_SSL=False
-MAIL_USERNAME=your_email@gmail.com
-MAIL_PASSWORD=your_app_password
-MAIL_DEFAULT_SENDER=noreply@brightears.com
+MAIL_USERNAME=platzer.norbert@gmail.com  # Your Gmail account
+MAIL_PASSWORD=your_app_password           # Gmail app-specific password
+MAIL_DEFAULT_SENDER=support@brightears.io # Your custom domain email
 ```
 
 ## Current Branch Context
