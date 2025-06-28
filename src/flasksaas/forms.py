@@ -38,8 +38,8 @@ class PlaylistForm(FlaskForm):
     days = IntegerField('Days to Look Back', default=7, validators=[NumberRange(min=1, max=90)])
     public = BooleanField('Public Playlist', default=True)
     source_selection = RadioField('Music Sources', choices=[
-            ('both', 'Use both predefined and my custom sources'),
-            ('predefined', 'Use only predefined sources'),
+            ('both', 'Use both selected channel and my custom sources'),
+            ('predefined', 'Use only selected channel'),
             ('custom', 'Use only my custom sources')
         ], default='both')
 
