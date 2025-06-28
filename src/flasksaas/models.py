@@ -134,6 +134,68 @@ class UserSource(db.Model):
             raise ValueError("URL must be a valid YouTube channel or playlist")
         
         return url
+
+
+class PlaylistTask(db.Model):
+    """Stores playlist generation tasks."""
+    __tablename__ = "playlist_tasks"
+    
+    id = db.Column(db.String(36), primary_key=True)  # UUID
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    status = db.Column(db.String(20), nullable=False, default='pending')  # pending, processing, completed, failed
+    progress = db.Column(db.Integer, default=0)  # 0-100
+    
+    # Task parameters
+    playlist_name = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
+    genre = db.Column(db.String(50))
+    days = db.Column(db.Integer, default=7)
+    is_public = db.Column(db.Boolean, default=True)
+    source_selection = db.Column(db.String(20), default='both')
+    
+    # Results
+    spotify_playlist_url = db.Column(db.Text)
+    spotify_playlist_id = db.Column(db.String(100))
+    tracks_found = db.Column(db.Integer, default=0)
+    tracks_matched = db.Column(db.Integer, default=0)
+    error_message = db.Column(db.Text)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    completed_at = db.Column(db.DateTime)
+    
+    # Relationships
+    user = db.relationship('User', backref=db.backref('playlist_tasks', lazy=True))
+    
+
+class GeneratedPlaylist(db.Model):
+    """Stores successfully generated playlists for history."""
+    __tablename__ = "generated_playlists"
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    task_id = db.Column(db.String(36), db.ForeignKey('playlist_tasks.id'))
+    
+    # Playlist details
+    name = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
+    spotify_url = db.Column(db.Text, nullable=False)
+    spotify_id = db.Column(db.String(100), nullable=False)
+    
+    # Stats
+    track_count = db.Column(db.Integer, default=0)
+    source_channel = db.Column(db.String(100))  # Which YouTube channel/source was used
+    days_analyzed = db.Column(db.Integer)
+    
+    # CSV data (compressed)
+    csv_data = db.Column(db.Text)  # Store base64 encoded compressed CSV
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref=db.backref('playlists', lazy=True))
+    task = db.relationship('PlaylistTask', backref=db.backref('playlist', uselist=False))
     
     @validates("source_type")
     def _validate_source_type(self, key, source_type: str):

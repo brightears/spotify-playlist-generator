@@ -144,15 +144,30 @@ def stripe_webhook():
         return jsonify(success=False, error=str(e)), 400
 
     # Handle specific events
-    if event['type'] == 'checkout.session.completed':
-        session = event['data']['object']
-        handle_checkout_completed(session)
-    elif event['type'] == 'customer.subscription.updated':
-        subscription = event['data']['object']
-        handle_subscription_updated(subscription)
-    elif event['type'] == 'customer.subscription.deleted':
-        subscription = event['data']['object']
-        handle_subscription_deleted(subscription)
+    try:
+        if event['type'] == 'checkout.session.completed':
+            session = event['data']['object']
+            handle_checkout_completed(session)
+        elif event['type'] == 'customer.subscription.created':
+            subscription = event['data']['object']
+            handle_subscription_created(subscription)
+        elif event['type'] == 'customer.subscription.updated':
+            subscription = event['data']['object']
+            handle_subscription_updated(subscription)
+        elif event['type'] == 'customer.subscription.deleted':
+            subscription = event['data']['object']
+            handle_subscription_deleted(subscription)
+        elif event['type'] == 'invoice.payment_failed':
+            invoice = event['data']['object']
+            handle_payment_failed(invoice)
+        elif event['type'] == 'invoice.payment_succeeded':
+            invoice = event['data']['object']
+            handle_payment_succeeded(invoice)
+        else:
+            current_app.logger.info(f'Unhandled webhook event type: {event["type"]}')
+    except Exception as e:
+        current_app.logger.error(f'Error handling webhook event {event["type"]}: {str(e)}')
+        return jsonify(success=False, error=str(e)), 500
 
     return jsonify(success=True)
 
@@ -256,3 +271,57 @@ def handle_subscription_deleted(subscription):
     
     user.subscription_status = 'canceled'
     db.session.commit()
+
+
+def handle_subscription_created(subscription):
+    """Handle customer.subscription.created webhook event."""
+    customer_id = subscription.get('customer')
+    status = subscription.get('status')
+    
+    user = User.query.filter_by(stripe_customer_id=customer_id).first()
+    if not user:
+        current_app.logger.warning(f'No user found for customer {customer_id}')
+        return
+    
+    user.subscription_id = subscription.get('id')
+    user.subscription_status = status
+    user.subscription_plan = 'monthly'  # Default, can be updated based on price ID
+    
+    # Update subscription end date
+    if subscription.get('current_period_end'):
+        end_date = datetime.fromtimestamp(subscription.current_period_end)
+        user.subscription_current_period_end = end_date
+    
+    db.session.commit()
+    current_app.logger.info(f'Created subscription for user {user.id}')
+
+
+def handle_payment_failed(invoice):
+    """Handle invoice.payment_failed webhook event."""
+    customer_id = invoice.get('customer')
+    
+    user = User.query.filter_by(stripe_customer_id=customer_id).first()
+    if not user:
+        return
+    
+    # Log the failure but don't immediately cancel - Stripe will retry
+    current_app.logger.warning(f'Payment failed for user {user.id} (customer: {customer_id})')
+    
+    # You might want to send an email notification here
+    # send_payment_failed_email(user.email)
+
+
+def handle_payment_succeeded(invoice):
+    """Handle invoice.payment_succeeded webhook event."""
+    customer_id = invoice.get('customer')
+    subscription_id = invoice.get('subscription')
+    
+    user = User.query.filter_by(stripe_customer_id=customer_id).first()
+    if not user:
+        return
+    
+    # Ensure subscription is marked as active
+    if user.subscription_status != 'active':
+        user.subscription_status = 'active'
+        db.session.commit()
+        current_app.logger.info(f'Payment succeeded for user {user.id}, marking subscription active')

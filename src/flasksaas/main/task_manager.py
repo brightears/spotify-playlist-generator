@@ -13,13 +13,57 @@ import logging
 from utils.sources.youtube import YouTubeSource
 from utils.destinations.spotify import SpotifyDestination
 from playlist_generator import create_playlist
-from src.flasksaas.models import User, UserSource
+from src.flasksaas.models import User, UserSource, PlaylistTask, GeneratedPlaylist
+from src.flasksaas import db
+import gzip
+import base64
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
 # In-memory task storage (in production, use Redis or database)
 tasks: Dict[str, Dict[str, Any]] = {}
+
+def update_task_status(task_id: str, status: str = None, progress: int = None, message: str = None, **kwargs):
+    """Update task status in both memory and database."""
+    # Update in-memory
+    if task_id in tasks:
+        task = tasks[task_id]
+        if status is not None:
+            task['status'] = status
+        if progress is not None:
+            task['progress'] = progress
+        if message is not None:
+            task['message'] = message
+        task['last_updated'] = datetime.now()
+        
+        # Update any additional fields
+        for key, value in kwargs.items():
+            task[key] = value
+    
+    # Update in database
+    db_task = PlaylistTask.query.get(task_id)
+    if db_task:
+        if status is not None:
+            db_task.status = status
+        if progress is not None:
+            db_task.progress = progress
+        if status == 'completed':
+            db_task.completed_at = datetime.utcnow()
+        elif status == 'failed' and 'error' in kwargs:
+            db_task.error_message = str(kwargs['error'])
+        
+        # Update results if provided
+        if 'spotify_playlist_url' in kwargs:
+            db_task.spotify_playlist_url = kwargs['spotify_playlist_url']
+        if 'spotify_playlist_id' in kwargs:
+            db_task.spotify_playlist_id = kwargs['spotify_playlist_id']
+        if 'tracks_found' in kwargs:
+            db_task.tracks_found = kwargs['tracks_found']
+        if 'tracks_matched' in kwargs:
+            db_task.tracks_matched = kwargs['tracks_matched']
+            
+        db.session.commit()
 
 class TaskManager:
     def __init__(self):
@@ -214,6 +258,23 @@ def create_new_task(user_id: int, playlist_name: str, description: str, genre: s
     """Create a new playlist generation task."""
     task_id = str(uuid.uuid4())
     
+    # Create database entry
+    db_task = PlaylistTask(
+        id=task_id,
+        user_id=user_id,
+        status='processing',
+        progress=0,
+        playlist_name=playlist_name,
+        description=description,
+        genre=genre,
+        days=days,
+        is_public=public,
+        source_selection=source_selection
+    )
+    db.session.add(db_task)
+    db.session.commit()
+    
+    # Also maintain in-memory for backward compatibility
     task = {
         'id': task_id,
         'user_id': user_id,
