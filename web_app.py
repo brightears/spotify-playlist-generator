@@ -59,6 +59,24 @@ app = Flask(__name__, template_folder="templates")
 # Check if we're in production (Render sets RENDER environment variable)
 IS_PRODUCTION = os.environ.get('RENDER') is not None
 
+# Initialize Sentry for error tracking (production only)
+if IS_PRODUCTION:
+    import sentry_sdk
+    from sentry_sdk.integrations.flask import FlaskIntegration
+    
+    sentry_dsn = os.environ.get('SENTRY_DSN')
+    if sentry_dsn:
+        sentry_sdk.init(
+            dsn=sentry_dsn,
+            integrations=[FlaskIntegration()],
+            traces_sample_rate=0.1,  # 10% of transactions for performance monitoring
+            environment="production",
+            release=os.environ.get('RENDER_GIT_COMMIT', 'unknown')
+        )
+        logger.info("Sentry error tracking initialized")
+    else:
+        logger.warning("SENTRY_DSN not set. Error tracking disabled.")
+
 # Use a stable SECRET_KEY that doesn't change between restarts
 # This is the most important setting for session stability
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY', 'development-key-not-for-prod')
@@ -108,6 +126,35 @@ csrf.init_app(app)
 # Add a comment explaining this is for development only
 # TODO: Re-enable CSRF protection before deploying to production
 # This is temporarily disabled to troubleshoot authentication flow
+
+# Initialize Flask-Limiter for rate limiting
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
+def get_user_identifier():
+    """Get identifier for rate limiting - authenticated users get higher limits."""
+    if current_user and hasattr(current_user, 'is_authenticated') and current_user.is_authenticated:
+        return f"user:{current_user.id}"
+    return get_remote_address()
+
+limiter = Limiter(
+    app=app,
+    key_func=get_user_identifier,
+    default_limits=["200 per hour", "50 per minute"] if IS_PRODUCTION else [],  # No limits in development
+    storage_uri="memory://",  # Use Redis in production for distributed rate limiting
+    headers_enabled=True,  # Return rate limit info in headers
+)
+
+# Rate limit decorators for specific endpoints
+playlist_create_limit = limiter.limit(
+    "10 per hour;3 per minute",  # Max 10 playlists per hour, 3 per minute
+    error_message="Too many playlist creation requests. Please wait before trying again."
+)
+
+api_limit = limiter.limit(
+    "300 per hour;60 per minute",  # Higher limits for API endpoints
+    error_message="API rate limit exceeded. Please slow down."
+)
 
 # Add mail configuration (must be done before mail.init_app)
 app.config.update(
@@ -185,6 +232,24 @@ app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(billing_bp, url_prefix='/billing')
 app.register_blueprint(main_bp)  # No prefix for main blueprint to match existing URLs
 app.register_blueprint(spotify_bp, url_prefix='/spotify')  # Register the Spotify blueprint
+
+# Apply specific rate limits to expensive endpoints
+if IS_PRODUCTION:
+    # Limit playlist creation
+    limiter.limit("10 per hour;3 per minute")(app.view_functions['main.create'])
+    
+    # Limit API status endpoint (but more generously)
+    limiter.limit("300 per hour;60 per minute")(app.view_functions['main.api_status'])
+    
+    # Limit auth endpoints to prevent brute force
+    limiter.limit("20 per hour;5 per minute")(app.view_functions['auth.login'])
+    limiter.limit("10 per hour;3 per minute")(app.view_functions['auth.register'])
+    
+    # Limit billing endpoints
+    limiter.limit("20 per hour")(app.view_functions['billing.create_checkout_session'])
+    
+    # Exempt certain endpoints from rate limiting
+    limiter.exempt(app.view_functions['billing.stripe_webhook'])  # Webhooks should not be rate limited
 
 # Exempt Stripe webhook from CSRF protection
 # This needs to be done after blueprints are registered

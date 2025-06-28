@@ -91,6 +91,9 @@ MAIL_USE_SSL=False
 MAIL_USERNAME=platzer.norbert@gmail.com  # Your Gmail account
 MAIL_PASSWORD=your_app_password           # Gmail app-specific password
 MAIL_DEFAULT_SENDER=support@brightears.io # Your custom domain email
+
+# Sentry (optional but recommended for production)
+SENTRY_DSN=your_sentry_dsn
 ```
 
 ## Current Branch Context
@@ -106,12 +109,12 @@ On `auth-rebuild` branch - SaaS architecture with subscription system:
 - No linting/formatting tools configured (no Black, flake8, etc.)
 - Basic pytest setup but tests currently broken due to import issues
 - No Flask-Migrate despite being in requirements - uses manual migration scripts
-- CSRF protection temporarily disabled for development (`WTF_CSRF_ENABLED = False`)
+- CSRF protection enabled in production, disabled in development (`WTF_CSRF_ENABLED = IS_PRODUCTION`)
 
 ## Development Notes
 
 - Application uses SQLite for development, easily configurable for production databases
-- Task system stores playlist generation status in memory - should be moved to persistent storage
+- Task system now stores playlist generation status in database (with in-memory cache for performance)
 - Real-time progress tracking implemented via background threads and AJAX polling
 - Multiple template directories due to blueprint restructuring - consolidation may be needed
 
@@ -131,6 +134,17 @@ On `auth-rebuild` branch - SaaS architecture with subscription system:
 - Removed yellow/green warning boxes in favor of subtle grays
 - Cancel subscription button uses collapsible "Subscription Settings"
 - Consistent use of brand color (#00CFFF) for CTAs
+
+### Production Readiness Improvements (Dec 28, 2024)
+- **Database Storage**: Playlist tasks now stored in database (PlaylistTask and GeneratedPlaylist models)
+- **Enhanced Webhooks**: Added handlers for subscription.created, invoice.payment_failed, invoice.payment_succeeded
+- **Rate Limiting**: Implemented Flask-Limiter with sensible defaults:
+  - Playlist creation: 10/hour, 3/minute
+  - API endpoints: 300/hour, 60/minute
+  - Auth endpoints: 20/hour (login), 10/hour (register)
+  - Stripe webhooks exempted from limits
+- **Error Tracking**: Integrated Sentry for production error monitoring
+- **CSRF Protection**: Re-enabled in production (`WTF_CSRF_ENABLED = IS_PRODUCTION`)
 
 ### Deployment
 - Application deployed on Render.com
