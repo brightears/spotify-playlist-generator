@@ -24,16 +24,18 @@ logger = logging.getLogger(__name__)
 class YouTubeSource(MusicSource):
     """Fetches tracks from YouTube channels and playlists."""
     
-    # Mapping of genre keys to YouTube channels/playlists
+    # Mapping of channel keys to YouTube channels/playlists
     GENRE_CHANNELS = {
-        "house": [
-            {"type": "playlist", "id": "PLSr_oFUba1jtP9x5ZFs5Y0GJkb8fmC161", "name": "Selected Base"},
+        "selected-base": [
+            {"type": "playlist", "id": "PLSr_oFUba1jtP9x5ZFs5Y0GJkb8fmC161", "name": "Selected Base"}
+        ],
+        "defected-music": [
             {"type": "playlist", "id": "PLoRGBexfBL8dbhIs6-GqWapmosx-0gqa7", "name": "Defected Music"}
         ],
-        "deep-house": [
+        "mrrevillz": [
             {"type": "channel", "id": "UCd3TI79UTgYvVEq5lTnJ4uQ", "name": "MrRevillz"}
         ],
-        "nu-disco": [
+        "glitterbox-ibiza": [
             {"type": "playlist", "id": "PLIxQjHO1yTm99RG32st06TnxZHMgCbT4H", "name": "Glitterbox Ibiza"}
         ],
         "all": [
