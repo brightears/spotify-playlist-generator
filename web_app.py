@@ -44,7 +44,7 @@ from utils.sources.youtube import YouTubeSource
 from utils.destinations.spotify import SpotifyDestination
 
 # Import the new FlaskSaaS auth & billing blueprints
-from src.flasksaas import db
+from src.flasksaas import db, mail
 from src.flasksaas.models import User
 from src.flasksaas.auth.routes import auth_bp
 from src.flasksaas.billing.routes import billing_bp
@@ -109,8 +109,22 @@ csrf.init_app(app)
 # TODO: Re-enable CSRF protection before deploying to production
 # This is temporarily disabled to troubleshoot authentication flow
 
+# Add mail configuration (must be done before mail.init_app)
+app.config.update(
+    MAIL_SERVER=os.environ.get('MAIL_SERVER', 'smtp.gmail.com'),
+    MAIL_PORT=int(os.environ.get('MAIL_PORT', 587)),
+    MAIL_USE_TLS=os.environ.get('MAIL_USE_TLS', 'True').lower() == 'true',
+    MAIL_USE_SSL=os.environ.get('MAIL_USE_SSL', 'False').lower() == 'true',
+    MAIL_USERNAME=os.environ.get('MAIL_USERNAME'),
+    MAIL_PASSWORD=os.environ.get('MAIL_PASSWORD'),
+    MAIL_DEFAULT_SENDER=os.environ.get('MAIL_DEFAULT_SENDER', 'support@brightears.io'),
+)
+
 # Initialize database
 db.init_app(app)
+
+# Initialize mail
+mail.init_app(app)
 
 # Initialize bcrypt for password hashing
 from src.flasksaas.models import bcrypt
