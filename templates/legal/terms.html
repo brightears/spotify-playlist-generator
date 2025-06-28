@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Terms of Service - Bright Ears{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-[#1a1a1a] to-[#242831] py-12">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-[#252525] rounded-xl border border-[#282828] shadow-xl p-8">
+      <h1 class="text-3xl font-bold text-white mb-8">Terms of Service</h1>
+      
+      <div class="prose prose-invert max-w-none text-[#b3b3b3]">
+        <p class="mb-6 text-sm text-[#6a6a6a]">Effective Date: December 22, 2024</p>
+        
+        <h2 class="text-xl font-semibold text-white mt-8 mb-4">1. Acceptance of Terms</h2>
+        <p class="mb-4">By accessing or using Bright Ears ("Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use our Service.</p>
+        
+        <h2 class="text-xl font-semibold text-white mt-8 mb-4">2. Description of Service</h2>
+        <p class="mb-4">Bright Ears is a music discovery platform that helps users create Spotify playlists by scanning various music sources including YouTube channels, Beatport, and other supported platforms. The Service requires:</p>
+        <ul class="list-disc list-inside mb-4 ml-4">
+          <li>A valid Spotify account for playlist creation</li>
+          <li>Authorization to access your Spotify account</li>
+          <li>A valid email address for account registration</li>
+        </ul>
+        
+        <h2 class="text-xl font-semibold text-white mt-8 mb-4">3. User Accounts</h2>
+        <p class="mb-4">To use certain features of our Service, you must register for an account. You agree to:</p>
+        <ul class="list-disc list-inside mb-4 ml-4">
+          <li>Provide accurate, current, and complete information</li>
+          <li>Maintain the security of your account credentials</li>
+          <li>Notify us immediately of any unauthorized use</li>
+          <li>Be responsible for all activities under your account</li>
+        </ul>
+        
+        <h2 class="text-xl font-semibold text-white mt-8 mb-4">4. Subscription and Payment</h2>
+        <p class="mb-4"><strong>Free Tier:</strong> Basic features are available at no cost with limitations on the number of playlists and sources.</p>
+        <p class="mb-4"><strong>Pro Subscription:</strong> Enhanced features are available through paid subscriptions:</p>
+        <ul class="list-disc list-inside mb-4 ml-4">
+          <li>Monthly: $3.00 USD per month</li>
+          <li>Yearly: $24.00 USD per year</li>
+        </ul>
+        <p class="mb-4">Subscriptions automatically renew unless cancelled. You may cancel at any time, and your subscription will remain active until the end of the current billing period.</p>
+        
+        <h2 class="text-xl font-semibold text-white mt-8 mb-4">5. Acceptable Use</h2>
+        <p class="mb-4">You agree not to:</p>
+        <ul class="list-disc list-inside mb-4 ml-4">
+          <li>Use the Service for any illegal or unauthorized purpose</li>
+          <li>Violate any laws in your jurisdiction</li>
+          <li>Attempt to gain unauthorized access to our systems</li>
+          <li>Interfere with or disrupt the Service</li>
+          <li>Use automated scripts to collect information or interact with the Service</li>
+          <li>Resell or redistribute the Service without authorization</li>
+        </ul>
+        
+        <h2 class="text-xl font-semibold text-white mt-8 mb-4">6. Third-Party Services</h2>
+        <p class="mb-4">Our Service integrates with third-party platforms including:</p>
+        <ul class="list-disc list-inside mb-4 ml-4">
+          <li><strong>Spotify:</strong> Subject to Spotify's Terms of Service</li>
+          <li><strong>YouTube:</strong> Subject to YouTube's Terms of Service</li>
+          <li><strong>Google:</strong> Authentication subject to Google's Terms of Service</li>
+        </ul>
+        <p class="mb-4">We are not responsible for third-party content or services. Your use of these services is governed by their respective terms.</p>
+        
+        <h2 class="text-xl font-semibold text-white mt-8 mb-4">7. Intellectual Property</h2>
+        <p class="mb-4">The Service and its original content, features, and functionality are owned by Bright Ears and are protected by international copyright, trademark, and other intellectual property laws.</p>
+        <p class="mb-4">User-generated playlists remain the property of the user, subject to the rights of the original content creators and platform terms.</p>
+        
+        <h2 class="text-xl font-semibold text-white mt-8 mb-4">8. Privacy</h2>
+        <p class="mb-4">Your use of our Service is also governed by our <a href="{{ url_for('main.privacy') }}" class="text-[#00CFFF] hover:text-[#00a8d9]">Privacy Policy</a>, which describes how we collect, use, and protect your information.</p>
+        
+        <h2 class="text-xl font-semibold text-white mt-8 mb-4">9. Disclaimers and Limitations of Liability</h2>
+        <p class="mb-4">THE SERVICE IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND. WE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.</p>
+        <p class="mb-4">IN NO EVENT SHALL BRIGHT EARS BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING FROM YOUR USE OF THE SERVICE.</p>
+        
+        <h2 class="text-xl font-semibold text-white mt-8 mb-4">10. Indemnification</h2>
+        <p class="mb-4">You agree to indemnify and hold harmless Bright Ears from any claims, damages, losses, liabilities, and expenses arising from your use of the Service or violation of these Terms.</p>
+        
+        <h2 class="text-xl font-semibold text-white mt-8 mb-4">11. Termination</h2>
+        <p class="mb-4">We may terminate or suspend your account immediately, without prior notice, for:</p>
+        <ul class="list-disc list-inside mb-4 ml-4">
+          <li>Breach of these Terms</li>
+          <li>Conduct that we believe harms the Service or other users</li>
+          <li>Extended periods of inactivity</li>
+        </ul>
+        
+        <h2 class="text-xl font-semibold text-white mt-8 mb-4">12. Changes to Terms</h2>
+        <p class="mb-4">We reserve the right to modify these Terms at any time. We will notify users of material changes via email or through the Service. Continued use after changes constitutes acceptance of the new Terms.</p>
+        
+        <h2 class="text-xl font-semibold text-white mt-8 mb-4">13. Governing Law</h2>
+        <p class="mb-4">These Terms shall be governed by and construed in accordance with the laws of the United States, without regard to its conflict of law provisions.</p>
+        
+        <h2 class="text-xl font-semibold text-white mt-8 mb-4">14. Contact Information</h2>
+        <p class="mb-4">For questions about these Terms, please contact us at:</p>
+        <p class="mb-4">Email: support@brightears.com</p>
+      </div>
+      
+      <div class="mt-12 pt-8 border-t border-[#282828]">
+        <p class="text-sm text-[#6a6a6a] text-center">
+          By using Bright Ears, you acknowledge that you have read, understood, and agree to these Terms of Service.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

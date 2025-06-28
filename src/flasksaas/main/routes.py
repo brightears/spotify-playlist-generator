@@ -360,3 +360,15 @@ def toggle_source(source_id):
         current_app.logger.error(f"Error toggling source: {e}")
     
     return redirect(url_for('main.sources'))
+
+
+@main_bp.route("/terms")
+def terms():
+    """Terms of Service page."""
+    return render_template("legal/terms.html")
+
+
+@main_bp.route("/privacy")
+def privacy():
+    """Privacy Policy page."""
+    return render_template("legal/privacy.html")
