@@ -49,7 +49,7 @@ python -c "from web_app import app; print('App loads successfully')"
   - **`main/`** - Core playlist generation functionality 
   - **`models.py`** - SQLAlchemy User model with subscription fields
 - **`utils/`** - Plugin architecture for music sources and playlist destinations
-  - **`sources/`** - Abstract `MusicSource` base with YouTube, Beatport, etc. implementations
+  - **`sources/`** - Abstract `MusicSource` base with YouTube implementation
   - **`destinations/`** - Abstract `PlaylistDestination` base with Spotify implementation
 
 ### Key Patterns
