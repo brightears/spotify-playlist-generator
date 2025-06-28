@@ -46,7 +46,7 @@
             
             <!-- Help Section -->
             <div class="mt-8 text-center">
-                <p class="text-sm text-[#6a6a6a]">Need help? <a href="mailto:support@brightears.com" class="text-[#00CFFF] hover:underline">Contact our support team</a></p>
+                <p class="text-sm text-[#6a6a6a]">Need help? <a href="{{ url_for('main.contact') }}" class="text-[#00CFFF] hover:underline">Contact our support team</a></p>
             </div>
         </div>
         {% elif current_user.has_active_subscription %}

@@ -1,7 +1,7 @@
 """Common forms for the FlaskSaaS application."""
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, SelectMultipleField, BooleanField, IntegerField, PasswordField, SubmitField, RadioField
+from wtforms import StringField, SelectField, SelectMultipleField, BooleanField, IntegerField, PasswordField, SubmitField, RadioField, TextAreaField
 from wtforms.validators import DataRequired, NumberRange, Optional as OptionalValidator, Email, EqualTo, Length
 
 class LoginForm(FlaskForm):
@@ -41,3 +41,12 @@ class PlaylistForm(FlaskForm):
             ('predefined', 'Use only predefined sources'),
             ('custom', 'Use only my custom sources')
         ], default='both')
+
+
+class ContactForm(FlaskForm):
+    """Form for contacting support."""
+    name = StringField('Name', validators=[DataRequired(), Length(min=2, max=100)])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    subject = StringField('Subject', validators=[DataRequired(), Length(min=5, max=200)])
+    message = TextAreaField('Message', validators=[DataRequired(), Length(min=10, max=2000)])
+    submit = SubmitField('Send Message')

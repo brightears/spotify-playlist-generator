@@ -372,3 +372,22 @@ def terms():
 def privacy():
     """Privacy Policy page."""
     return render_template("legal/privacy.html")
+
+
+@main_bp.route("/contact", methods=["GET", "POST"])
+def contact():
+    """Contact form page."""
+    from src.flasksaas.forms import ContactForm
+    form = ContactForm()
+    
+    if form.validate_on_submit():
+        # For now, we'll just log the contact message
+        # In production, this would send an email or create a support ticket
+        current_app.logger.info(f"Contact form submission: {form.email.data} - {form.subject.data}")
+        
+        # Store the message in session for demo purposes
+        # In production, this would be sent via email or stored in a database
+        flash("Thank you for contacting us! We'll get back to you within 24 hours.", "success")
+        return redirect(url_for('main.contact'))
+    
+    return render_template("contact.html", form=form)
