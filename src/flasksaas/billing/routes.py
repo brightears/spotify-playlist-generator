@@ -97,6 +97,11 @@ def create_checkout_session():
 @login_required
 def cancel():
     """Cancel the user's active Stripe subscription."""
+    # Check if user is a test user with hardcoded access
+    if current_user.email in ['norli@gmail.com', 'platzer.norbert@gmail.com']:
+        flash('Test account subscription cannot be cancelled. Please contact support.', 'info')
+        return redirect(url_for('billing.subscription'))
+    
     if not current_user.subscription_id:
         flash('No active subscription found.', 'warning')
         return redirect(url_for('billing.subscription'))
