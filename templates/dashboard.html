@@ -81,7 +81,9 @@
                     </svg>
                     <div>
                         <h3 class="text-white font-medium">Spotify Connected</h3>
-                        <a href="{{ url_for('spotify.disconnect') }}" class="text-xs text-[#6a6a6a] hover:text-red-400 mt-1 inline-block">Disconnect</a>
+                        <p class="text-sm text-[#6a6a6a]">
+                            <a href="{{ url_for('spotify.disconnect') }}" class="hover:text-red-400">Disconnect</a>
+                        </p>
                     </div>
                 </div>
                 {% else %}
