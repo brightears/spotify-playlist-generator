@@ -23,6 +23,5 @@ flask-mail==0.10.0
 stripe==10.8.0
 psycopg2-binary==2.9.9
 flask-limiter==3.5.0
-sentry-sdk[flask]==1.40.0
 # Flask-WTF 1.1 needs Werkzeug 2.x
 werkzeug<3

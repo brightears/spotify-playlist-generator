@@ -91,9 +91,6 @@ MAIL_USE_SSL=False
 MAIL_USERNAME=platzer.norbert@gmail.com  # Your Gmail account
 MAIL_PASSWORD=your_app_password           # Gmail app-specific password
 MAIL_DEFAULT_SENDER=support@brightears.io # Your custom domain email
-
-# Sentry (optional but recommended for production)
-SENTRY_DSN=your_sentry_dsn
 ```
 
 ## Current Branch Context
@@ -143,7 +140,6 @@ On `auth-rebuild` branch - SaaS architecture with subscription system:
   - API endpoints: 300/hour, 60/minute
   - Auth endpoints: 20/hour (login), 10/hour (register)
   - Stripe webhooks exempted from limits
-- **Error Tracking**: Integrated Sentry for production error monitoring
 - **CSRF Protection**: Re-enabled in production (`WTF_CSRF_ENABLED = IS_PRODUCTION`)
 
 ### Deployment

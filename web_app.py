@@ -59,23 +59,6 @@ app = Flask(__name__, template_folder="templates")
 # Check if we're in production (Render sets RENDER environment variable)
 IS_PRODUCTION = os.environ.get('RENDER') is not None
 
-# Initialize Sentry for error tracking (production only)
-if IS_PRODUCTION:
-    import sentry_sdk
-    from sentry_sdk.integrations.flask import FlaskIntegration
-    
-    sentry_dsn = os.environ.get('SENTRY_DSN')
-    if sentry_dsn:
-        sentry_sdk.init(
-            dsn=sentry_dsn,
-            integrations=[FlaskIntegration()],
-            traces_sample_rate=0.1,  # 10% of transactions for performance monitoring
-            environment="production",
-            release=os.environ.get('RENDER_GIT_COMMIT', 'unknown')
-        )
-        logger.info("Sentry error tracking initialized")
-    else:
-        logger.warning("SENTRY_DSN not set. Error tracking disabled.")
 
 # Use a stable SECRET_KEY that doesn't change between restarts
 # This is the most important setting for session stability
