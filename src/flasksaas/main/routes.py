@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, current_app, session, send_file, make_response
 from flask_login import login_required, current_user
 from flask_wtf.csrf import generate_csrf
+from flask_mail import Message, Mail
 
 # Import the PlaylistForm from the correct location
 from src.flasksaas.forms import PlaylistForm
@@ -381,13 +382,47 @@ def contact():
     form = ContactForm()
     
     if form.validate_on_submit():
-        # For now, we'll just log the contact message
-        # In production, this would send an email or create a support ticket
-        current_app.logger.info(f"Contact form submission: {form.email.data} - {form.subject.data}")
-        
-        # Store the message in session for demo purposes
-        # In production, this would be sent via email or stored in a database
-        flash("Thank you for contacting us! We'll get back to you within 24 hours.", "success")
-        return redirect(url_for('main.contact'))
+        try:
+            # Get mail instance from app extensions
+            mail = current_app.extensions.get('mail')
+            
+            if mail:
+                # Create email message
+                msg = Message(
+                    subject=f"[Bright Ears Support] {form.subject.data}",
+                    sender=current_app.config.get('MAIL_DEFAULT_SENDER', 'noreply@brightears.com'),
+                    recipients=['support@brightears.com'],
+                    reply_to=form.email.data
+                )
+                
+                # Format the email body
+                msg.body = f"""
+New support message from Bright Ears contact form:
+
+Name: {form.name.data}
+Email: {form.email.data}
+Subject: {form.subject.data}
+
+Message:
+{form.message.data}
+
+---
+This message was sent from the Bright Ears contact form.
+                """
+                
+                # Send the email
+                mail.send(msg)
+                current_app.logger.info(f"Contact form email sent: {form.email.data} - {form.subject.data}")
+            else:
+                # Fallback: just log if mail is not configured
+                current_app.logger.warning("Mail not configured. Contact form submission logged only.")
+                current_app.logger.info(f"Contact form submission: {form.email.data} - {form.subject.data}")
+            
+            flash("Thank you for contacting us! We'll get back to you within 24 hours.", "success")
+            return redirect(url_for('main.contact'))
+            
+        except Exception as e:
+            current_app.logger.error(f"Failed to send contact form email: {str(e)}")
+            flash("Sorry, there was an error sending your message. Please try again later.", "error")
     
     return render_template("contact.html", form=form)

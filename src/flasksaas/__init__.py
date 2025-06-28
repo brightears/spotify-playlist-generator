@@ -5,10 +5,12 @@ port over specific views and models incrementally.
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_mail import Mail
 
 # Extension singletons (shared across modules)
 db = SQLAlchemy()
 login_manager = LoginManager()
+mail = Mail()
 
 # ---------------------------------------------------------------------------
 # Factory helper (for isolated testing)
@@ -29,6 +31,15 @@ def create_flasksaas_app(config_object: str | None = None) -> Flask:
         SECRET_KEY=os.environ.get('FLASK_SECRET_KEY', 'change-me'),
         SQLALCHEMY_DATABASE_URI=database_url or "sqlite:///instance/flasksaas.db",
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        
+        # Mail configuration
+        MAIL_SERVER=os.environ.get('MAIL_SERVER', 'smtp.gmail.com'),
+        MAIL_PORT=int(os.environ.get('MAIL_PORT', 587)),
+        MAIL_USE_TLS=os.environ.get('MAIL_USE_TLS', 'True').lower() == 'true',
+        MAIL_USE_SSL=os.environ.get('MAIL_USE_SSL', 'False').lower() == 'true',
+        MAIL_USERNAME=os.environ.get('MAIL_USERNAME'),
+        MAIL_PASSWORD=os.environ.get('MAIL_PASSWORD'),
+        MAIL_DEFAULT_SENDER=os.environ.get('MAIL_DEFAULT_SENDER', 'noreply@brightears.com'),
     )
 
     if config_object:
@@ -37,6 +48,7 @@ def create_flasksaas_app(config_object: str | None = None) -> Flask:
     db.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = "auth.login"
+    mail.init_app(app)
 
     # late imports to avoid circular deps
     from .auth.routes import auth_bp

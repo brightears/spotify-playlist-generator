@@ -82,6 +82,15 @@ STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
 STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
 STRIPE_MONTHLY_PRICE_ID=your_monthly_price_id
 STRIPE_YEARLY_PRICE_ID=your_yearly_price_id
+
+# Email configuration (for contact form)
+MAIL_SERVER=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USE_TLS=True
+MAIL_USE_SSL=False
+MAIL_USERNAME=your_email@gmail.com
+MAIL_PASSWORD=your_app_password
+MAIL_DEFAULT_SENDER=noreply@brightears.com
 ```
 
 ## Current Branch Context
