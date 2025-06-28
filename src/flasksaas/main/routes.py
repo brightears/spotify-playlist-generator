@@ -383,10 +383,22 @@ def contact():
     
     if form.validate_on_submit():
         try:
+            # Log the attempt
+            current_app.logger.info(f"Contact form submission attempt from {form.email.data}")
+            
             # Get mail instance from app extensions
             mail = current_app.extensions.get('mail')
             
+            # Log mail configuration (without password)
+            current_app.logger.info(f"Mail configured: {mail is not None}")
             if mail:
+                current_app.logger.info(f"Mail server: {current_app.config.get('MAIL_SERVER')}")
+                current_app.logger.info(f"Mail port: {current_app.config.get('MAIL_PORT')}")
+                current_app.logger.info(f"Mail username: {current_app.config.get('MAIL_USERNAME')}")
+                current_app.logger.info(f"Mail default sender: {current_app.config.get('MAIL_DEFAULT_SENDER')}")
+                current_app.logger.info(f"Mail use TLS: {current_app.config.get('MAIL_USE_TLS')}")
+            
+            if mail and current_app.config.get('MAIL_USERNAME') and current_app.config.get('MAIL_PASSWORD'):
                 # Create email message
                 msg = Message(
                     subject=f"[Bright Ears Support] {form.subject.data}",
@@ -410,19 +422,33 @@ Message:
 This message was sent from the Bright Ears contact form.
                 """
                 
+                # Log before sending
+                current_app.logger.info(f"Attempting to send email to {msg.recipients} from {msg.sender}")
+                
                 # Send the email
                 mail.send(msg)
-                current_app.logger.info(f"Contact form email sent: {form.email.data} - {form.subject.data}")
+                current_app.logger.info(f"Contact form email successfully sent: {form.email.data} - {form.subject.data}")
             else:
                 # Fallback: just log if mail is not configured
-                current_app.logger.warning("Mail not configured. Contact form submission logged only.")
-                current_app.logger.info(f"Contact form submission: {form.email.data} - {form.subject.data}")
+                missing_config = []
+                if not mail:
+                    missing_config.append("Mail extension not initialized")
+                if not current_app.config.get('MAIL_USERNAME'):
+                    missing_config.append("MAIL_USERNAME not set")
+                if not current_app.config.get('MAIL_PASSWORD'):
+                    missing_config.append("MAIL_PASSWORD not set")
+                    
+                current_app.logger.warning(f"Mail not fully configured. Missing: {', '.join(missing_config)}")
+                current_app.logger.info(f"Contact form submission (not emailed): {form.email.data} - {form.subject.data}")
             
             flash("Thank you for contacting us! We'll get back to you within 24 hours.", "success")
             return redirect(url_for('main.contact'))
             
         except Exception as e:
             current_app.logger.error(f"Failed to send contact form email: {str(e)}")
+            current_app.logger.error(f"Error type: {type(e).__name__}")
+            import traceback
+            current_app.logger.error(f"Traceback: {traceback.format_exc()}")
             flash("Sorry, there was an error sending your message. Please try again later.", "error")
     
     return render_template("contact.html", form=form)
