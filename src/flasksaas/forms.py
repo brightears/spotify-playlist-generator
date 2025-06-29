@@ -36,7 +36,6 @@ class PlaylistForm(FlaskForm):
             ('glitterbox-ibiza', 'Glitterbox Ibiza')
         ])
     days = IntegerField('Days to Look Back', default=7, validators=[NumberRange(min=1, max=90)])
-    public = BooleanField('Public Playlist', default=True)
     source_selection = RadioField('Music Sources', choices=[
             ('both', 'Use both selected channel and my custom sources'),
             ('predefined', 'Use only selected channel'),

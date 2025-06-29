@@ -49,7 +49,7 @@ def create():
             description=form.description.data,
             genre=form.genre.data,
             days=form.days.data,
-            public=form.public.data,
+            public=True,  # Default to True since we removed the form field
             source_selection=form.source_selection.data
         )
         

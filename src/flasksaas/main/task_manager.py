@@ -46,7 +46,7 @@ def update_task_status(task_id: str, status: str = None, progress: int = None, m
             db_task.status = status
         if progress is not None:
             db_task.progress = progress
-        if status == 'completed':
+        if status in ['completed', 'complete']:
             db_task.completed_at = datetime.utcnow()
         elif status == 'failed' and 'error' in kwargs:
             db_task.error_message = str(kwargs['error'])
@@ -438,7 +438,7 @@ async def process_task_step(task_id: str) -> bool:
             
             # Update task status in database
             update_task_status(task_id, 
-                             status='completed',
+                             status='complete',
                              progress=100,
                              tracks_found=len(tracks))
             
