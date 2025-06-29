@@ -130,6 +130,7 @@ console.log('jQuery version:', typeof $ !== 'undefined' ? $.fn.jquery : 'Not ava
 $(document).ready(function() {
     console.log('Document ready fired');
     const taskId = '{{ task_id }}';
+    const isHistory = {{ 'true' if is_history else 'false' }};
     let pollInterval;
     let failedAttempts = 0;
     const maxFailedAttempts = 3;
@@ -325,11 +326,34 @@ $(document).ready(function() {
         }
     }
     
-    // Initial status check
-    updateStatus();
-    
-    // Poll for updates every 3 seconds (increased from 2 to reduce server load)
-    pollInterval = setInterval(updateStatus, 3000);
+    // Check if this is a historical playlist
+    if (isHistory) {
+        console.log('Historical playlist - showing results immediately');
+        // For historical playlists, we already have the data from the server
+        const taskData = {{ task | tojson | safe }};
+        
+        // Hide loading and show results immediately
+        $('#loading-dimmer').hide();
+        $('#status-header').text('Complete!').removeClass('text-yellow-400').addClass('text-green-400');
+        $('#status-message').text('Viewing historical playlist');
+        
+        // Set progress to 100%
+        const progressBar = document.querySelector('#task-progress .bar');
+        if (progressBar) {
+            progressBar.style.width = '100%';
+        }
+        
+        // Show results
+        if (taskData.result) {
+            showResults(taskData);
+        }
+    } else {
+        // Initial status check for live playlists
+        updateStatus();
+        
+        // Poll for updates every 3 seconds (increased from 2 to reduce server load)
+        pollInterval = setInterval(updateStatus, 3000);
+    }
     
     // Clean up the interval when leaving the page
     $(window).on('beforeunload', function() {

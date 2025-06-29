@@ -180,8 +180,8 @@ class GeneratedPlaylist(db.Model):
     # Playlist details
     name = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
-    spotify_url = db.Column(db.Text, nullable=False)
-    spotify_id = db.Column(db.String(100), nullable=False)
+    spotify_url = db.Column(db.Text)  # No longer used, made nullable
+    spotify_id = db.Column(db.String(100))  # No longer used, made nullable
     
     # Stats
     track_count = db.Column(db.Integer, default=0)

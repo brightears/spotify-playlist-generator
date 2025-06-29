@@ -477,6 +477,12 @@ def view_history(playlist_id):
     
     # Decompress the CSV data to get tracks
     try:
+        if not playlist.csv_data:
+            # Handle old playlists that don't have CSV data
+            current_app.logger.warning(f"Playlist {playlist_id} has no CSV data")
+            flash("This playlist was created before history tracking was enabled.", "info")
+            return redirect(url_for('main.history'))
+            
         csv_data = gzip.decompress(
             base64.b64decode(playlist.csv_data.encode('utf-8'))
         ).decode('utf-8')
