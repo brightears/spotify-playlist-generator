@@ -49,7 +49,6 @@ from src.flasksaas.models import User
 from src.flasksaas.auth.routes import auth_bp
 from src.flasksaas.billing.routes import billing_bp
 from src.flasksaas.main import main_bp
-from src.flasksaas.spotify_routes import spotify_bp
 from src.flasksaas.forms import PlaylistForm
 
 # -------------- Flask application setup --------------- #
@@ -214,7 +213,6 @@ def debug_create_tables():
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(billing_bp, url_prefix='/billing')
 app.register_blueprint(main_bp)  # No prefix for main blueprint to match existing URLs
-app.register_blueprint(spotify_bp, url_prefix='/spotify')  # Register the Spotify blueprint
 
 # Apply specific rate limits to expensive endpoints
 if IS_PRODUCTION:

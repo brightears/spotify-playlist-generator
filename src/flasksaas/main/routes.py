@@ -3,6 +3,7 @@ import time
 import asyncio
 import csv
 import io
+import json
 import uuid
 from datetime import datetime, timedelta
 from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, current_app, session, send_file, make_response
@@ -230,7 +231,7 @@ def simple_status(task_id):
 @main_bp.route('/download/<task_id>')
 @login_required
 def download(task_id):
-    """Download playlist results as CSV."""
+    """Download playlist results in various formats."""
     # Get task using the task manager
     task = get_task(task_id)
     if not task:
@@ -247,15 +248,78 @@ def download(task_id):
         flash("Task is not complete.", "error")
         return redirect(url_for('main.status', task_id=task_id))
     
-    # Check if CSV data exists
-    if 'csv_data' not in task or not task['csv_data']:
-        flash("No CSV data available for this task.", "error")
-        return redirect(url_for('main.status', task_id=task_id))
+    # Get format from query string
+    format_type = request.args.get('format', 'csv').lower()
+    result = task.get('result', {})
+    tracks = result.get('tracks', [])
+    playlist_name = result.get('playlist_name', f'playlist_{task_id}')
     
-    # Create response with CSV data
-    response = make_response(task['csv_data'])
-    response.headers['Content-Disposition'] = f'attachment; filename=playlist_{task_id}.csv'
-    response.headers['Content-Type'] = 'text/csv'
+    if format_type == 'csv':
+        # Generate CSV if not cached
+        if 'csv_data' not in task or not task['csv_data']:
+            csv_buffer = io.StringIO()
+            csv_writer = csv.writer(csv_buffer)
+            csv_writer.writerow(['Title', 'Artist', 'Remix', 'Source', 'URL'])
+            
+            for track in tracks:
+                csv_writer.writerow([
+                    track.get('title', ''),
+                    track.get('artist', ''),
+                    track.get('remix', ''),
+                    track.get('source', ''),
+                    track.get('url', track.get('source_url', ''))
+                ])
+            
+            csv_data = csv_buffer.getvalue()
+        else:
+            csv_data = task['csv_data']
+        
+        response = make_response(csv_data)
+        response.headers['Content-Disposition'] = f'attachment; filename={playlist_name}.csv'
+        response.headers['Content-Type'] = 'text/csv'
+        
+    elif format_type == 'm3u':
+        # Generate M3U playlist
+        m3u_content = "#EXTM3U\n"
+        m3u_content += f"#PLAYLIST:{playlist_name}\n\n"
+        
+        for track in tracks:
+            # M3U format: #EXTINF:duration,Artist - Title
+            artist = track.get('artist', 'Unknown Artist')
+            title = track.get('title', 'Unknown Title')
+            remix = track.get('remix', '')
+            full_title = f"{title} ({remix})" if remix else title
+            
+            m3u_content += f"#EXTINF:-1,{artist} - {full_title}\n"
+            # For YouTube tracks, we can include the URL
+            if track.get('source_url'):
+                m3u_content += f"{track['source_url']}\n\n"
+            else:
+                m3u_content += f"# Search: {artist} {full_title}\n\n"
+        
+        response = make_response(m3u_content)
+        response.headers['Content-Disposition'] = f'attachment; filename={playlist_name}.m3u8'
+        response.headers['Content-Type'] = 'audio/x-mpegurl'
+        
+    elif format_type == 'json':
+        # Generate JSON export
+        json_data = {
+            'playlist_name': playlist_name,
+            'created_at': datetime.now().isoformat(),
+            'track_count': len(tracks),
+            'genre': result.get('genre', ''),
+            'days_searched': result.get('days_searched', 0),
+            'sources': result.get('sources_used', []),
+            'tracks': tracks
+        }
+        
+        response = make_response(json.dumps(json_data, indent=2))
+        response.headers['Content-Disposition'] = f'attachment; filename={playlist_name}.json'
+        response.headers['Content-Type'] = 'application/json'
+        
+    else:
+        # Default to CSV for unknown formats
+        return redirect(url_for('main.download', task_id=task_id, format='csv'))
     
     return response
 

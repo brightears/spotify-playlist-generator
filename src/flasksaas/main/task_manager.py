@@ -11,8 +11,6 @@ import logging
 
 # Import the real playlist generation functionality
 from utils.sources.youtube import YouTubeSource
-from utils.destinations.spotify import SpotifyDestination
-from playlist_generator import create_playlist
 from src.flasksaas.models import User, UserSource, PlaylistTask, GeneratedPlaylist
 from src.flasksaas import db
 import gzip
@@ -428,159 +426,21 @@ async def process_task_step(task_id: str) -> bool:
             
             task['csv_data'] = csv_buffer.getvalue()
             
-            # Create result without Spotify info
+            # Create result
             task['result'] = {
                 'playlist_name': task['playlist_name'],
-                'playlist_url': None,
-                'spotify_created': False,
                 'track_count': len(tracks),
-                'matched_tracks': 0,
-                'unmatched_tracks': 0,
-                'tracks': tracks[:10],  # Show first 10 tracks
+                'tracks': tracks,  # Include all tracks for export
                 'sources_used': [source['name'] for source in task.get('sources', [])],
                 'genre': task['genre'],
                 'days_searched': task['days']
             }
-            task['step'] = 3  # Mark as complete
             
-        elif current_step == 3:
-            # Connect to Spotify  
-            task['message'] = 'Connecting to Spotify API...'
-            task['progress'] = 80
-            
-            try:
-                # Get user's Spotify authentication from session
-                user_id = task.get('user_id')
-                user = User.query.get(user_id)
-                if not user:
-                    raise ValueError(f"User {user_id} not found")
-                
-                # Check if user has Spotify tokens
-                if not user.spotify_access_token:
-                    raise ValueError("User has not connected Spotify account")
-                
-                # Prepare auth data for Spotify destination
-                auth_data = {
-                    'access_token': user.spotify_access_token,
-                    'refresh_token': user.spotify_refresh_token,
-                    'expires_at': user.spotify_token_expires,
-                    'user_id': user.spotify_user_id
-                }
-                
-                # Initialize Spotify destination
-                spotify_destination = SpotifyDestination()
-                
-                # Authenticate with user's tokens
-                auth_success = await spotify_destination.authenticate(auth_data)
-                if not auth_success:
-                    raise ValueError("Failed to authenticate with Spotify")
-                
-                # If tokens were refreshed, update the database
-                if spotify_destination.auth_data != auth_data:
-                    print(f"Task {task_id}: Tokens were refreshed, updating database...")
-                    user.spotify_access_token = spotify_destination.auth_data.get('access_token')
-                    user.spotify_refresh_token = spotify_destination.auth_data.get('refresh_token')
-                    user.spotify_token_expires = spotify_destination.auth_data.get('expires_at')
-                    from src.flasksaas.models import db
-                    db.session.commit()
-                    print(f"Task {task_id}: Database updated with new tokens")
-                
-                task['spotify_destination'] = spotify_destination
-                task['step'] = 4
-                print(f"Task {task_id}: Spotify destination initialized")
-                
-            except Exception as e:
-                print(f"Task {task_id}: Error in step 3: {e}")
-                task['status'] = 'error'
-                task['message'] = f'Failed to connect to Spotify: {str(e)}'
-                raise e
-            
-        elif current_step == 4:
-            # Create Spotify playlist
-            task['message'] = f'Creating Spotify playlist "{task["playlist_name"]}"...'
-            task['progress'] = 90
-            
-            try:
-                spotify_destination = task.get('spotify_destination')
-                if not spotify_destination:
-                    raise ValueError("Spotify destination not initialized")
-                
-                # Convert track dictionaries back to Track objects
-                tracks = task.get('tracks', [])
-                track_objects = []
-                for track_dict in tracks:
-                    from utils.sources.base import Track
-                    track_obj = Track(
-                        title=track_dict['title'],
-                        artist=track_dict['artist'],
-                        remix=track_dict.get('remix'),
-                        source=track_dict.get('source', 'YouTube'),
-                        source_url=track_dict.get('url')
-                    )
-                    track_objects.append(track_obj)
-                
-                # Create the playlist on Spotify
-                playlist_result = await spotify_destination.create_playlist(
-                    name=task['playlist_name'],
-                    tracks=track_objects,
-                    description=f"Playlist created from YouTube sources - Genre: {task['genre']}",
-                    public=task.get('public', False),
-                    min_match_score=0.7,
-                    progress_callback=None  # Don't use callback for now to avoid await issues
-                )
-                
-                if playlist_result.success:
-                    task['spotify_playlist_url'] = playlist_result.playlist_url
-                    task['matched_tracks'] = len(playlist_result.added_tracks)
-                    task['unmatched_tracks'] = len(playlist_result.unmatched_tracks)
-                    task['csv_data'] = playlist_result.csv_data
-                    task['step'] = 5
-                    print(f"Task {task_id}: Spotify playlist created successfully")
-                    print(f"Task {task_id}: Matched {len(playlist_result.added_tracks)} tracks, {len(playlist_result.unmatched_tracks)} unmatched")
-                    
-                    # Log some match details for debugging
-                    for i, match in enumerate(playlist_result.added_tracks[:5]):  # First 5 matches
-                        print(f"Task {task_id}: Match {i+1}: '{match.track.title}' by '{match.track.artist}' -> '{match.match_name}' by '{match.match_artist}' (score: {match.score:.2f})")
-                    
-                    if playlist_result.unmatched_tracks:
-                        print(f"Task {task_id}: Unmatched tracks:")
-                        for i, match in enumerate(playlist_result.unmatched_tracks[:3]):  # First 3 unmatched
-                            print(f"Task {task_id}: Unmatched {i+1}: '{match.track.title}' by '{match.track.artist}' (best score: {match.score:.2f})")
-                else:
-                    raise ValueError(f"Failed to create Spotify playlist: {playlist_result.message}")
-                
-            except Exception as e:
-                print(f"Task {task_id}: Error in step 4: {e}")
-                task['status'] = 'error'
-                task['message'] = f'Failed to create Spotify playlist: {str(e)}'
-                raise e
-            
-        elif current_step == 5:
-            # Finalize and complete
-            task['message'] = 'Finalizing playlist...'
-            task['progress'] = 95
-            task['step'] = 6
-            
-        elif current_step == 6:
-            # Complete the task
-            tracks = task.get('tracks', [])
-            task['status'] = 'complete'
-            task['progress'] = 100
-            task['message'] = 'Playlist created successfully!'
-            
-            # Create realistic result
-            task['result'] = {
-                'playlist_name': task['playlist_name'],
-                'playlist_url': task.get('spotify_playlist_url'),
-                'spotify_created': bool(task.get('spotify_playlist_url')),
-                'track_count': len(tracks),
-                'matched_tracks': task.get('matched_tracks', 0),
-                'unmatched_tracks': task.get('unmatched_tracks', 0),
-                'tracks': tracks[:10],  # Show first 10 tracks
-                'sources_used': [source['name'] for source in task.get('sources', [])],
-                'genre': task['genre'],
-                'days_searched': task['days']
-            }
+            # Update task status in database
+            update_task_status(task_id, 
+                             status='completed',
+                             progress=100,
+                             tracks_found=len(tracks))
             
         else:
             # Unknown step, reset to beginning
