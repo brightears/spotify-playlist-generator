@@ -55,7 +55,7 @@ def create():
             source_selection=form.source_selection.data
         )
         
-        flash("Playlist creation started! You'll be redirected to track progress.", "success")
+        # No flash message needed - the status page will show the progress
         return redirect(url_for('main.status', task_id=task_id))
     
     return render_template('create.html', form=form)
