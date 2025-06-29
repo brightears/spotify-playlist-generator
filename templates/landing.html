@@ -14,7 +14,7 @@
             </h1>
             <p class="mt-6 text-xl text-[#b3b3b3] max-w-3xl mx-auto">
                 Bright Ears automatically discovers the latest tracks from your favorite YouTube channels and labels. 
-                Get organized CSV lists for purchasing or create Spotify playlists instantly. Built by DJs, for DJs.
+                Export to multiple formats and search across all major platforms. Built by DJs, for DJs.
             </p>
             <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="{{ url_for('auth.register') }}" class="inline-flex items-center justify-center px-8 py-4 rounded-full bg-[#00CFFF] text-[#121212] font-bold text-lg hover:bg-[#00a8d9] transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
@@ -106,7 +106,7 @@
                         2
                     </div>
                     <h3 class="text-xl font-bold text-white mb-3">Discover & Export</h3>
-                    <p class="text-[#b3b3b3]">AI scans your sources for latest releases. Get a CSV list for shopping or see what can be matched on Spotify.</p>
+                    <p class="text-[#b3b3b3]">Bright Ears scans your sources for latest releases. Export as CSV, M3U, or JSON for your preferred workflow.</p>
                 </div>
             </div>
             
@@ -116,8 +116,8 @@
                     <div class="w-16 h-16 bg-[#00CFFF] rounded-full flex items-center justify-center text-[#121212] font-bold text-2xl mb-6">
                         3
                     </div>
-                    <h3 class="text-xl font-bold text-white mb-3">Create or Purchase</h3>
-                    <p class="text-[#b3b3b3]">Create Spotify playlists for matched tracks instantly, or use your CSV to purchase unmatched gems elsewhere.</p>
+                    <h3 class="text-xl font-bold text-white mb-3">Find & Purchase</h3>
+                    <p class="text-[#b3b3b3]">One-click search on Spotify, Tidal, YouTube, Beatport & Traxsource. Use exports to build your perfect collection.</p>
                 </div>
             </div>
         </div>
@@ -135,8 +135,8 @@
         <div class="space-y-6">
             <!-- FAQ 1 -->
             <div class="bg-[#252525] rounded-lg p-6 border border-[#282828]">
-                <h3 class="text-lg font-bold text-white mb-2">Is this just another YouTube to Spotify converter?</h3>
-                <p class="text-[#b3b3b3]">No! Bright Ears is a professional music research tool. We help DJs discover the latest releases from their favorite sources, providing CSV export lists for purchasing tracks and optional Spotify playlist creation for tracks that can be matched.</p>
+                <h3 class="text-lg font-bold text-white mb-2">Is this just another YouTube converter?</h3>
+                <p class="text-[#b3b3b3]">No! Bright Ears is a professional music discovery tool. We help DJs find the latest releases from their favorite sources and provide one-click search across all major platforms, plus multiple export formats for your workflow.</p>
             </div>
             
             <!-- FAQ 2 -->
@@ -153,8 +153,8 @@
             
             <!-- FAQ 4 -->
             <div class="bg-[#252525] rounded-lg p-6 border border-[#282828]">
-                <h3 class="text-lg font-bold text-white mb-2">What if tracks aren't on Spotify?</h3>
-                <p class="text-[#b3b3b3]">That's why we provide CSV exports! Use the comprehensive track list as your shopping guide on Beatport, Juno, Bandcamp, or wherever you buy music. No more missing out on exclusive releases.</p>
+                <h3 class="text-lg font-bold text-white mb-2">What platforms can I search?</h3>
+                <p class="text-[#b3b3b3]">Every track includes one-click search links for Spotify, Tidal, YouTube Music, Beatport, and Traxsource. Plus, export your discoveries as CSV, M3U, or JSON for any other workflow.</p>
             </div>
             
             <!-- FAQ 5 -->
@@ -203,7 +203,7 @@
                         <svg class="w-4 h-4 text-[#00CFFF] mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                         </svg>
-                        Create Spotify playlists
+                        Multi-platform search links
                     </li>
                 </ul>
                 <div class="mt-auto">
@@ -244,7 +244,13 @@
                         <svg class="w-4 h-4 text-[#00CFFF] mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                         </svg>
-                        Unlimited sources per account
+                        All export formats (M3U, JSON)
+                    </li>
+                    <li class="flex items-start text-sm text-[#b3b3b3]">
+                        <svg class="w-4 h-4 text-[#00CFFF] mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Playlist history
                     </li>
                 </ul>
                 <div class="mt-auto">
