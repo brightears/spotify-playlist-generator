@@ -53,10 +53,11 @@ python -c "from web_app import app; print('App loads successfully')"
   - **`destinations/`** - Abstract `PlaylistDestination` base with Spotify implementation
 
 ### Key Patterns
-- **Task Management**: Async playlist generation with in-memory task storage (needs Redis/DB for production)
+- **Task Management**: Async playlist generation with database storage (PlaylistTask model)
 - **Real-time Updates**: AJAX polling for playlist creation progress at `/api/status/<task_id>`
-- **Plugin Architecture**: Extensible source/destination system with abstract base classes
-- **Authentication Flow**: Flask-Login + OAuth integration for Spotify API access
+- **Plugin Architecture**: Extensible source system with abstract base classes
+- **Authentication Flow**: Flask-Login + Google OAuth for user authentication
+- **Music Discovery**: Focus on finding tracks, not creating playlists directly
 
 ### Entry Points
 - **`web_app.py`** - Main Flask application with blueprint registration
@@ -142,7 +143,30 @@ On `auth-rebuild` branch - SaaS architecture with subscription system:
   - Stripe webhooks exempted from limits
 - **CSRF Protection**: Re-enabled in production (`WTF_CSRF_ENABLED = IS_PRODUCTION`)
 
+### Recent Changes (Dec 29, 2024)
+
+### Spotify API Limitations Discovery
+- Discovered Spotify requires 250k MAUs for extended API access
+- Development mode limited to 25 manually added users
+- No paid API tier available for small developers
+
+### Pivot to Music Discovery Platform
+- **Removed Spotify Integration**: Complete removal of OAuth and playlist creation
+- **Added Multi-Platform Search**: One-click search links for each track:
+  - Spotify, Tidal, YouTube Music, Beatport, Traxsource
+- **Multiple Export Formats**: CSV, M3U, JSON
+- **Focus Change**: From playlist creation to music discovery
+- **No API Limits**: Scalable to unlimited users
+
+### Technical Changes
+- Removed `spotify_routes.py` and all OAuth code
+- Updated `task_manager.py` to only fetch YouTube tracks
+- Added platform search URLs in track display
+- Created `migrate_remove_spotify.py` for database cleanup
+
 ### Deployment
 - Application deployed on Render.com
+- Custom domain: brightears.io
 - GitHub integration for automatic deployments
-- Backup checkpoint created: `v1.0-subscription-ui-complete`
+- PostgreSQL database in production
+- Environment variables managed in Render dashboard
