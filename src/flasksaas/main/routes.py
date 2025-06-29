@@ -234,27 +234,78 @@ def simple_status(task_id):
 @login_required
 def download(task_id):
     """Download playlist results in various formats."""
-    # Get task using the task manager
-    task = get_task(task_id)
-    if not task:
-        flash("Task not found.", "error")
-        return redirect(url_for('main.dashboard'))
-    
-    # Check if user owns this task
-    if task['user_id'] != current_user.id:
-        flash("Access denied.", "error")
-        return redirect(url_for('main.dashboard'))
-    
-    # Check if task is complete
-    if task['status'] != 'complete':
-        flash("Task is not complete.", "error")
-        return redirect(url_for('main.status', task_id=task_id))
+    # Check if this is a historical playlist
+    if task_id.startswith('history_'):
+        playlist_id = int(task_id.replace('history_', ''))
+        
+        # Get the historical playlist
+        playlist = GeneratedPlaylist.query.filter_by(
+            id=playlist_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not playlist:
+            flash("Playlist not found.", "error")
+            return redirect(url_for('main.history'))
+        
+        # Decompress the CSV data to get tracks
+        try:
+            csv_data = gzip.decompress(
+                base64.b64decode(playlist.csv_data.encode('utf-8'))
+            ).decode('utf-8')
+            
+            # Parse CSV to get tracks
+            csv_reader = csv.DictReader(io.StringIO(csv_data))
+            tracks = []
+            for row in csv_reader:
+                tracks.append({
+                    'title': row.get('Title', ''),
+                    'artist': row.get('Artist', ''),
+                    'remix': row.get('Remix', ''),
+                    'source': row.get('Source', ''),
+                    'url': row.get('URL', '')
+                })
+            
+            # Create a task-like object for the download logic
+            task = {
+                'status': 'complete',
+                'result': {
+                    'tracks': tracks,
+                    'playlist_name': playlist.name
+                },
+                'csv_data': csv_data
+            }
+            result = task['result']
+            playlist_name = playlist.name
+            
+        except Exception as e:
+            current_app.logger.error(f"Error loading historical playlist: {e}")
+            flash("Error loading playlist data.", "error")
+            return redirect(url_for('main.history'))
+    else:
+        # Get live task using the task manager
+        task = get_task(task_id)
+        if not task:
+            flash("Task not found.", "error")
+            return redirect(url_for('main.dashboard'))
+        
+        # Check if user owns this task
+        if task['user_id'] != current_user.id:
+            flash("Access denied.", "error")
+            return redirect(url_for('main.dashboard'))
+        
+        # Check if task is complete
+        if task['status'] != 'complete':
+            flash("Task is not complete.", "error")
+            return redirect(url_for('main.status', task_id=task_id))
+        
+        result = task.get('result', {})
+        tracks = result.get('tracks', [])
+        playlist_name = result.get('playlist_name', f'playlist_{task_id}')
     
     # Get format from query string
     format_type = request.args.get('format', 'csv').lower()
-    result = task.get('result', {})
     tracks = result.get('tracks', [])
-    playlist_name = result.get('playlist_name', f'playlist_{task_id}')
     
     if format_type == 'csv':
         # Generate CSV if not cached
