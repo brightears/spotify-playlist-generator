@@ -436,6 +436,37 @@ async def process_task_step(task_id: str) -> bool:
                 'days_searched': task['days']
             }
             
+            # Save playlist to history for Pro users
+            try:
+                db_task = PlaylistTask.query.get(task_id)
+                if db_task and db_task.user:
+                    # Check if user has active subscription
+                    if db_task.user.has_active_subscription:
+                        # Compress CSV data
+                        csv_compressed = base64.b64encode(
+                            gzip.compress(task['csv_data'].encode('utf-8'))
+                        ).decode('utf-8')
+                        
+                        # Create GeneratedPlaylist entry
+                        generated_playlist = GeneratedPlaylist(
+                            user_id=db_task.user_id,
+                            task_id=task_id,
+                            name=task['playlist_name'],
+                            description=task.get('description', ''),
+                            spotify_url='',  # No longer using Spotify
+                            spotify_id=f'brightears_{task_id}',  # Use task ID as unique identifier
+                            track_count=len(tracks),
+                            source_channel=task['genre'],
+                            days_analyzed=task['days'],
+                            csv_data=csv_compressed
+                        )
+                        db.session.add(generated_playlist)
+                        db.session.commit()
+                        print(f"Saved playlist to history for Pro user {db_task.user_id}")
+            except Exception as e:
+                print(f"Error saving playlist to history: {e}")
+                # Don't fail the task if history save fails
+            
             # Update task status in database
             update_task_status(task_id, 
                              status='complete',

@@ -5,6 +5,8 @@ import csv
 import io
 import json
 import uuid
+import gzip
+import base64
 from datetime import datetime, timedelta
 from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, current_app, session, send_file, make_response
 from flask_login import login_required, current_user
@@ -14,7 +16,7 @@ from flask_mail import Message, Mail
 # Import the PlaylistForm from the correct location
 from src.flasksaas.forms import PlaylistForm
 from src.flasksaas.main.task_manager import create_new_task, process_task_step, get_task, get_user_tasks, tasks, TaskManager
-from ..models import User, UserSource
+from ..models import User, UserSource, GeneratedPlaylist
 from .. import db
 
 main_bp = Blueprint('main', __name__, template_folder="templates")
@@ -437,6 +439,86 @@ def terms():
 def privacy():
     """Privacy Policy page."""
     return render_template("legal/privacy.html")
+
+
+@main_bp.route("/history")
+@login_required
+def history():
+    """View playlist generation history (Pro users only)."""
+    if not current_user.has_active_subscription:
+        flash("Playlist history is available for Pro subscribers only.", "warning")
+        return redirect(url_for('main.dashboard'))
+    
+    # Get user's generated playlists, ordered by most recent first
+    playlists = GeneratedPlaylist.query.filter_by(
+        user_id=current_user.id
+    ).order_by(GeneratedPlaylist.created_at.desc()).all()
+    
+    return render_template("history.html", playlists=playlists)
+
+
+@main_bp.route("/history/<int:playlist_id>")
+@login_required
+def view_history(playlist_id):
+    """View a specific playlist from history."""
+    if not current_user.has_active_subscription:
+        flash("Playlist history is available for Pro subscribers only.", "warning")
+        return redirect(url_for('main.dashboard'))
+    
+    # Get the playlist
+    playlist = GeneratedPlaylist.query.filter_by(
+        id=playlist_id,
+        user_id=current_user.id
+    ).first()
+    
+    if not playlist:
+        flash("Playlist not found.", "error")
+        return redirect(url_for('main.history'))
+    
+    # Decompress the CSV data to get tracks
+    try:
+        csv_data = gzip.decompress(
+            base64.b64decode(playlist.csv_data.encode('utf-8'))
+        ).decode('utf-8')
+        
+        # Parse CSV to get tracks
+        csv_reader = csv.DictReader(io.StringIO(csv_data))
+        tracks = []
+        for row in csv_reader:
+            tracks.append({
+                'title': row.get('Title', ''),
+                'artist': row.get('Artist', ''),
+                'remix': row.get('Remix', ''),
+                'source': row.get('Source', ''),
+                'url': row.get('URL', '')
+            })
+        
+        # Create a mock task object for the status template
+        task = {
+            'id': f'history_{playlist_id}',
+            'status': 'complete',
+            'progress': 100,
+            'playlist_name': playlist.name,
+            'description': playlist.description,
+            'genre': playlist.source_channel,
+            'days': playlist.days_analyzed,
+            'result': {
+                'playlist_name': playlist.name,
+                'track_count': playlist.track_count,
+                'tracks': tracks,
+                'sources_used': [playlist.source_channel],
+                'genre': playlist.source_channel,
+                'days_searched': playlist.days_analyzed
+            },
+            'csv_data': csv_data
+        }
+        
+        return render_template('status.html', task_id=task['id'], task=task, is_history=True)
+        
+    except Exception as e:
+        current_app.logger.error(f"Error decompressing playlist data: {e}")
+        flash("Error loading playlist data.", "error")
+        return redirect(url_for('main.history'))
 
 
 @main_bp.route("/contact", methods=["GET", "POST"])
