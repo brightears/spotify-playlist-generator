@@ -234,6 +234,10 @@ class YouTubeSource(MusicSource):
                 channel_title = snippet.get("channelTitle", "")
                 published_at = snippet.get("publishedAt", "")
                 
+                # Skip private videos
+                if title == "Private video" or not title:
+                    continue
+                
                 # Skip if video is too old
                 if published_at:
                     publish_date = datetime.strptime(published_at, "%Y-%m-%dT%H:%M:%SZ")
@@ -330,6 +334,10 @@ class YouTubeSource(MusicSource):
                 title = snippet.get("title", "")
                 published_at = snippet.get("publishedAt", "")
                 
+                # Skip private videos
+                if title == "Private video" or not title:
+                    continue
+                
                 # Skip if video is too old
                 if published_at:
                     publish_date = datetime.strptime(published_at, "%Y-%m-%dT%H:%M:%SZ")
@@ -416,6 +424,10 @@ class YouTubeSource(MusicSource):
                         for i, (title, video_id) in enumerate(zip(video_titles, video_ids)):
                             if i >= limit // len(sources):
                                 break
+                            
+                            # Skip private videos
+                            if title == "Private video" or not title:
+                                continue
                             
                             # Skip if it matches any filter keywords
                             should_filter = False
