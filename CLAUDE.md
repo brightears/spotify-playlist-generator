@@ -228,11 +228,19 @@ On `auth-rebuild` branch - Fully functional music discovery platform:
 
 #### UI Cleanup
 - **Status Color**: Changed "Complete!" from green to brand blue (#00CFFF)
-- **Track Display**: Removed "via YouTube" prefix (redundant)
+- **Track Display**: 
+  - Removed "via YouTube" prefix (redundant)
+  - Removed track numbers (#1, #2, etc.) from listings
 - **Playlist Details**: Removed duplicate blue info boxes
 - **CSV Export**: 
   - Removed empty URL column
   - Removed "YouTube" prefix from Source column (now just shows channel names)
+
+#### Data Quality Improvements
+- **Private Video Filter**: Added filter to skip YouTube private videos
+  - Prevents "Private video - Private video" entries
+  - Implemented in all three processing methods
+  - Cleaner results without noise
 
 #### Ready for Launch
 - **Current Status**: All UI/UX improvements complete

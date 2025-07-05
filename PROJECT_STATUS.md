@@ -111,6 +111,8 @@ All set in Render dashboard:
 - Updated all platform branding with official logos
 - Created comprehensive music discovery guide
 - Cleaned up redundant UI elements and CSV exports
+- Filtered out YouTube private videos from results
+- Removed track numbers from playlist display
 
 ### UI/UX Improvements (January 5, 2025)
 
@@ -147,7 +149,9 @@ All set in Render dashboard:
 - Removed duplicate "Playlist Details" boxes from status page
 - Removed empty URL column from CSV exports
 - Removed "YouTube" prefix from Source column in CSV (shows just channel names)
+- Removed track numbers (#1, #2, etc.) from playlist display
 - Fixed various color inconsistencies to match dark theme
+- Filtered out YouTube private videos to prevent noise in results
 
 ### Known Issues
 1. **YouTube API Quota**: Limited to ~100 generations/day
