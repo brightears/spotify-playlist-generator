@@ -267,7 +267,7 @@ class YouTubeSource(MusicSource):
                     artist=artist,
                     remix=remix,
                     release_date=publish_date.date() if publish_date else None,
-                    source=f"YouTube ({playlist_name})",
+                    source=playlist_name,
                     source_url=f"https://www.youtube.com/watch?v={video_id}"
                 )
                 
@@ -363,7 +363,7 @@ class YouTubeSource(MusicSource):
                     artist=artist,
                     remix=remix,
                     release_date=publish_date.date() if publish_date else None,
-                    source=f"YouTube ({channel_name})",
+                    source=channel_name,
                     source_url=f"https://www.youtube.com/watch?v={video_id}"
                 )
                 
@@ -443,7 +443,7 @@ class YouTubeSource(MusicSource):
                                 artist=artist,
                                 remix=remix,
                                 release_date=None,  # No date info in scraping
-                                source=f"YouTube ({source_name})",
+                                source=source_name,
                                 source_url=f"https://www.youtube.com/watch?v={video_id}"
                             )
                             
