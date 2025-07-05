@@ -146,6 +146,7 @@ All set in Render dashboard:
 #### Clean Up
 - Removed duplicate "Playlist Details" boxes from status page
 - Removed empty URL column from CSV exports
+- Removed "YouTube" prefix from Source column in CSV (shows just channel names)
 - Fixed various color inconsistencies to match dark theme
 
 ### Known Issues

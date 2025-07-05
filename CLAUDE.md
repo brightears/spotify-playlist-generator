@@ -230,7 +230,9 @@ On `auth-rebuild` branch - Fully functional music discovery platform:
 - **Status Color**: Changed "Complete!" from green to brand blue (#00CFFF)
 - **Track Display**: Removed "via YouTube" prefix (redundant)
 - **Playlist Details**: Removed duplicate blue info boxes
-- **CSV Export**: Removed empty URL column
+- **CSV Export**: 
+  - Removed empty URL column
+  - Removed "YouTube" prefix from Source column (now just shows channel names)
 
 #### Ready for Launch
 - **Current Status**: All UI/UX improvements complete
