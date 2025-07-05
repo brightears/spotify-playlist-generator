@@ -188,6 +188,8 @@ $(document).ready(function() {
     let lastProgress = 0;
     let stuckCounter = 0;
     let statusMessageIndex = 0;
+    let displayedProgress = 0;
+    let targetProgress = 0;
     
     // Dynamic status messages to rotate through
     const processingMessages = [
@@ -229,21 +231,26 @@ $(document).ready(function() {
                 // Reset failed attempts counter on success
                 failedAttempts = 0;
                 
-                // Update progress bar (plain JavaScript since we don't have jQuery UI)
+                // Update progress bar with smooth animation
                 const progressBar = document.querySelector('#task-progress .bar');
                 const indeterminateProgress = document.getElementById('indeterminate-progress');
                 
                 if (progressBar) {
-                    progressBar.style.width = data.progress + '%';
+                    targetProgress = data.progress;
                     
                     // Check if progress is stuck
                     if (data.progress === lastProgress && data.status === 'processing') {
                         stuckCounter++;
                         
+                        // If stuck, gradually increase the progress bar anyway
+                        if (stuckCounter > 1 && targetProgress < 90) {
+                            targetProgress = Math.min(90, displayedProgress + 2);
+                        }
+                        
                         // If stuck for more than 2 polls (6 seconds), show indeterminate progress
                         if (stuckCounter > 2) {
                             indeterminateProgress.classList.remove('hidden');
-                            progressBar.style.opacity = '0.3';
+                            progressBar.style.opacity = '0.7';
                         }
                     } else {
                         // Progress moved, reset stuck counter
@@ -268,6 +275,9 @@ $(document).ready(function() {
                     $('#status-header').text('Complete!').removeClass('animate-pulse-glow').addClass('text-[#00CFFF]');
                     $('#loading-dimmer').hide();
                     $('#indeterminate-progress').addClass('hidden');
+                    
+                    // Animate progress to 100%
+                    targetProgress = 100;
                     
                     // Show results if available
                     if (data.result) {
@@ -418,6 +428,33 @@ $(document).ready(function() {
         }
     }
     
+    // Smooth progress bar animation
+    function animateProgress() {
+        const progressBar = document.querySelector('#task-progress .bar');
+        if (!progressBar) return;
+        
+        // Calculate the difference
+        const diff = targetProgress - displayedProgress;
+        
+        // If difference is significant, move towards target
+        if (Math.abs(diff) > 0.1) {
+            // Move 20% of the distance each frame for smooth animation
+            displayedProgress += diff * 0.2;
+            
+            // Ensure we don't go over 100%
+            displayedProgress = Math.min(100, displayedProgress);
+            
+            // Update the progress bar width
+            progressBar.style.width = displayedProgress + '%';
+        }
+        
+        // Continue animation
+        requestAnimationFrame(animateProgress);
+    }
+    
+    // Start the progress animation
+    animateProgress();
+    
     // Check if this is a historical playlist
     if (isHistory) {
         console.log('Historical playlist - showing results immediately');
@@ -430,6 +467,8 @@ $(document).ready(function() {
         $('#status-message').text('Viewing historical playlist');
         
         // Set progress to 100%
+        displayedProgress = 100;
+        targetProgress = 100;
         const progressBar = document.querySelector('#task-progress .bar');
         if (progressBar) {
             progressBar.style.width = '100%';
