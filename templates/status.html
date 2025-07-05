@@ -265,7 +265,7 @@ $(document).ready(function() {
                 
                 // Update header based on status
                 if (data.status === 'complete') {
-                    $('#status-header').text('Complete!').removeClass('text-[#00CFFF] animate-pulse-glow').addClass('text-green-400');
+                    $('#status-header').text('Complete!').removeClass('animate-pulse-glow').addClass('text-[#00CFFF]');
                     $('#loading-dimmer').hide();
                     $('#indeterminate-progress').addClass('hidden');
                     
@@ -426,7 +426,7 @@ $(document).ready(function() {
         
         // Hide loading and show results immediately
         $('#loading-dimmer').hide();
-        $('#status-header').text('Complete!').removeClass('text-[#00CFFF]').addClass('text-green-400');
+        $('#status-header').text('Complete!').addClass('text-[#00CFFF]');
         $('#status-message').text('Viewing historical playlist');
         
         // Set progress to 100%
