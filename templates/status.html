@@ -236,15 +236,20 @@ $(document).ready(function() {
                 const indeterminateProgress = document.getElementById('indeterminate-progress');
                 
                 if (progressBar) {
-                    targetProgress = data.progress;
+                    // Set initial target from server
+                    if (data.progress > 0) {
+                        targetProgress = data.progress;
+                    }
                     
                     // Check if progress is stuck
                     if (data.progress === lastProgress && data.status === 'processing') {
                         stuckCounter++;
+                        console.log('Progress stuck at', data.progress, '%, stuck counter:', stuckCounter);
                         
                         // If stuck, gradually increase the progress bar anyway
-                        if (stuckCounter > 1 && targetProgress < 90) {
-                            targetProgress = Math.min(90, displayedProgress + 2);
+                        if (stuckCounter > 0 && displayedProgress < 90) {
+                            targetProgress = Math.min(90, displayedProgress + 5);
+                            console.log('Auto-incrementing progress to', targetProgress);
                         }
                         
                         // If stuck for more than 2 polls (6 seconds), show indeterminate progress
@@ -254,10 +259,12 @@ $(document).ready(function() {
                         }
                     } else {
                         // Progress moved, reset stuck counter
-                        stuckCounter = 0;
-                        indeterminateProgress.classList.add('hidden');
-                        progressBar.style.opacity = '1';
-                        lastProgress = data.progress;
+                        if (data.progress !== lastProgress) {
+                            stuckCounter = 0;
+                            indeterminateProgress.classList.add('hidden');
+                            progressBar.style.opacity = '1';
+                            lastProgress = data.progress;
+                        }
                     }
                 }
                 
@@ -446,6 +453,9 @@ $(document).ready(function() {
             
             // Update the progress bar width
             progressBar.style.width = displayedProgress + '%';
+        } else if (targetProgress === displayedProgress && displayedProgress < 90 && stuckCounter > 0) {
+            // If we're stuck and not moving, auto-increment slowly
+            targetProgress = Math.min(90, displayedProgress + 0.5);
         }
         
         // Continue animation
@@ -479,6 +489,10 @@ $(document).ready(function() {
             showResults(taskData);
         }
     } else {
+        // Initialize progress to 0 for live playlists
+        displayedProgress = 0;
+        targetProgress = 0;
+        
         // Initial status check for live playlists
         updateStatus();
         
