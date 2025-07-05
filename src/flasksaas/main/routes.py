@@ -317,15 +317,14 @@ def download(task_id):
         if 'csv_data' not in task or not task['csv_data']:
             csv_buffer = io.StringIO()
             csv_writer = csv.writer(csv_buffer)
-            csv_writer.writerow(['Title', 'Artist', 'Remix', 'Source', 'URL'])
+            csv_writer.writerow(['Title', 'Artist', 'Remix', 'Source'])
             
             for track in tracks:
                 csv_writer.writerow([
                     track.get('title', ''),
                     track.get('artist', ''),
                     track.get('remix', ''),
-                    track.get('source', ''),
-                    track.get('url', track.get('source_url', ''))
+                    track.get('source', '')
                 ])
             
             csv_data = csv_buffer.getvalue()
