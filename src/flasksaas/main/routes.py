@@ -37,6 +37,11 @@ def dashboard():
     # Simply render the dashboard template
     return render_template("dashboard.html")
 
+@main_bp.route("/guide")
+def guide():
+    """Music discovery guide."""
+    return render_template("guide.html")
+
 @main_bp.route("/create", methods=["GET", "POST"])
 @login_required
 def create():

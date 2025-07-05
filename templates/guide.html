@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}Music Discovery Guide - Bright Ears{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-[#1a1a1a] to-[#242831] py-12">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-[#252525] rounded-xl border border-[#282828] shadow-xl overflow-hidden">
+            <!-- Header -->
+            <div class="px-8 py-6 border-b border-[#282828]">
+                <h1 class="text-3xl font-bold text-white">Music Discovery Guide</h1>
+                <p class="mt-2 text-[#b3b3b3]">Learn how to find fresh tracks with Bright Ears</p>
+            </div>
+            
+            <!-- Content -->
+            <div class="p-8 space-y-8">
+                <!-- Getting Started -->
+                <section>
+                    <h2 class="text-2xl font-semibold text-white mb-4">🚀 Getting Started</h2>
+                    <div class="space-y-4 text-[#b3b3b3]">
+                        <p>Bright Ears helps you discover fresh music from YouTube channels and export track lists in various formats. Here's how to get the most out of it:</p>
+                        <ol class="list-decimal list-inside space-y-2 ml-4">
+                            <li>Choose a genre or YouTube channel to scan</li>
+                            <li>Select how many days back to search (1-90 days)</li>
+                            <li>Click "Generate Playlist" to start discovering</li>
+                            <li>Export your results in CSV, M3U, or JSON format</li>
+                            <li>Use one-click search links to find tracks on your favorite platform</li>
+                        </ol>
+                    </div>
+                </section>
+
+                <!-- Available Genres -->
+                <section>
+                    <h2 class="text-2xl font-semibold text-white mb-4">🎵 Available Genres</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-[#1a1a1a] rounded-lg p-4 border border-[#282828]">
+                            <h3 class="text-[#00CFFF] font-medium mb-2">Electronic Music</h3>
+                            <ul class="text-sm text-[#b3b3b3] space-y-1">
+                                <li>• Electronic Gems</li>
+                                <li>• MrSuicideSheep</li>
+                                <li>• The Sound You Need</li>
+                                <li>• Revealed Recordings</li>
+                            </ul>
+                        </div>
+                        <div class="bg-[#1a1a1a] rounded-lg p-4 border border-[#282828]">
+                            <h3 class="text-[#00CFFF] font-medium mb-2">Hip-Hop & More</h3>
+                            <ul class="text-sm text-[#b3b3b3] space-y-1">
+                                <li>• 88rising</li>
+                                <li>• Majestic Casual</li>
+                                <li>• COLORS</li>
+                                <li>• And many more...</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Export Formats -->
+                <section>
+                    <h2 class="text-2xl font-semibold text-white mb-4">📥 Export Formats</h2>
+                    <div class="space-y-4">
+                        <div class="bg-[#1a1a1a] rounded-lg p-4 border border-[#282828]">
+                            <h3 class="text-[#00CFFF] font-medium mb-1">CSV Format</h3>
+                            <p class="text-sm text-[#b3b3b3]">Perfect for importing into spreadsheets or using for record shopping on Beatport, Juno, etc. Contains artist, title, and source information.</p>
+                        </div>
+                        <div class="bg-[#1a1a1a] rounded-lg p-4 border border-[#282828]">
+                            <h3 class="text-[#00CFFF] font-medium mb-1">M3U Format</h3>
+                            <p class="text-sm text-[#b3b3b3]">Standard playlist format compatible with most media players. Great for creating local playlists.</p>
+                        </div>
+                        <div class="bg-[#1a1a1a] rounded-lg p-4 border border-[#282828]">
+                            <h3 class="text-[#00CFFF] font-medium mb-1">JSON Format</h3>
+                            <p class="text-sm text-[#b3b3b3]">Structured data format for developers or advanced users who want to process track data programmatically.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Platform Search -->
+                <section>
+                    <h2 class="text-2xl font-semibold text-white mb-4">🔍 Platform Search Links</h2>
+                    <p class="text-[#b3b3b3] mb-4">After discovery, each track includes one-click search buttons for:</p>
+                    <div class="flex flex-wrap gap-3">
+                        <span class="inline-flex items-center px-4 py-2 bg-[#1DB954]/10 text-[#1DB954] rounded-full text-sm font-medium">
+                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+                            </svg>
+                            Spotify
+                        </span>
+                        <span class="inline-flex items-center px-4 py-2 bg-black/80 text-white border border-white/20 rounded-full text-sm font-medium">
+                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 0L8 4l4 4 4-4L12 0zm-8 8l4 4 4-4-4-4L4 8zm8 0l4 4 4-4-4-4-4 4zm0 8l4-4-4-4-4 4 4 4z"/>
+                            </svg>
+                            Tidal
+                        </span>
+                        <span class="inline-flex items-center px-4 py-2 bg-[#CC0000]/10 text-[#CC0000] rounded-full text-sm font-medium">
+                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                            </svg>
+                            YouTube Music
+                        </span>
+                        <span class="inline-flex items-center px-4 py-2 bg-[#01FF95]/10 text-[#01FF95] rounded-full text-sm font-medium">
+                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8 0C3.582 0 0 3.582 0 8s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8zm2.88 10.88c-1.587 1.587-4.173 1.587-5.76 0s-1.587-4.173 0-5.76 4.173-1.587 5.76 0 1.587 4.173 0 5.76z"/>
+                            </svg>
+                            Beatport
+                        </span>
+                        <span class="inline-flex items-center px-4 py-2 bg-[#0066CC]/10 text-[#0066CC] rounded-full text-sm font-medium">
+                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.19 0 2.34-.21 3.41-.6.3-.11.49-.4.49-.72 0-.43-.35-.78-.78-.78-.17 0-.33.06-.46.11-.85.31-1.74.47-2.66.47-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8c0 .92-.16 1.81-.47 2.66-.05.13-.11.29-.11.46 0 .43.35.78.78.78.32 0 .61-.19.72-.49.39-1.07.6-2.22.6-3.41 0-5.52-4.48-10-10-10z"/>
+                            </svg>
+                            Traxsource
+                        </span>
+                    </div>
+                </section>
+
+                <!-- Pro Features -->
+                <section>
+                    <h2 class="text-2xl font-semibold text-white mb-4">⭐ Pro Features</h2>
+                    <div class="bg-gradient-to-r from-[#00CFFF]/10 to-[#00CFFF]/5 rounded-lg p-6 border border-[#00CFFF]/20">
+                        <h3 class="text-[#00CFFF] font-medium mb-3">Upgrade to Pro for:</h3>
+                        <ul class="space-y-2 text-[#b3b3b3]">
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-[#00CFFF] mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span><strong>Custom Sources:</strong> Add your own YouTube channels and playlists</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-[#00CFFF] mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span><strong>Playlist History:</strong> Access all your past discoveries anytime</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-[#00CFFF] mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span><strong>All Export Formats:</strong> Download in CSV, M3U, and JSON</span>
+                            </li>
+                        </ul>
+                        <div class="mt-4">
+                            <a href="{{ url_for('billing.subscription') }}" class="inline-flex items-center px-6 py-3 bg-[#00CFFF] text-[#121212] rounded-full font-bold hover:bg-[#00a8d9] transition-all duration-200">
+                                Upgrade to Pro - $3/month
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Tips -->
+                <section>
+                    <h2 class="text-2xl font-semibold text-white mb-4">💡 Pro Tips</h2>
+                    <ul class="space-y-3 text-[#b3b3b3]">
+                        <li class="flex items-start">
+                            <span class="text-[#00CFFF] mr-2">•</span>
+                            <span>For the freshest tracks, search the last 7-14 days</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-[#00CFFF] mr-2">•</span>
+                            <span>Use CSV exports for bulk searching on record stores</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-[#00CFFF] mr-2">•</span>
+                            <span>Save your favorite YouTube channels as custom sources (Pro)</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-[#00CFFF] mr-2">•</span>
+                            <span>Check back regularly - new tracks are uploaded daily!</span>
+                        </li>
+                    </ul>
+                </section>
+
+                <!-- Back to Create -->
+                <div class="pt-8 border-t border-[#282828]">
+                    <a href="{{ url_for('main.create') }}" class="inline-flex items-center text-[#00CFFF] hover:text-[#00a8d9] transition-colors">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        Back to Create Playlist
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
