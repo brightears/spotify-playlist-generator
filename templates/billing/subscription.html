@@ -94,68 +94,118 @@
             <p>You're currently on the free plan with limited features. Upgrade to Premium for unlimited access!</p>
         </div>
         
-        <!-- Premium Plan Card -->
-        <div class="bg-[#252525] rounded-xl border border-[#282828] shadow-xl overflow-hidden hover:border-[#00CFFF] transition-all duration-300">
-            <div class="bg-gradient-to-r from-[#00CFFF] to-[#00a8d9] py-1"></div>
-            <div class="p-8">
-                <div class="text-center mb-6">
-                    <h3 class="text-2xl font-bold text-white mb-2">Premium Plan</h3>
-                    <div class="flex items-baseline justify-center">
-                        <span class="text-5xl font-bold text-[#00CFFF]">$9.99</span>
-                        <span class="text-[#6a6a6a] ml-2">/month</span>
+        <!-- Subscription Plans -->
+        <div class="grid md:grid-cols-2 gap-6 mb-8">
+            <!-- Monthly Plan -->
+            <div class="bg-[#252525] rounded-xl border border-[#282828] shadow-xl overflow-hidden hover:border-[#00CFFF] transition-all duration-300">
+                <div class="bg-gradient-to-r from-[#00CFFF] to-[#00a8d9] py-1"></div>
+                <div class="p-8">
+                    <div class="text-center mb-6">
+                        <h3 class="text-2xl font-bold text-white mb-2">Pro Monthly</h3>
+                        <div class="flex items-baseline justify-center">
+                            <span class="text-5xl font-bold text-[#00CFFF]">$3</span>
+                            <span class="text-[#6a6a6a] ml-2">/month</span>
+                        </div>
                     </div>
+                    
+                    <button id="subscribe-monthly-button" data-price-id="{{ monthly_price_id }}" class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-full shadow-sm text-sm font-bold text-[#121212] bg-[#00CFFF] hover:bg-[#00a8d9] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00CFFF] transition-all duration-200 transform hover:scale-105">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                        Subscribe Monthly
+                    </button>
                 </div>
-                
-                <div class="space-y-4 mb-8">
-                    <div class="flex items-start space-x-3">
-                        <svg class="w-6 h-6 text-[#00CFFF] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <div>
-                            <p class="text-white font-medium">Unlimited playlist generation</p>
-                            <p class="text-sm text-[#6a6a6a]">Create as many playlists as you want</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start space-x-3">
-                        <svg class="w-6 h-6 text-[#00CFFF] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <div>
-                            <p class="text-white font-medium">Advanced filtering options</p>
-                            <p class="text-sm text-[#6a6a6a]">Fine-tune your music discovery</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start space-x-3">
-                        <svg class="w-6 h-6 text-[#00CFFF] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <div>
-                            <p class="text-white font-medium">Add custom music sources</p>
-                            <p class="text-sm text-[#6a6a6a]">Use your own YouTube playlists and channels</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start space-x-3">
-                        <svg class="w-6 h-6 text-[#00CFFF] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <div>
-                            <p class="text-white font-medium">Early access to new features</p>
-                            <p class="text-sm text-[#6a6a6a]">Be the first to try what's new</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <button id="subscribe-button" class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-full shadow-sm text-sm font-bold text-[#121212] bg-[#00CFFF] hover:bg-[#00a8d9] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00CFFF] transition-all duration-200 transform hover:scale-105">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
-                    </svg>
-                    Subscribe Now
-                </button>
-                
-                <p class="text-center text-xs text-[#6a6a6a] mt-4">
-                    Secure payment powered by Stripe. Cancel anytime.
-                </p>
             </div>
+            
+            <!-- Yearly Plan -->
+            <div class="bg-[#252525] rounded-xl border border-[#282828] shadow-xl overflow-hidden hover:border-[#00CFFF] transition-all duration-300 relative">
+                <div class="absolute top-0 right-0 bg-[#00CFFF] text-[#121212] text-xs font-bold px-3 py-1 rounded-bl-lg">
+                    SAVE 33%
+                </div>
+                <div class="bg-gradient-to-r from-[#00CFFF] to-[#00a8d9] py-1"></div>
+                <div class="p-8">
+                    <div class="text-center mb-6">
+                        <h3 class="text-2xl font-bold text-white mb-2">Pro Yearly</h3>
+                        <div class="flex items-baseline justify-center">
+                            <span class="text-5xl font-bold text-[#00CFFF]">$24</span>
+                            <span class="text-[#6a6a6a] ml-2">/year</span>
+                        </div>
+                        <p class="text-sm text-[#6a6a6a] mt-2">Just $2/month</p>
+                    </div>
+                    
+                    <button id="subscribe-yearly-button" data-price-id="{{ yearly_price_id }}" class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-full shadow-sm text-sm font-bold text-[#121212] bg-[#00CFFF] hover:bg-[#00a8d9] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00CFFF] transition-all duration-200 transform hover:scale-105">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                        Subscribe Yearly
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Features List -->
+        <div class="bg-[#252525] rounded-xl border border-[#282828] shadow-xl p-8">
+            <h3 class="text-xl font-bold text-white mb-6 text-center">Everything included in Pro</h3>
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="flex items-start space-x-3">
+                    <svg class="w-6 h-6 text-[#00CFFF] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div>
+                        <p class="text-white font-medium">Unlimited playlist generation</p>
+                        <p class="text-sm text-[#6a6a6a]">Create as many playlists as you want</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <svg class="w-6 h-6 text-[#00CFFF] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div>
+                        <p class="text-white font-medium">Advanced filtering options</p>
+                        <p class="text-sm text-[#6a6a6a]">Fine-tune your music discovery</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <svg class="w-6 h-6 text-[#00CFFF] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div>
+                        <p class="text-white font-medium">Add custom music sources</p>
+                        <p class="text-sm text-[#6a6a6a]">Use your own YouTube playlists and channels</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <svg class="w-6 h-6 text-[#00CFFF] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div>
+                        <p class="text-white font-medium">Playlist history</p>
+                        <p class="text-sm text-[#6a6a6a]">Access all your past discoveries</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <svg class="w-6 h-6 text-[#00CFFF] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div>
+                        <p class="text-white font-medium">Multiple export formats</p>
+                        <p class="text-sm text-[#6a6a6a]">CSV, M3U, JSON downloads</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <svg class="w-6 h-6 text-[#00CFFF] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div>
+                        <p class="text-white font-medium">Early access to new features</p>
+                        <p class="text-sm text-[#6a6a6a]">Be the first to try what's new</p>
+                    </div>
+                </div>
+            </div>
+            
+            <p class="text-center text-xs text-[#6a6a6a] mt-6">
+                Secure payment powered by Stripe. Cancel anytime.
+            </p>
         </div>
         {% endif %}
         
@@ -170,4 +220,88 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    // Initialize Stripe
+    {% if stripe_publishable_key %}
+    const stripe = Stripe('{{ stripe_publishable_key }}');
+    {% else %}
+    console.warn('Stripe publishable key not configured');
+    {% endif %}
+    
+    // Handle monthly subscription button
+    const monthlyButton = document.getElementById('subscribe-monthly-button');
+    if (monthlyButton) {
+        monthlyButton.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await createCheckoutSession('monthly', e.target);
+        });
+    }
+    
+    // Handle yearly subscription button
+    const yearlyButton = document.getElementById('subscribe-yearly-button');
+    if (yearlyButton) {
+        yearlyButton.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await createCheckoutSession('yearly', e.target);
+        });
+    }
+    
+    async function createCheckoutSession(planType, button) {
+        // Show loading state
+        const originalText = button.textContent;
+        button.textContent = 'Processing...';
+        button.disabled = true;
+        
+        try {
+            // Check if Stripe is configured
+            if (typeof stripe === 'undefined') {
+                alert('Payment system is not configured yet. Please contact support.');
+                button.textContent = originalText;
+                button.disabled = false;
+                return;
+            }
+            
+            // Create checkout session
+            const response = await fetch('/billing/create-checkout-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    plan_type: planType
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.error) {
+                alert('Error: ' + data.error);
+                button.textContent = originalText;
+                button.disabled = false;
+                return;
+            }
+            
+            // Redirect to Stripe Checkout
+            const result = await stripe.redirectToCheckout({
+                sessionId: data.id
+            });
+            
+            if (result.error) {
+                alert('Error: ' + result.error.message);
+                button.textContent = originalText;
+                button.disabled = false;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Something went wrong. Please try again.');
+            button.textContent = originalText;
+            button.disabled = false;
+        }
+    }
+</script>
 {% endblock %}
