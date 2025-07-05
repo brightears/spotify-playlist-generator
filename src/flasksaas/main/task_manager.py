@@ -413,15 +413,14 @@ async def process_task_step(task_id: str) -> bool:
             import io
             csv_buffer = io.StringIO()
             csv_writer = csv.writer(csv_buffer)
-            csv_writer.writerow(['Title', 'Artist', 'Remix', 'Source', 'URL'])
+            csv_writer.writerow(['Title', 'Artist', 'Remix', 'Source'])
             
             for track in tracks:
                 csv_writer.writerow([
                     track.get('title', ''),
                     track.get('artist', ''),
                     track.get('remix', ''),
-                    track.get('source', ''),
-                    track.get('url', track.get('source_url', ''))
+                    track.get('source', '')
                 ])
             
             task['csv_data'] = csv_buffer.getvalue()
