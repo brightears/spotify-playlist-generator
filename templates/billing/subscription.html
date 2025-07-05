@@ -97,33 +97,36 @@
         <!-- Subscription Plans -->
         <div class="grid md:grid-cols-2 gap-6 mb-8">
             <!-- Monthly Plan -->
-            <div class="bg-[#252525] rounded-xl border border-[#282828] shadow-xl overflow-hidden hover:border-[#00CFFF] transition-all duration-300">
+            <div class="bg-[#252525] rounded-xl border border-[#282828] shadow-xl overflow-hidden hover:border-[#00CFFF] transition-all duration-300 flex flex-col">
                 <div class="bg-gradient-to-r from-[#00CFFF] to-[#00a8d9] py-1"></div>
-                <div class="p-8">
+                <div class="p-8 flex flex-col flex-grow">
                     <div class="text-center mb-6">
                         <h3 class="text-2xl font-bold text-white mb-2">Pro Monthly</h3>
                         <div class="flex items-baseline justify-center">
                             <span class="text-5xl font-bold text-[#00CFFF]">$3</span>
                             <span class="text-[#6a6a6a] ml-2">/month</span>
                         </div>
+                        <div class="h-6"></div> <!-- Spacer to match yearly plan height -->
                     </div>
                     
-                    <button id="subscribe-monthly-button" data-price-id="{{ monthly_price_id }}" class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-full shadow-sm text-sm font-bold text-[#121212] bg-[#00CFFF] hover:bg-[#00a8d9] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00CFFF] transition-all duration-200 transform hover:scale-105">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
-                        </svg>
-                        Subscribe Monthly
-                    </button>
+                    <div class="mt-auto">
+                        <button id="subscribe-monthly-button" data-price-id="{{ monthly_price_id }}" class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-full shadow-sm text-sm font-bold text-[#121212] bg-[#00CFFF] hover:bg-[#00a8d9] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00CFFF] transition-all duration-200 transform hover:scale-105">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                            </svg>
+                            Subscribe Monthly
+                        </button>
+                    </div>
                 </div>
             </div>
             
             <!-- Yearly Plan -->
-            <div class="bg-[#252525] rounded-xl border border-[#282828] shadow-xl overflow-hidden hover:border-[#00CFFF] transition-all duration-300 relative">
-                <div class="absolute top-0 right-0 bg-[#00CFFF] text-[#121212] text-xs font-bold px-3 py-1 rounded-bl-lg">
+            <div class="bg-[#252525] rounded-xl border border-[#282828] shadow-xl overflow-hidden hover:border-[#00CFFF] transition-all duration-300 relative flex flex-col">
+                <div class="absolute top-0 right-0 bg-[#00CFFF] text-[#121212] text-xs font-bold px-3 py-1 rounded-bl-lg z-10">
                     SAVE 33%
                 </div>
                 <div class="bg-gradient-to-r from-[#00CFFF] to-[#00a8d9] py-1"></div>
-                <div class="p-8">
+                <div class="p-8 flex flex-col flex-grow">
                     <div class="text-center mb-6">
                         <h3 class="text-2xl font-bold text-white mb-2">Pro Yearly</h3>
                         <div class="flex items-baseline justify-center">
@@ -133,12 +136,14 @@
                         <p class="text-sm text-[#6a6a6a] mt-2">Just $2/month</p>
                     </div>
                     
-                    <button id="subscribe-yearly-button" data-price-id="{{ yearly_price_id }}" class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-full shadow-sm text-sm font-bold text-[#121212] bg-[#00CFFF] hover:bg-[#00a8d9] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00CFFF] transition-all duration-200 transform hover:scale-105">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
-                        </svg>
-                        Subscribe Yearly
-                    </button>
+                    <div class="mt-auto">
+                        <button id="subscribe-yearly-button" data-price-id="{{ yearly_price_id }}" class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-full shadow-sm text-sm font-bold text-[#121212] bg-[#00CFFF] hover:bg-[#00a8d9] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00CFFF] transition-all duration-200 transform hover:scale-105">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                            </svg>
+                            Subscribe Yearly
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
