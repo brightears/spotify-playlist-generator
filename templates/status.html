@@ -18,8 +18,15 @@
             <h2 class="text-2xl font-semibold text-[#00CFFF] mb-4" id="status-header">Processing</h2>
             
             <div class="mb-4">
-                <div class="w-full bg-[#1a1a1a] rounded-full h-3 mb-2" id="task-progress">
-                    <div class="bg-[#00CFFF] h-3 rounded-full transition-all duration-300 bar" style="width: 0%"></div>
+                <div class="w-full bg-[#1a1a1a] rounded-full h-3 mb-2 overflow-hidden relative" id="task-progress">
+                    <div class="bg-[#00CFFF] h-3 rounded-full transition-all duration-300 bar relative" style="width: 0%">
+                        <!-- Shimmer effect overlay -->
+                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
+                    </div>
+                    <!-- Indeterminate progress animation (shown when progress is stuck) -->
+                    <div class="absolute inset-0 bg-[#00CFFF]/20 rounded-full hidden" id="indeterminate-progress">
+                        <div class="h-full w-1/3 bg-[#00CFFF] rounded-full animate-progress-slide"></div>
+                    </div>
                 </div>
                 <p class="text-[#b3b3b3]" id="status-message">Initializing task...</p>
             </div>
@@ -121,6 +128,50 @@
 
 {% endblock %}
 
+{% block extra_css %}
+<style>
+    @keyframes shimmer {
+        0% {
+            transform: translateX(-100%);
+        }
+        100% {
+            transform: translateX(200%);
+        }
+    }
+    
+    @keyframes progress-slide {
+        0% {
+            transform: translateX(-100%);
+        }
+        100% {
+            transform: translateX(400%);
+        }
+    }
+    
+    .animate-shimmer {
+        animation: shimmer 2s linear infinite;
+    }
+    
+    .animate-progress-slide {
+        animation: progress-slide 2s ease-in-out infinite;
+    }
+    
+    /* Pulse animation for the status header when processing */
+    @keyframes pulse-glow {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.7;
+        }
+    }
+    
+    .animate-pulse-glow {
+        animation: pulse-glow 2s ease-in-out infinite;
+    }
+</style>
+{% endblock %}
+
 {% block extra_js %}
 <script>
 // Check if jQuery is available
@@ -134,6 +185,20 @@ $(document).ready(function() {
     let pollInterval;
     let failedAttempts = 0;
     const maxFailedAttempts = 3;
+    let lastProgress = 0;
+    let stuckCounter = 0;
+    let statusMessageIndex = 0;
+    
+    // Dynamic status messages to rotate through
+    const processingMessages = [
+        "Scanning YouTube channels for fresh tracks...",
+        "Analyzing music metadata...",
+        "Processing track information...",
+        "Searching for the latest releases...",
+        "Gathering track details...",
+        "Compiling your playlist...",
+        "Almost there, finalizing results..."
+    ];
     
     // Get CSRF token - use the one explicitly passed to the template
     const csrfToken = '{{ csrf_token }}';
@@ -166,17 +231,43 @@ $(document).ready(function() {
                 
                 // Update progress bar (plain JavaScript since we don't have jQuery UI)
                 const progressBar = document.querySelector('#task-progress .bar');
+                const indeterminateProgress = document.getElementById('indeterminate-progress');
+                
                 if (progressBar) {
                     progressBar.style.width = data.progress + '%';
+                    
+                    // Check if progress is stuck
+                    if (data.progress === lastProgress && data.status === 'processing') {
+                        stuckCounter++;
+                        
+                        // If stuck for more than 2 polls (6 seconds), show indeterminate progress
+                        if (stuckCounter > 2) {
+                            indeterminateProgress.classList.remove('hidden');
+                            progressBar.style.opacity = '0.3';
+                        }
+                    } else {
+                        // Progress moved, reset stuck counter
+                        stuckCounter = 0;
+                        indeterminateProgress.classList.add('hidden');
+                        progressBar.style.opacity = '1';
+                        lastProgress = data.progress;
+                    }
                 }
                 
-                // Update status message
-                $('#status-message').text(data.message);
+                // Update status message - use dynamic messages when processing
+                if (data.status === 'processing' && stuckCounter > 1) {
+                    // Rotate through processing messages when stuck
+                    $('#status-message').text(processingMessages[statusMessageIndex % processingMessages.length]);
+                    statusMessageIndex++;
+                } else {
+                    $('#status-message').text(data.message);
+                }
                 
                 // Update header based on status
                 if (data.status === 'complete') {
-                    $('#status-header').text('Complete!').removeClass('text-[#00CFFF]').addClass('text-green-400');
+                    $('#status-header').text('Complete!').removeClass('text-[#00CFFF] animate-pulse-glow').addClass('text-green-400');
                     $('#loading-dimmer').hide();
+                    $('#indeterminate-progress').addClass('hidden');
                     
                     // Show results if available
                     if (data.result) {
@@ -188,17 +279,18 @@ $(document).ready(function() {
                         clearInterval(pollInterval);
                     }
                 } else if (data.status === 'error') {
-                    $('#status-header').text('Error').removeClass('text-[#00CFFF]').addClass('text-red-400');
+                    $('#status-header').text('Error').removeClass('text-[#00CFFF] animate-pulse-glow').addClass('text-red-400');
                     $('#status-message').text(data.error || 'An error occurred during playlist creation.');
                     $('#loading-dimmer').hide();
+                    $('#indeterminate-progress').addClass('hidden');
                     
                     // Stop polling
                     if (pollInterval) {
                         clearInterval(pollInterval);
                     }
                 } else {
-                    // Still processing
-                    $('#status-header').text('Processing...').addClass('text-[#00CFFF]');
+                    // Still processing - add pulse animation to header
+                    $('#status-header').text('Processing...').addClass('text-[#00CFFF] animate-pulse-glow');
                     $('#loading-dimmer').show();
                 }
             },
@@ -359,6 +451,16 @@ $(document).ready(function() {
         
         // Poll for updates every 3 seconds (increased from 2 to reduce server load)
         pollInterval = setInterval(updateStatus, 3000);
+        
+        // Also rotate messages every 4 seconds to show activity
+        setInterval(function() {
+            if (stuckCounter > 1) {
+                $('#status-message').fadeOut(200, function() {
+                    $(this).text(processingMessages[statusMessageIndex % processingMessages.length]).fadeIn(200);
+                    statusMessageIndex++;
+                });
+            }
+        }, 4000);
     }
     
     // Clean up the interval when leaving the page

@@ -1,4 +1,4 @@
-# Bright Ears Project Status - December 29, 2024
+# Bright Ears Project Status - June 29, 2025
 
 ## Current State
 
@@ -25,16 +25,18 @@
    - Cancellation flow
 
 3. **Music Discovery**
-   - YouTube channel scanning
-   - Genre-based discovery
-   - Custom YouTube sources (Pro feature)
-   - Real-time progress tracking
+   - YouTube channel scanning (1-90 days timeframe)
+   - Genre-based discovery with curated sources
+   - Custom YouTube sources (Pro feature - saved permanently)
+   - Real-time progress tracking with AJAX polling
+   - Professional UI with dark theme
 
 4. **Export Options**
-   - CSV format
-   - M3U playlist format
+   - CSV format (compressed with gzip for storage)
+   - M3U playlist format  
    - JSON format
    - One-click platform search links
+   - Download historical playlists anytime (Pro feature)
 
 5. **Platform Search Integration**
    - Spotify search links
@@ -46,15 +48,17 @@
 6. **Production Features**
    - Rate limiting (10 playlists/hour per user)
    - CSRF protection
-   - Database task storage
+   - Database task storage with PlaylistTask model
    - Contact form with email
+   - Playlist history for Pro users (GeneratedPlaylist model)
+   - Compressed CSV storage for efficient database usage
 
 #### ❌ Removed Features
-1. **Spotify Integration** (Dec 29, 2024)
+1. **Spotify Integration** (Jun 29, 2025)
    - OAuth authentication removed
-   - Direct playlist creation removed
+   - Direct playlist creation removed  
    - Token management removed
-   - Reason: API requires 250k MAUs
+   - Reason: API requires 250k MAUs for production access
 
 ### Technical Details
 
@@ -91,46 +95,60 @@ All set in Render dashboard:
    - Remove hardcoded Pro access for test emails
    - Currently: norli@gmail.com, platzer.norbert@gmail.com
 
-3. **Optional Improvements**
-   - Add more export formats (PLS, XSPF)
-   - Implement playlist history view
-   - Add search/filter for discovered tracks
-   - Mobile app considerations
+3. **✅ Completed Improvements (June 29, 2025)**
+   - Implemented playlist history view for Pro users
+   - Fixed UI/UX issues (colors, layout, messaging)
+   - Updated all documentation (Terms, Privacy, Landing)
+   - Fixed bug with task status synchronization
+   - Added proper handling for historical playlist downloads
 
 ### Known Issues
 1. **YouTube API Quota**: Limited to ~100 generations/day
 2. **Email Delivery**: DNS fully propagated for support@brightears.io
 3. **SQLite Limitations**: Spotify columns remain in dev DB (harmless)
 
-### Migration Scripts
+### Recently Fixed Issues (June 29, 2025)
+1. **Task Status Bug**: Fixed 'complete' vs 'completed' mismatch
+2. **Historical Downloads**: Fixed "task not found" error
+3. **UI Polish**: Updated colors, removed duplicate links
+4. **Documentation**: Removed all Spotify references
+
+### Migration Scripts  
 - `db_init.py` - Initialize database
 - `migrate_db.py` - General migrations
 - `migrate_playlists.py` - Add playlist tables
 - `migrate_remove_spotify.py` - Remove Spotify columns (PostgreSQL only)
+- `migrate_playlist_history_fix.py` - Make Spotify fields nullable (June 29, 2025)
 
 ### Recent Decisions
-1. **Pivot from Playlist Creation to Discovery** (Dec 29)
-   - Spotify API limitations too restrictive
+1. **Pivot from Playlist Creation to Discovery** (Jun 29)
+   - Spotify API limitations too restrictive (250k MAU requirement)
    - Focus on track discovery and export
    - Multi-platform search approach
+   - Position as professional music research tool
 
 2. **Keep YouTube as Primary Source**
    - Good API limits
-   - Rich music content
+   - Rich music content  
    - No user restrictions
+   - Works with channels and playlists
 
-3. **Subscription Model**
-   - Free: Basic discovery features
-   - Pro: Custom sources, all exports
+3. **Enhanced Pro Features** (June 29, 2025)
+   - Free: Basic discovery with preset sources
+   - Pro: Custom sources, all exports, playlist history
+   - History feature stores compressed CSV data
 
 ### Next Steps
 1. Activate Stripe live mode when ready
 2. Marketing and user acquisition
 3. Monitor YouTube API usage
-4. Consider additional music sources
-5. Gather user feedback for improvements
+4. Consider additional music sources (SoundCloud, Bandcamp)
+5. Fix pytest import issues for proper testing
+6. Consider Redis for task queue at scale
+7. Add more YouTube channel presets
+8. API endpoints for programmatic access
 
 ### Contact
 - Support Email: support@brightears.io
-- GitHub: https://github.com/brightears/spotify-playlist-generator
+- GitHub: https://github.com/brightears/tidal-fresh
 - Developer: platzer.norbert@gmail.com

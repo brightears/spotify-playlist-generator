@@ -29,6 +29,9 @@ python db_init.py
 
 # Run database migrations
 python migrate_db.py
+
+# Migration for playlist history (nullable Spotify fields)
+python migrate_playlist_history_fix.py
 ```
 
 ### Testing
@@ -48,9 +51,9 @@ python -c "from web_app import app; print('App loads successfully')"
   - **`billing/`** - Stripe subscription management
   - **`main/`** - Core playlist generation functionality 
   - **`models.py`** - SQLAlchemy User model with subscription fields
-- **`utils/`** - Plugin architecture for music sources and playlist destinations
-  - **`sources/`** - Abstract `MusicSource` base with YouTube implementation
-  - **`destinations/`** - Abstract `PlaylistDestination` base with Spotify implementation
+- **`utils/`** - Plugin architecture for music sources
+  - **`sources/`** - Abstract `MusicSource` base with YouTube, Beatport, etc. implementations
+  - **`destinations/`** - (Removed - no longer creating playlists)
 
 ### Key Patterns
 - **Task Management**: Async playlist generation with database storage (PlaylistTask model)
@@ -58,6 +61,8 @@ python -c "from web_app import app; print('App loads successfully')"
 - **Plugin Architecture**: Extensible source system with abstract base classes
 - **Authentication Flow**: Flask-Login + Google OAuth for user authentication
 - **Music Discovery**: Focus on finding tracks, not creating playlists directly
+- **Playlist History**: GeneratedPlaylist model stores compressed CSV data for Pro users
+- **Export System**: Multiple formats with gzip compression for efficient storage
 
 ### Entry Points
 - **`web_app.py`** - Main Flask application with blueprint registration
@@ -67,11 +72,10 @@ python -c "from web_app import app; print('App loads successfully')"
 
 Required `.env` file:
 ```
-SPOTIFY_CLIENT_ID=your_client_id
-SPOTIFY_CLIENT_SECRET=your_client_secret
+# Core settings
 YOUTUBE_API_KEY=your_api_key
 FLASK_SECRET_KEY=your_secret_key
-DATABASE_URL=sqlite:///spotify_playlists.db
+DATABASE_URL=sqlite:///spotify_playlists.db  # PostgreSQL in production
 
 # Google OAuth (required for login)
 GOOGLE_CLIENT_ID=your_google_client_id
@@ -89,18 +93,24 @@ MAIL_SERVER=smtp.gmail.com
 MAIL_PORT=587
 MAIL_USE_TLS=True
 MAIL_USE_SSL=False
-MAIL_USERNAME=platzer.norbert@gmail.com  # Your Gmail account
-MAIL_PASSWORD=your_app_password           # Gmail app-specific password
-MAIL_DEFAULT_SENDER=support@brightears.io # Your custom domain email
+MAIL_USERNAME=your_email@gmail.com
+MAIL_PASSWORD=your_app_password
+MAIL_DEFAULT_SENDER=support@brightears.io
+
+# Legacy Spotify credentials (no longer used, kept for compatibility)
+SPOTIFY_CLIENT_ID=not_used
+SPOTIFY_CLIENT_SECRET=not_used
 ```
 
 ## Current Branch Context
 
-On `auth-rebuild` branch - SaaS architecture with subscription system:
-- User authentication fully implemented with Google OAuth
-- Stripe subscription system integrated (Pro Monthly: $3/mo, Pro Yearly: $24/yr)
-- Blueprint modularization complete
-- Subscription UI improvements implemented (Dec 22, 2024)
+On `auth-rebuild` branch - Fully functional music discovery platform:
+- User authentication via Google OAuth
+- Stripe subscription system (Pro Monthly: $3/mo, Pro Yearly: $24/yr)
+- Complete pivot from Spotify integration to discovery tool
+- Playlist history feature for Pro users
+- Multi-format exports with compression
+- Professional dark theme UI throughout
 
 ## Testing & Quality
 
@@ -143,14 +153,14 @@ On `auth-rebuild` branch - SaaS architecture with subscription system:
   - Stripe webhooks exempted from limits
 - **CSRF Protection**: Re-enabled in production (`WTF_CSRF_ENABLED = IS_PRODUCTION`)
 
-### Recent Changes (Dec 29, 2024)
+### Recent Changes (Dec 29, 2024 - Part 1)
 
-### Spotify API Limitations Discovery
+#### Spotify API Limitations Discovery
 - Discovered Spotify requires 250k MAUs for extended API access
 - Development mode limited to 25 manually added users
 - No paid API tier available for small developers
 
-### Pivot to Music Discovery Platform
+#### Pivot to Music Discovery Platform
 - **Removed Spotify Integration**: Complete removal of OAuth and playlist creation
 - **Added Multi-Platform Search**: One-click search links for each track:
   - Spotify, Tidal, YouTube Music, Beatport, Traxsource
@@ -158,11 +168,37 @@ On `auth-rebuild` branch - SaaS architecture with subscription system:
 - **Focus Change**: From playlist creation to music discovery
 - **No API Limits**: Scalable to unlimited users
 
-### Technical Changes
-- Removed `spotify_routes.py` and all OAuth code
-- Updated `task_manager.py` to only fetch YouTube tracks
-- Added platform search URLs in track display
-- Created `migrate_remove_spotify.py` for database cleanup
+### Recent Changes (Dec 29, 2024 - Part 2)
+
+#### Playlist History Feature (Pro Only)
+- Implemented GeneratedPlaylist model to store all discovered playlists
+- CSV data compressed with gzip and base64 encoded for efficient storage
+- Historical playlists viewable and re-downloadable anytime
+- Fixed "task not found" error by handling 'history_' prefixed task IDs
+- Added migration to make spotify_url and spotify_id nullable
+
+#### UI/UX Improvements
+- Changed processing status color from yellow to brand blue (#00CFFF)
+- Removed duplicate "Playlist History" link from dashboard
+- Updated platform search button colors:
+  - Tidal: Black/white theme
+  - YouTube: Softer red
+  - Beatport: Green styling
+  - Traxsource: Blue theme
+- Removed redundant flash messages during playlist creation
+- Fixed dashboard grid layout (3 columns for Pro users)
+
+#### Bug Fixes
+- Fixed status mismatch ('complete' vs 'completed') causing stuck playlists
+- Fixed connection errors when viewing historical playlists
+- Added is_history flag to prevent polling on historical playlists
+- Fixed download functionality for historical playlists
+
+#### Documentation Updates
+- Landing page: Complete rewrite removing all Spotify references
+- Terms of Service: Updated to reflect music discovery platform
+- Privacy Policy: Removed Spotify token collection, clarified data usage
+- Added comprehensive FAQ section explaining the platform
 
 ### Deployment
 - Application deployed on Render.com

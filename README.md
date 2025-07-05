@@ -1,26 +1,27 @@
-# Bright Ears - Music Discovery Platform
+# Bright Ears - Professional Music Discovery Platform
 
 ## Project Repository
 
-This project is available on GitHub at: https://github.com/brightears/spotify-playlist-generator
+This project is available on GitHub at: https://github.com/brightears/tidal-fresh
 
 To clone the repository:
 ```bash
-git clone https://github.com/brightears/spotify-playlist-generator.git
+git clone https://github.com/brightears/tidal-fresh.git
 ```
 
 ## Overview
 
-Bright Ears is a music discovery platform that helps DJs and music enthusiasts find fresh tracks from YouTube channels. Instead of creating playlists directly (which has API limitations), it provides one-click search links to find tracks on your preferred music platform.
+Bright Ears is a professional music research and discovery tool built by DJs, for DJs. It automates the process of finding fresh releases from YouTube channels and provides comprehensive export options for your workflow. Instead of creating playlists directly (which has platform limitations), it focuses on discovery with one-click search across all major music platforms.
 
 ## Key Features
 
-- **YouTube Track Discovery**: Scans curated YouTube channels for the latest music
+- **YouTube Track Discovery**: Scans curated YouTube channels for the latest music (1-90 days)
 - **Multi-Platform Search**: One-click search on Spotify, Tidal, YouTube Music, Beatport, and Traxsource
-- **Multiple Export Formats**: Download playlists as CSV, M3U, or JSON
-- **Custom Sources**: Pro users can add their own YouTube channels/playlists
+- **Multiple Export Formats**: Download track lists as CSV, M3U, or JSON
+- **Custom Sources**: Pro users can add and save their own YouTube channels/playlists
+- **Playlist History**: Pro users can access and re-download all past discoveries
 - **No API Limits**: Works for unlimited users without platform restrictions
-- **SaaS Architecture**: User accounts, subscriptions, and custom sources
+- **Professional Workflow**: CSV exports perfect for record shopping on Beatport, Juno, etc.
 
 ## Quick Start
 
@@ -95,11 +96,13 @@ Bright Ears is a music discovery platform that helps DJs and music enthusiasts f
    - Click platform buttons to search for each track
    - Export the full list in your preferred format
 
-### For Pro Users
+### For Pro Users ($3/month or $24/year)
 
-- Add custom YouTube channels/playlists as sources
-- Access all export formats
-- Priority support
+- Add unlimited custom YouTube channels/playlists as sources
+- Access all export formats (CSV, M3U, JSON)
+- Playlist history - view and re-download all past discoveries
+- Custom sources saved permanently for one-click discovery
+- Early access to new features
 
 ## Architecture
 
@@ -116,50 +119,71 @@ Bright Ears is a music discovery platform that helps DJs and music enthusiasts f
 
 ```
 src/flasksaas/
-├── auth/          # Authentication (Google OAuth)
-├── billing/       # Stripe subscription management
-├── main/          # Core functionality
-│   └── task_manager.py  # Async task processing
-├── models.py      # Database models
-└── forms.py       # WTForms
+├── auth/              # Authentication (Google OAuth)
+├── billing/           # Stripe subscription management  
+├── main/              # Core functionality
+│   ├── routes.py      # Main application routes
+│   └── task_manager.py # Async task processing with DB persistence
+├── models.py          # Database models (User, GeneratedPlaylist, PlaylistTask)
+└── forms.py           # WTForms for playlist creation
 
 utils/
-├── sources/       # Music source plugins
-│   └── youtube.py # YouTube channel scanner
-└── destinations/  # (Removed - no longer needed)
+├── sources/           # Music source plugins
+│   ├── base.py        # Abstract base class
+│   └── youtube.py     # YouTube channel/playlist scanner
+└── destinations/      # (Removed - no longer creating playlists)
 
-templates/         # Jinja2 templates
-static/           # CSS, JavaScript, images
+templates/             # Jinja2 templates with dark theme
+static/               # CSS, JavaScript, images
 ```
 
-## Why No Direct Playlist Creation?
+## Why Music Discovery Instead of Playlist Creation?
 
-We discovered that Spotify's API requires 250,000 monthly active users for extended access. Their development mode only allows 25 manually added users. Rather than limit our platform, we pivoted to a music discovery model that:
+We discovered that Spotify's API requires 250,000 monthly active users for production access. Their development mode only allows 25 manually added users. Rather than limit our platform, we pivoted to a professional music discovery model that:
 
-- Works for unlimited users
-- Requires no playlist API access
-- Lets users choose their preferred platform
-- Provides multiple export formats
+- Works for unlimited users without restrictions
+- Requires no playlist API access or tokens
+- Lets DJs use their preferred platform and workflow
+- Provides multiple export formats for maximum flexibility
+- Focuses on what DJs need most: finding fresh tracks efficiently
 
 ## Deployment
 
 The application is deployed on Render.com:
 
 1. Connect your GitHub repository to Render
-2. Set all environment variables
+2. Set all environment variables (see `.env` example above)
 3. Use the build command: `pip install -r requirements.txt`
 4. Use the start command: `gunicorn web_app:app`
 5. Add a PostgreSQL database
 6. Set up your custom domain
+7. Run migrations after deployment:
+   ```bash
+   python db_init.py
+   python migrate_playlists.py
+   python migrate_playlist_history_fix.py  # For nullable Spotify fields
+   ```
 
-## Recent Changes (December 2024)
+## Recent Changes (June 2025)
 
-- Removed Spotify OAuth integration due to API limitations
-- Added multi-platform search links for each track
-- Implemented multiple export formats (CSV, M3U, JSON)
-- Enhanced rate limiting for production
-- Added database storage for tasks
+### Major Platform Pivot
+- Removed Spotify OAuth integration due to 250k MAU requirement
+- Transformed into professional music discovery platform
+- Added one-click search links for multiple platforms
+
+### New Features
+- **Playlist History**: Pro users can access all past discoveries
+- **Persistent Tasks**: Database storage for reliable task handling  
+- **Custom Sources**: Add and save your own YouTube channels
+- **Export Formats**: CSV (with compression), M3U, and JSON
+- **Professional UI**: Dark theme optimized for DJ workflows
+
+### Technical Improvements
+- Enhanced rate limiting for production stability
+- Migrated to PostgreSQL with proper migrations
+- Added gzip compression for playlist storage
 - Improved error handling and user feedback
+- Fixed task status synchronization issues
 
 ## Contributing
 
