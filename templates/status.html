@@ -19,14 +19,8 @@
             
             <div class="mb-4">
                 <div class="w-full bg-[#1a1a1a] rounded-full h-3 mb-2 overflow-hidden relative" id="task-progress">
-                    <div class="bg-[#00CFFF] h-3 rounded-full transition-all duration-300 bar relative" style="width: 0%">
-                        <!-- Shimmer effect overlay -->
-                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
-                    </div>
-                    <!-- Indeterminate progress animation (shown when progress is stuck) -->
-                    <div class="absolute inset-0 bg-[#00CFFF]/20 rounded-full hidden" id="indeterminate-progress">
-                        <div class="h-full w-1/3 bg-[#00CFFF] rounded-full animate-progress-slide"></div>
-                    </div>
+                    <!-- Indeterminate progress bar with continuous shimmer -->
+                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-[#00CFFF] to-transparent animate-shimmer" style="width: 40%;"></div>
                 </div>
                 <p class="text-[#b3b3b3]" id="status-message">Initializing task...</p>
             </div>
@@ -132,28 +126,15 @@
 <style>
     @keyframes shimmer {
         0% {
-            transform: translateX(-100%);
+            transform: translateX(-150%);
         }
         100% {
-            transform: translateX(200%);
-        }
-    }
-    
-    @keyframes progress-slide {
-        0% {
-            transform: translateX(-100%);
-        }
-        100% {
-            transform: translateX(400%);
+            transform: translateX(350%);
         }
     }
     
     .animate-shimmer {
-        animation: shimmer 2s linear infinite;
-    }
-    
-    .animate-progress-slide {
-        animation: progress-slide 2s ease-in-out infinite;
+        animation: shimmer 1.5s linear infinite;
     }
     
     /* Pulse animation for the status header when processing */
@@ -188,8 +169,6 @@ $(document).ready(function() {
     let lastProgress = 0;
     let stuckCounter = 0;
     let statusMessageIndex = 0;
-    let displayedProgress = 0;
-    let targetProgress = 0;
     
     // Dynamic status messages to rotate through
     const processingMessages = [
@@ -231,41 +210,12 @@ $(document).ready(function() {
                 // Reset failed attempts counter on success
                 failedAttempts = 0;
                 
-                // Update progress bar with smooth animation
-                const progressBar = document.querySelector('#task-progress .bar');
-                const indeterminateProgress = document.getElementById('indeterminate-progress');
-                
-                if (progressBar) {
-                    // Set initial target from server
-                    if (data.progress > 0) {
-                        targetProgress = data.progress;
-                    }
-                    
-                    // Check if progress is stuck
-                    if (data.progress === lastProgress && data.status === 'processing') {
-                        stuckCounter++;
-                        console.log('Progress stuck at', data.progress, '%, stuck counter:', stuckCounter);
-                        
-                        // If stuck, gradually increase the progress bar anyway
-                        if (stuckCounter > 0 && displayedProgress < 90) {
-                            targetProgress = Math.min(90, displayedProgress + 5);
-                            console.log('Auto-incrementing progress to', targetProgress);
-                        }
-                        
-                        // If stuck for more than 2 polls (6 seconds), show indeterminate progress
-                        if (stuckCounter > 2) {
-                            indeterminateProgress.classList.remove('hidden');
-                            progressBar.style.opacity = '0.7';
-                        }
-                    } else {
-                        // Progress moved, reset stuck counter
-                        if (data.progress !== lastProgress) {
-                            stuckCounter = 0;
-                            indeterminateProgress.classList.add('hidden');
-                            progressBar.style.opacity = '1';
-                            lastProgress = data.progress;
-                        }
-                    }
+                // Track if progress is stuck for message rotation
+                if (data.progress === lastProgress && data.status === 'processing') {
+                    stuckCounter++;
+                } else {
+                    stuckCounter = 0;
+                    lastProgress = data.progress;
                 }
                 
                 // Update status message - use dynamic messages when processing
@@ -281,10 +231,7 @@ $(document).ready(function() {
                 if (data.status === 'complete') {
                     $('#status-header').text('Complete!').removeClass('animate-pulse-glow').addClass('text-[#00CFFF]');
                     $('#loading-dimmer').hide();
-                    $('#indeterminate-progress').addClass('hidden');
-                    
-                    // Animate progress to 100%
-                    targetProgress = 100;
+                    $('#task-progress').hide();
                     
                     // Show results if available
                     if (data.result) {
@@ -299,7 +246,7 @@ $(document).ready(function() {
                     $('#status-header').text('Error').removeClass('text-[#00CFFF] animate-pulse-glow').addClass('text-red-400');
                     $('#status-message').text(data.error || 'An error occurred during playlist creation.');
                     $('#loading-dimmer').hide();
-                    $('#indeterminate-progress').addClass('hidden');
+                    $('#task-progress').hide();
                     
                     // Stop polling
                     if (pollInterval) {
@@ -435,35 +382,6 @@ $(document).ready(function() {
         }
     }
     
-    // Smooth progress bar animation
-    function animateProgress() {
-        const progressBar = document.querySelector('#task-progress .bar');
-        if (!progressBar) return;
-        
-        // Calculate the difference
-        const diff = targetProgress - displayedProgress;
-        
-        // If difference is significant, move towards target
-        if (Math.abs(diff) > 0.1) {
-            // Move 20% of the distance each frame for smooth animation
-            displayedProgress += diff * 0.2;
-            
-            // Ensure we don't go over 100%
-            displayedProgress = Math.min(100, displayedProgress);
-            
-            // Update the progress bar width
-            progressBar.style.width = displayedProgress + '%';
-        } else if (targetProgress === displayedProgress && displayedProgress < 90 && stuckCounter > 0) {
-            // If we're stuck and not moving, auto-increment slowly
-            targetProgress = Math.min(90, displayedProgress + 0.5);
-        }
-        
-        // Continue animation
-        requestAnimationFrame(animateProgress);
-    }
-    
-    // Start the progress animation
-    animateProgress();
     
     // Check if this is a historical playlist
     if (isHistory) {
@@ -476,23 +394,14 @@ $(document).ready(function() {
         $('#status-header').text('Complete!').addClass('text-[#00CFFF]');
         $('#status-message').text('Viewing historical playlist');
         
-        // Set progress to 100%
-        displayedProgress = 100;
-        targetProgress = 100;
-        const progressBar = document.querySelector('#task-progress .bar');
-        if (progressBar) {
-            progressBar.style.width = '100%';
-        }
+        // Hide progress bar for historical playlists
+        $('#task-progress').hide();
         
         // Show results
         if (taskData.result) {
             showResults(taskData);
         }
     } else {
-        // Initialize progress to 0 for live playlists
-        displayedProgress = 0;
-        targetProgress = 0;
-        
         // Initial status check for live playlists
         updateStatus();
         
