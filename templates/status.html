@@ -342,7 +342,7 @@ $(document).ready(function() {
                                 <div class="font-medium text-white">${track.title}</div>
                                 <div class="text-sm text-[#6a6a6a] mb-3">
                                     ${track.artist}${track.remix ? ` (${track.remix})` : ''}
-                                    ${track.source ? ` • via ${track.source}` : ''}
+                                    ${track.source ? ` • ${track.source.replace('YouTube ', '').replace('(', '').replace(')', '')}` : ''}
                                 </div>
                                 <div class="flex flex-wrap gap-2">
                                     <a href="${spotifyUrl}" target="_blank" class="inline-flex items-center px-3 py-1 bg-[#1DB954]/10 text-[#1DB954] rounded-full text-xs font-medium hover:bg-[#1DB954]/20 transition-colors">
