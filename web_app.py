@@ -98,12 +98,29 @@ print(f"Final database URL: {final_db_url}")
 app.config['SQLALCHEMY_DATABASE_URI'] = final_db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Enable CSRF protection in production
-app.config['WTF_CSRF_ENABLED'] = IS_PRODUCTION
+# Enable CSRF protection in all environments for security
+app.config['WTF_CSRF_ENABLED'] = True
 
 # Initialize CSRFProtect but don't enforce it for now
 csrf = CSRFProtect()
 csrf.init_app(app)
+
+# Security headers middleware
+@app.after_request
+def set_security_headers(response):
+    """Add security headers to all responses."""
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    
+    if IS_PRODUCTION:
+        # Strict Transport Security for HTTPS
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+        # Content Security Policy
+        response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://api.stripe.com; frame-src https://js.stripe.com https://hooks.stripe.com;"
+    
+    return response
 
 # Add a comment explaining this is for development only
 # TODO: Re-enable CSRF protection before deploying to production
@@ -185,29 +202,30 @@ def init_db():
             db.create_all()
             print("Database tables created successfully!")
 
-# Debug endpoint to manually create tables
-@app.route('/debug/create-tables')
-def debug_create_tables():
-    """Debug endpoint to manually create database tables."""
-    try:
-        print("Creating database tables...")
-        db.create_all()
-        
-        # Verify tables were created
-        tables = db.engine.table_names()
-        return f"""
-        <h2>Database Setup Debug</h2>
-        <p><strong>Database URL:</strong> {app.config['SQLALCHEMY_DATABASE_URI']}</p>
-        <p><strong>Created tables:</strong> {tables}</p>
-        <p><strong>Status:</strong> Tables created successfully!</p>
-        <a href="/auth/register">Try Registration Now</a>
-        """
-    except Exception as e:
-        return f"""
-        <h2>Database Setup Error</h2>
-        <p><strong>Database URL:</strong> {app.config['SQLALCHEMY_DATABASE_URI']}</p>
-        <p><strong>Error:</strong> {str(e)}</p>
-        """
+# Debug endpoint protected - only available in development
+if not IS_PRODUCTION:
+    @app.route('/debug/create-tables')
+    def debug_create_tables():
+        """Debug endpoint to manually create database tables."""
+        try:
+            print("Creating database tables...")
+            db.create_all()
+            
+            # Verify tables were created
+            tables = db.engine.table_names()
+            return f"""
+            <h2>Database Setup Debug</h2>
+            <p><strong>Database URL:</strong> {app.config['SQLALCHEMY_DATABASE_URI']}</p>
+            <p><strong>Created tables:</strong> {tables}</p>
+            <p><strong>Status:</strong> Tables created successfully!</p>
+            <a href="/auth/register">Try Registration Now</a>
+            """
+        except Exception as e:
+            return f"""
+            <h2>Database Setup Error</h2>
+            <p><strong>Database URL:</strong> {app.config['SQLALCHEMY_DATABASE_URI']}</p>
+            <p><strong>Error:</strong> {str(e)}</p>
+            """
 
 # Register blueprints (new auth + billing + main)
 app.register_blueprint(auth_bp, url_prefix='/auth')

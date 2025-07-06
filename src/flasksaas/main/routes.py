@@ -131,7 +131,13 @@ def api_status(task_id):
         print(f"Task {task_id} not found")
         return jsonify({'error': 'Task not found'}), 404
     
-    # For now, don't require authentication on the API endpoint for debugging
+    # Require authentication and ownership check
+    if not current_user.is_authenticated:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    if task['user_id'] != current_user.id:
+        return jsonify({'error': 'Access denied'}), 403
+    
     print(f"Task found: user_id={task['user_id']}, status={task['status']}, step={task['step']}")
     
     # Store pre-processing state for debugging

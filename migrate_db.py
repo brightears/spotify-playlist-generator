@@ -21,38 +21,36 @@ def migrate_database():
     cursor.execute("PRAGMA table_info(users)")
     columns = [row[1] for row in cursor.fetchall()]
     
-    subscription_columns = [
-        'stripe_customer_id',
-        'subscription_id', 
-        'subscription_status',
-        'subscription_plan',
-        'subscription_current_period_end'
-    ]
+    # Define allowed columns and their types
+    SUBSCRIPTION_COLUMNS = {
+        'stripe_customer_id': 'VARCHAR(255)',
+        'subscription_id': 'VARCHAR(255)', 
+        'subscription_status': 'VARCHAR(50)',
+        'subscription_plan': 'VARCHAR(50)',
+        'subscription_current_period_end': 'DATETIME'
+    }
     
-    oauth_columns = [
-        'name',
-        'google_id'
-    ]
+    OAUTH_COLUMNS = {
+        'name': 'VARCHAR(100)',
+        'google_id': 'VARCHAR(50)'
+    }
     
     # Add missing subscription columns
-    for column in subscription_columns:
+    for column, column_type in SUBSCRIPTION_COLUMNS.items():
         if column not in columns:
             print(f"Adding column: {column}")
-            if column == 'subscription_current_period_end':
-                cursor.execute(f"ALTER TABLE users ADD COLUMN {column} DATETIME")
-            else:
-                cursor.execute(f"ALTER TABLE users ADD COLUMN {column} VARCHAR(255)")
+            # Whitelist approach - column names are hardcoded, only types are dynamic
+            sql = f"ALTER TABLE users ADD COLUMN {column} {column_type}"
+            cursor.execute(sql)
     
-    # Add missing OAuth columns
-    for column in oauth_columns:
+    # Add missing OAuth columns  
+    for column, column_type in OAUTH_COLUMNS.items():
         if column not in columns:
             print(f"Adding column: {column}")
-            if column == 'name':
-                cursor.execute(f"ALTER TABLE users ADD COLUMN {column} VARCHAR(100)")
-            elif column == 'google_id':
-                # Add without UNIQUE constraint first, then add index separately
-                cursor.execute(f"ALTER TABLE users ADD COLUMN {column} VARCHAR(50)")
-                cursor.execute(f"CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_id ON users({column})")
+            sql = f"ALTER TABLE users ADD COLUMN {column} {column_type}"
+            cursor.execute(sql)
+            if column == 'google_id':
+                cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_id ON users(google_id)")
     
     # Create user_sources table if it doesn't exist
     cursor.execute("""

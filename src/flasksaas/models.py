@@ -68,10 +68,6 @@ class User(db.Model, UserMixin):
         """Check if the user has an active subscription."""
         from datetime import datetime
         
-        # TEMPORARY: Grant Pro access for testing
-        if self.email in ['norli@gmail.com', 'platzer.norbert@gmail.com']:
-            return True
-        
         if not self.subscription_status:
             return False
             
@@ -113,6 +109,22 @@ class UserSource(db.Model):
     
     # Relationship
     user = db.relationship('User', backref=db.backref('custom_sources', lazy=True))
+    
+    @validates("name")
+    def _validate_name(self, key, name: str):
+        """Validate and sanitize the source name."""
+        from markupsafe import escape
+        
+        if not name:
+            raise ValueError("Source name is required")
+        
+        # Sanitize to prevent XSS
+        name = str(escape(name.strip()))[:200]
+        
+        if not name:
+            raise ValueError("Source name cannot be empty")
+            
+        return name
     
     @validates("source_url")
     def _validate_source_url(self, key, url: str):

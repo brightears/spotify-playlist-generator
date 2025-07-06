@@ -161,30 +161,8 @@ def register():
     return render_template("auth/register.html", form=form)
 
 
-@auth_bp.route("/direct-login/<email>/<password>")
-def direct_login(email, password):
-    """Direct login endpoint for testing in browser preview environments.
-    WARNING: This endpoint should be disabled in production!
-    """
-    # For development use only - this bypasses the form
-    user = User.query.filter_by(email=email.lower()).first()
-    
-    if user and user.check_password(password):
-        login_user(user, remember=True)
-        return jsonify({
-            'success': True,
-            'message': 'Logged in successfully via direct login!',
-            'user': {
-                'email': user.email,
-                'is_authenticated': current_user.is_authenticated
-            },
-            'next': url_for('main.dashboard')
-        })
-    
-    return jsonify({
-        'success': False,
-        'message': 'Invalid credentials for direct login'
-    }), 401
+# Direct login endpoint removed for security
+# This was a development-only feature that bypassed security controls
 
 
 @auth_bp.route("/google-login")
