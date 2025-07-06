@@ -66,7 +66,7 @@
                 {% if messages %}
                     <div class="px-10 py-4">
                         {% for category, message in messages %}
-                            <div class="mb-4 px-4 py-3 rounded-lg border {% if category == 'error' or category == 'danger' %}bg-[#2a2a2a] border-[#4a4a4a] text-[#ff6b6b]{% elif category == 'warning' %}bg-[#2a2a2a] border-[#4a4a4a] text-[#00CFFF]{% elif category == 'success' %}bg-[#2a2a2a] border-[#4a4a4a] text-[#00CFFF]{% else %}bg-[#2a2a2a] border-[#4a4a4a] text-[#b3b3b3]{% endif %}" role="alert">
+                            <div class="mb-4 px-4 py-3 rounded-lg border {% if category == 'error' or category == 'danger' %}bg-[#2a2a2a] border-[#4a4a4a] text-[#00CFFF]{% elif category == 'warning' %}bg-[#2a2a2a] border-[#4a4a4a] text-[#00CFFF]{% elif category == 'success' %}bg-[#2a2a2a] border-[#4a4a4a] text-[#00CFFF]{% else %}bg-[#2a2a2a] border-[#4a4a4a] text-[#b3b3b3]{% endif %}" role="alert">
                                 <div class="flex items-center space-x-2">
                                     {% if category == 'error' or category == 'danger' %}
                                         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
