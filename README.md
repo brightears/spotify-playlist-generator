@@ -22,6 +22,7 @@ Bright Ears is a professional music research and discovery tool built by DJs, fo
 - **Playlist History**: Pro users can access and re-download all past discoveries
 - **No API Limits**: Works for unlimited users without platform restrictions
 - **Professional Workflow**: CSV exports perfect for record shopping on Beatport, Juno, etc.
+- **Secure Authentication**: Google OAuth with password reset functionality
 
 ## Quick Start
 
@@ -61,9 +62,10 @@ Bright Ears is a professional music research and discovery tool built by DJs, fo
    STRIPE_MONTHLY_PRICE_ID=your_monthly_price_id
    STRIPE_YEARLY_PRICE_ID=your_yearly_price_id
    
-   # Email (for contact form)
+   # Email (for contact form and password reset)
    MAIL_SERVER=smtp.gmail.com
    MAIL_PORT=587
+   MAIL_USE_TLS=True
    MAIL_USERNAME=your_email@gmail.com
    MAIL_PASSWORD=your_app_password
    MAIL_DEFAULT_SENDER=support@brightears.io
@@ -107,11 +109,12 @@ Bright Ears is a professional music research and discovery tool built by DJs, fo
 ## Architecture
 
 ### Tech Stack
-- **Backend**: Flask, SQLAlchemy, Flask-Login
+- **Backend**: Flask, SQLAlchemy, Flask-Login, Flask-Mail
 - **Frontend**: Jinja2 templates, Tailwind CSS, jQuery
 - **Database**: PostgreSQL (production) / SQLite (development)
-- **Authentication**: Google OAuth 2.0
+- **Authentication**: Google OAuth 2.0 + Password-based with reset
 - **Payments**: Stripe subscriptions
+- **Security**: Flask-Limiter, bcrypt, CSRF protection
 - **Task Queue**: In-memory with database persistence
 - **Deployment**: Render.com with custom domain
 
@@ -163,6 +166,15 @@ The application is deployed on Render.com:
    python migrate_playlists.py
    python migrate_playlist_history_fix.py  # For nullable Spotify fields
    ```
+
+## Recent Changes (July 2025)
+
+### Password Reset Feature
+- Added secure password reset functionality
+- Email-based reset with 10-minute token expiration
+- Complete dark theme UI integration
+- Secure token generation using itsdangerous
+- HTML and plain text email support
 
 ## Recent Changes (June 2025)
 

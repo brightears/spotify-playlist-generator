@@ -200,7 +200,26 @@ On `auth-rebuild` branch - Fully functional music discovery platform:
 - Privacy Policy: Removed Spotify token collection, clarified data usage
 - Added comprehensive FAQ section explaining the platform
 
-### Recent Changes (Jan 5, 2025) - Final UI Polish
+### Recent Changes (July 6, 2025) - Password Reset Feature
+
+### Password Reset Implementation
+- **Routes Added**: 
+  - `/auth/reset-password-request` - Request form for password reset
+  - `/auth/reset-password/<token>` - Reset form with secure token
+- **Security Features**:
+  - 10-minute token expiration using itsdangerous
+  - Email enumeration prevention (always shows success message)
+  - Secure token generation and validation
+- **Email Integration**:
+  - HTML and plain text email templates
+  - Flask-Mail configuration with TLS support
+  - Fallback to console logging if mail not configured
+- **UI Integration**:
+  - Complete dark theme styling matching the app design
+  - "Forgot password?" link on login page
+  - Clear user messaging and error handling
+
+## Recent Changes (Jan 5, 2025) - Final UI Polish
 
 #### Progress Indication Improvements
 - **Problem**: Blue progress bar appeared stuck during processing
