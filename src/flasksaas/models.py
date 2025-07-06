@@ -46,6 +46,30 @@ class User(db.Model, UserMixin):
     def check_password(self, raw_password: str) -> bool:
         return bcrypt.check_password_hash(self._password, raw_password)
 
+    def get_reset_password_token(self, expires_in=600):
+        """Generate a password reset token that expires in 10 minutes."""
+        from itsdangerous import URLSafeTimedSerializer
+        from flask import current_app
+        
+        s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+        return s.dumps({'reset_password': self.id}, salt='password-reset-salt')
+    
+    @staticmethod
+    def verify_reset_password_token(token, max_age=600):
+        """Verify the password reset token and return the user."""
+        from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
+        from flask import current_app
+        
+        s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token, salt='password-reset-salt', max_age=max_age)
+            user_id = data.get('reset_password')
+            if user_id:
+                return User.query.get(user_id)
+        except (SignatureExpired, BadSignature):
+            return None
+        return None
+
     # ------------------------------------------------------------------
     # Flask-Login requirements
     # ------------------------------------------------------------------

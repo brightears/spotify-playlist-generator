@@ -8,7 +8,9 @@ from google_auth_oauthlib.flow import Flow
 
 from .. import db
 from ..models import User
-from ..forms import LoginForm, RegisterForm
+from ..forms import LoginForm, RegisterForm, ResetPasswordRequestForm, ResetPasswordForm
+from flask_mail import Message
+from flask import current_app
 
 auth_bp = Blueprint("auth", __name__, template_folder="templates")
 
@@ -320,3 +322,101 @@ def logout():
 def profile():
     """User profile page."""
     return render_template("auth/profile.html")
+
+
+@auth_bp.route("/reset-password-request", methods=["GET", "POST"])
+def reset_password_request():
+    """Request a password reset."""
+    if current_user.is_authenticated:
+        return redirect(url_for("main.dashboard"))
+    
+    form = ResetPasswordRequestForm()
+    
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data.lower()).first()
+        if user:
+            send_password_reset_email(user)
+        # Always show success message to prevent email enumeration
+        flash("Check your email for instructions to reset your password.", "info")
+        return redirect(url_for("auth.login"))
+    
+    return render_template("auth/reset_password_request.html", form=form)
+
+
+@auth_bp.route("/reset-password/<token>", methods=["GET", "POST"])
+def reset_password(token):
+    """Reset password with token."""
+    if current_user.is_authenticated:
+        return redirect(url_for("main.dashboard"))
+    
+    user = User.verify_reset_password_token(token)
+    if not user:
+        flash("Invalid or expired reset link.", "error")
+        return redirect(url_for("auth.login"))
+    
+    form = ResetPasswordForm()
+    
+    if form.validate_on_submit():
+        user.set_password(form.password.data)
+        db.session.commit()
+        flash("Your password has been reset.", "success")
+        return redirect(url_for("auth.login"))
+    
+    return render_template("auth/reset_password.html", form=form)
+
+
+def send_password_reset_email(user):
+    """Send password reset email to user."""
+    token = user.get_reset_password_token()
+    
+    # Get mail instance from app extensions
+    mail = current_app.extensions.get('mail')
+    
+    if mail and current_app.config.get('MAIL_USERNAME'):
+        msg = Message(
+            subject="[Bright Ears] Reset Your Password",
+            sender=current_app.config.get('MAIL_DEFAULT_SENDER', 'support@brightears.io'),
+            recipients=[user.email]
+        )
+        
+        reset_url = url_for('auth.reset_password', token=token, _external=True)
+        
+        msg.body = f"""Dear Bright Ears user,
+
+You have requested a password reset. Click the link below to reset your password:
+
+{reset_url}
+
+This link will expire in 10 minutes for security reasons.
+
+If you did not request this reset, please ignore this email.
+
+Best regards,
+The Bright Ears Team
+"""
+        
+        msg.html = f"""
+<p>Dear Bright Ears user,</p>
+
+<p>You have requested a password reset. Click the link below to reset your password:</p>
+
+<p><a href="{reset_url}" style="display: inline-block; padding: 12px 24px; background-color: #00CFFF; color: #121212; text-decoration: none; border-radius: 24px; font-weight: bold;">Reset Password</a></p>
+
+<p>Or copy this link: {reset_url}</p>
+
+<p>This link will expire in 10 minutes for security reasons.</p>
+
+<p>If you did not request this reset, please ignore this email.</p>
+
+<p>Best regards,<br>
+The Bright Ears Team</p>
+"""
+        
+        try:
+            mail.send(msg)
+            current_app.logger.info(f"Password reset email sent to {user.email}")
+        except Exception as e:
+            current_app.logger.error(f"Failed to send password reset email: {str(e)}")
+    else:
+        # If mail not configured, log the reset link (development only)
+        current_app.logger.warning(f"Mail not configured. Reset link for {user.email}: {url_for('auth.reset_password', token=token, _external=True)}")
