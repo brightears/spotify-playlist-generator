@@ -321,20 +321,32 @@ class YouTubeSource(MusicSource):
         # Handle @username format by resolving to channel ID first
         if channel_id.startswith('@'):
             username = channel_id[1:]  # Remove @ symbol
+            logger.info(f"Resolving @{username} to channel ID...")
             try:
-                # Try to get channel by username
-                channel_request = youtube.channels().list(
-                    part="contentDetails",
-                    forHandle=username  # Use forHandle for @username format
+                # Search for the channel by username
+                search_request = youtube.search().list(
+                    part="snippet",
+                    q=f"@{username}",
+                    type="channel",
+                    maxResults=5
                 )
-                channel_response = await loop.run_in_executor(None, channel_request.execute)
+                search_response = await loop.run_in_executor(None, search_request.execute)
                 
-                if not channel_response.get("items"):
-                    logger.warning(f"Channel @{username} not found")
+                # Find the best matching channel
+                channel_id_found = None
+                for item in search_response.get("items", []):
+                    # First result is usually the best match
+                    channel_id_found = item["snippet"]["channelId"]
+                    channel_name = item["snippet"]["channelTitle"]
+                    logger.info(f"Found channel: {channel_name} with ID: {channel_id_found}")
+                    break
+                
+                if not channel_id_found:
+                    logger.warning(f"Channel @{username} not found in search")
                     return []
-                    
-                # Extract the actual channel ID
-                channel_id = channel_response["items"][0]["id"]
+                
+                channel_id = channel_id_found
+                logger.info(f"Resolved @{username} to channel ID: {channel_id}")
             except Exception as e:
                 logger.error(f"Error resolving @{username}: {e}")
                 return []
