@@ -7,13 +7,13 @@
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="bg-[#252525] rounded-xl border border-[#282828] shadow-xl overflow-hidden">
             <!-- Header -->
-            <div class="px-8 py-6 border-b border-[#282828]">
-                <h1 class="text-3xl font-bold text-white">Create a New Playlist</h1>
-                <p class="mt-2 text-[#b3b3b3]">Discover fresh tracks based on your preferences</p>
+            <div class="px-4 sm:px-6 md:px-8 py-6 border-b border-[#282828]">
+                <h1 class="text-2xl sm:text-3xl font-bold text-white">Create a New Playlist</h1>
+                <p class="mt-2 text-sm sm:text-base text-[#b3b3b3]">Discover fresh tracks based on your preferences</p>
             </div>
             
             <!-- Form -->
-            <form method="POST" action="{{ url_for('main.create') }}" class="p-8 space-y-6">
+            <form method="POST" action="{{ url_for('main.create') }}" class="p-4 sm:p-6 md:p-8 space-y-6">
                 {{ form.csrf_token }}
                 
                 <!-- Playlist Name -->
