@@ -236,6 +236,7 @@ On `auth-rebuild` branch - Fully functional music discovery platform:
 - **Toolroom Records - Latest Releases**: Tech house label playlist
 - **Toolroom Records - New Music**: Additional tech house releases
 - **Spinnin' Records - Latest Releases**: EDM/Big room house label playlist
+- **Stay True Sounds - Latest Releases**: Soulful/Afro house label playlist
 - All added as playlists (not full channels) to avoid DJ mixes and focus on tracks
 
 ### Recent Changes (Jan 7, 2025) - Mobile Responsiveness & SEO
