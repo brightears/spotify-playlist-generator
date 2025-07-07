@@ -404,12 +404,38 @@ async def process_task_step(task_id: str) -> bool:
                     include_custom=include_custom
                 )
                 
-                # Fetch tracks from YouTube using both predefined and custom sources
-                tracks = await youtube_source.get_tracks_from_sources(
-                    sources=custom_sources,
-                    days_to_look_back=days,
-                    limit=50  # Get 50 tracks instead of just 3
-                )
+                # Fetch tracks from YouTube sources in batches to avoid timeout
+                tracks = []
+                total_sources = len(custom_sources)
+                
+                # Process sources one by one with progress updates
+                for idx, source in enumerate(custom_sources):
+                    try:
+                        # Update progress before processing each source
+                        progress_percent = 30 + int((idx / total_sources) * 40)  # 30-70% range
+                        task['progress'] = progress_percent
+                        task['message'] = f'Fetching tracks from {source["name"]}... ({idx + 1}/{total_sources})'
+                        update_task_status(task_id, progress=progress_percent, message=task['message'])
+                        
+                        # Fetch tracks from this single source
+                        source_tracks = await youtube_source.get_tracks_from_sources(
+                            sources=[source],
+                            days_to_look_back=days,
+                            limit=10,  # Get 10 tracks per source to balance variety
+                            progress_callback=lambda info: print(f"Progress: {info}")
+                        )
+                        tracks.extend(source_tracks)
+                        
+                        # Log progress
+                        print(f"Task {task_id}: Fetched {len(source_tracks)} tracks from {source['name']} ({idx + 1}/{total_sources})")
+                        
+                        # Small delay to prevent rate limiting
+                        await asyncio.sleep(0.5)
+                        
+                    except Exception as e:
+                        print(f"Task {task_id}: Error fetching from {source['name']}: {e}")
+                        # Continue with other sources even if one fails
+                        continue
                 
                 # Convert Track objects to dictionaries for JSON serialization
                 track_dicts = []
@@ -427,9 +453,12 @@ async def process_task_step(task_id: str) -> bool:
                 
                 task['tracks'] = track_dicts
                 task['step'] = 2
-                task['progress'] = 50
+                task['progress'] = 70
                 task['message'] = f'Fetched {len(track_dicts)} tracks from YouTube for genre {genre}'
                 print(f"Task {task_id}: Successfully fetched {len(track_dicts)} tracks")
+                
+                # Update database immediately after fetching
+                update_task_status(task_id, progress=70, message=task['message'])
                 
             except Exception as e:
                 print(f"Task {task_id}: Error in step 1: {e}")

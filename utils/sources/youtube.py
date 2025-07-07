@@ -167,7 +167,7 @@ class YouTubeSource(MusicSource):
         random.shuffle(all_tracks)
         return all_tracks[:limit]
     
-    async def get_tracks_from_sources(self, sources: List[Dict], days_to_look_back: int = 14, limit: int = 100) -> List[Track]:
+    async def get_tracks_from_sources(self, sources: List[Dict], days_to_look_back: int = 14, limit: int = 100, progress_callback=None) -> List[Track]:
         """
         Fetch tracks from provided sources list (can include custom user sources).
         
