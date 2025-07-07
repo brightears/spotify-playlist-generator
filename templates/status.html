@@ -27,7 +27,7 @@
         
             <div id="result-container" style="display: none;" class="mt-8">
                 <div class="border-t border-[#282828] pt-6">
-                    <h3 class="text-xl font-semibold text-white mb-4">Playlist Details</h3>
+                    <h3 class="text-xl font-semibold text-white mb-4 text-center sm:text-left">Playlist Details</h3>
                     
                     <div class="space-y-3 mb-6">
                         <div class="flex items-start space-x-3">
@@ -51,8 +51,8 @@
                     </div>
                     
                     <div class="mb-8">
-                        <h4 class="text-lg font-medium text-white mb-4">Export Options</h4>
-                        <div class="flex flex-wrap gap-3">
+                        <h4 class="text-lg font-medium text-white mb-4 text-center sm:text-left">Export Options</h4>
+                        <div class="flex flex-wrap gap-3 justify-center sm:justify-start">
                             <a class="inline-flex items-center justify-center px-6 py-3 bg-[#00CFFF] text-[#121212] rounded-full font-bold hover:bg-[#00a8d9] transition-all duration-200" id="csv-download-button" style="display: none;">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
@@ -77,13 +77,13 @@
                     </div>
                     
                     <div class="border-t border-[#282828] pt-6">
-                        <h3 class="text-xl font-semibold text-white mb-4">Track Preview</h3>
+                        <h3 class="text-xl font-semibold text-white mb-4 text-center sm:text-left">Track Preview</h3>
                         <div class="space-y-3" id="track-list">
                             <!-- Track items will be inserted here -->
                         </div>
                     </div>
                     
-                    <div class="mt-8">
+                    <div class="mt-8 text-center sm:text-left">
                         <a href="{{ url_for('main.dashboard') }}" class="inline-flex items-center justify-center px-6 py-3 border border-[#282828] rounded-full text-white font-medium hover:bg-[#282828] transition-all duration-200">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
