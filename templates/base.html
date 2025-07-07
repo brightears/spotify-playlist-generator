@@ -25,7 +25,7 @@
         <div class="layout-container flex h-full grow flex-col">
             
             <!-- Header -->
-            <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#282828] px-4 sm:px-6 lg:px-10 py-4 shadow-lg bg-gradient-to-r from-[#f0fdff] to-[#e6fcff]">
+            <header class="relative flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#282828] px-4 sm:px-6 lg:px-10 py-4 shadow-lg bg-gradient-to-r from-[#f0fdff] to-[#e6fcff]">
                 <div class="flex items-center gap-4 text-[#121212]">
                     <div class="w-10 h-10">
                         <img src="{{ url_for('static', filename='images/BE_Logo_Transparent.png') }}" alt="Bright Ears Logo" class="w-full h-full object-contain">
@@ -68,9 +68,10 @@
                     </a>
                     {% endif %}
                 </div>
-                
-                <!-- Mobile navigation menu -->
-                <div id="mobile-menu" class="hidden lg:hidden absolute top-full left-0 right-0 bg-gradient-to-r from-[#f0fdff] to-[#e6fcff] border-b border-[#282828] shadow-lg z-50">
+            </header>
+            
+            <!-- Mobile navigation menu -->
+            <div id="mobile-menu" class="hidden absolute top-[73px] left-0 right-0 bg-gradient-to-r from-[#f0fdff] to-[#e6fcff] border-b border-[#282828] shadow-lg z-50 lg:hidden">
                     <div class="px-4 py-4 space-y-3">
                         {% if current_user.is_authenticated %}
                             <a href="{{ url_for('main.dashboard') }}" class="block py-2 text-[#666666] hover:text-[#121212] text-sm font-medium transition-colors duration-200">Dashboard</a>
@@ -87,7 +88,6 @@
                         {% endif %}
                     </div>
                 </div>
-            </header>
 
             <!-- Flash Messages -->
             {% with messages = get_flashed_messages(with_categories=true) %}
@@ -155,7 +155,8 @@
             const closeIcon = document.getElementById('close-icon');
             
             if (menuButton && mobileMenu) {
-                menuButton.addEventListener('click', function() {
+                menuButton.addEventListener('click', function(e) {
+                    e.stopPropagation();
                     mobileMenu.classList.toggle('hidden');
                     menuIcon.classList.toggle('hidden');
                     closeIcon.classList.toggle('hidden');
@@ -168,6 +169,11 @@
                         menuIcon.classList.remove('hidden');
                         closeIcon.classList.add('hidden');
                     }
+                });
+                
+                // Prevent clicks inside menu from closing it
+                mobileMenu.addEventListener('click', function(e) {
+                    e.stopPropagation();
                 });
             }
         });
