@@ -298,8 +298,46 @@ def create_new_task(user_id: int, playlist_name: str, description: str, genre: s
     return task_id
 
 def get_task(task_id: str) -> Optional[Dict[str, Any]]:
-    """Get a task by ID."""
-    return tasks.get(task_id)
+    """Get a task by ID, checking both memory and database."""
+    # First check in-memory cache
+    if task_id in tasks:
+        return tasks[task_id]
+    
+    # If not in memory, check database
+    db_task = PlaylistTask.query.get(task_id)
+    if db_task:
+        # Reconstruct task dict from database
+        task = {
+            'id': db_task.id,
+            'user_id': db_task.user_id,
+            'status': db_task.status,
+            'progress': db_task.progress or 0,
+            'message': f'Task status: {db_task.status}',
+            'step': 0,  # Default step value
+            'created_at': db_task.created_at,
+            'last_updated': db_task.created_at,
+            'result': None,
+            'error': db_task.error_message,
+            'playlist_name': db_task.playlist_name,
+            'description': db_task.description,
+            'genre': db_task.genre,
+            'days': db_task.days,
+            'public': db_task.is_public,
+            'source_selection': db_task.source_selection or 'both'
+        }
+        
+        # If task is completed, try to get the result
+        if db_task.status == 'completed' and db_task.tracks_found:
+            task['result'] = {
+                'tracks_found': db_task.tracks_found,
+                'playlist_url': db_task.spotify_playlist_url
+            }
+        
+        # Cache it in memory for future requests
+        tasks[task_id] = task
+        return task
+    
+    return None
 
 def get_user_tasks(user_id: int) -> list:
     """Get all tasks for a user."""
