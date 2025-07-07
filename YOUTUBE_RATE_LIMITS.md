@@ -8,24 +8,30 @@
 - **Per Playlist**: ~33-66 units (11 sources)
 - **Daily Capacity**: ~150-300 playlists
 
-### Current Implementation
+### Current Implementation (Jan 2025)
 ```python
-# Sequential processing with delays (task_manager.py line 415-435)
-for idx, source in enumerate(custom_sources):
-    # Different limits for preset vs custom sources
-    if source.get('custom', False):
-        tracks_per_source = 10  # Custom sources limited to prevent abuse
-    else:
-        tracks_per_source = 100  # Preset sources get all tracks in date range
-    
-    source_tracks = await youtube_source.get_tracks_from_sources(
-        sources=[source],
-        days_to_look_back=days,
-        limit=tracks_per_source
+# Parallel batch processing for speed (task_manager.py line 407-459)
+# Dynamic batch size based on source count
+if total_sources <= 3:
+    batch_size = total_sources  # All at once
+elif total_sources <= 10:
+    batch_size = 3  # 3 at a time
+else:
+    batch_size = 5  # 5 at a time for many sources
+
+# Process in parallel batches
+for batch in batches:
+    batch_results = await asyncio.gather(
+        *[fetch_source(s) for s in batch],
+        return_exceptions=True
     )
-    # 0.5 second delay prevents rate limiting
-    await asyncio.sleep(0.5)
+    # 0.5 second delay between batches only
 ```
+
+### Performance Improvements
+- **Sequential**: 30 sources = ~60+ seconds
+- **Parallel (3x)**: 30 sources = ~20 seconds
+- **Parallel (5x)**: 30 sources = ~12 seconds
 
 ### Track Limits
 - **Preset channels**: 100 tracks (effectively unlimited within date range)

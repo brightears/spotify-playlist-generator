@@ -404,47 +404,70 @@ async def process_task_step(task_id: str) -> bool:
                     include_custom=include_custom
                 )
                 
-                # Fetch tracks from YouTube sources in batches to avoid timeout
+                # Fetch tracks from YouTube sources in parallel batches for speed
                 tracks = []
                 total_sources = len(custom_sources)
                 
-                # Process sources one by one with progress updates
-                for idx, source in enumerate(custom_sources):
-                    try:
-                        # Update progress before processing each source
-                        progress_percent = 30 + int((idx / total_sources) * 40)  # 30-70% range
-                        task['progress'] = progress_percent
-                        task['message'] = f'Fetching tracks from {source["name"]}... ({idx + 1}/{total_sources})'
-                        update_task_status(task_id, progress=progress_percent, message=task['message'])
-                        
+                # Dynamic batch size: more sources = larger batches
+                if total_sources <= 3:
+                    batch_size = total_sources  # Process all at once if few sources
+                elif total_sources <= 10:
+                    batch_size = 3  # Process 3 at a time for medium counts
+                else:
+                    batch_size = 5  # Process 5 at a time for many sources
+                
+                # Process sources in parallel batches
+                for batch_start in range(0, total_sources, batch_size):
+                    batch_end = min(batch_start + batch_size, total_sources)
+                    batch = custom_sources[batch_start:batch_end]
+                    
+                    # Update progress with source names
+                    progress_percent = 30 + int((batch_start / total_sources) * 40)  # 30-70% range
+                    source_names = [s['name'] for s in batch]
+                    if len(source_names) > 1:
+                        task['message'] = f'Processing {", ".join(source_names[:2])}... ({batch_end}/{total_sources} sources)'
+                    else:
+                        task['message'] = f'Processing {source_names[0]}... ({batch_end}/{total_sources} sources)'
+                    task['progress'] = progress_percent
+                    update_task_status(task_id, progress=progress_percent, message=task['message'])
+                    
+                    # Create tasks for parallel execution
+                    batch_tasks = []
+                    for source in batch:
                         # Different limits for preset vs custom sources
                         if source.get('custom', False):
-                            # Custom sources (Pro users): limit to 10 tracks to prevent abuse
                             tracks_per_source = 10
                         else:
-                            # Preset sources: no limit, get all tracks from date range
-                            # These channels only post a handful of tracks per week anyway
-                            tracks_per_source = 100  # Effectively unlimited within date range
+                            tracks_per_source = 100
                         
-                        # Fetch tracks from this single source
-                        source_tracks = await youtube_source.get_tracks_from_sources(
+                        # Create coroutine for this source
+                        source_task = youtube_source.get_tracks_from_sources(
                             sources=[source],
                             days_to_look_back=days,
                             limit=tracks_per_source,
                             progress_callback=lambda info: print(f"Progress: {info}")
                         )
-                        tracks.extend(source_tracks)
-                        
-                        # Log progress
-                        print(f"Task {task_id}: Fetched {len(source_tracks)} tracks from {source['name']} ({idx + 1}/{total_sources})")
-                        
-                        # Small delay to prevent rate limiting
+                        batch_tasks.append((source, source_task))
+                    
+                    # Execute batch in parallel
+                    print(f"Task {task_id}: Processing batch {batch_start + 1}-{batch_end} in parallel...")
+                    batch_results = await asyncio.gather(
+                        *[task for _, task in batch_tasks],
+                        return_exceptions=True
+                    )
+                    
+                    # Process results
+                    for (source, _), result in zip(batch_tasks, batch_results):
+                        if isinstance(result, Exception):
+                            print(f"Task {task_id}: Error fetching from {source['name']}: {result}")
+                            continue
+                        elif result:
+                            tracks.extend(result)
+                            print(f"Task {task_id}: Fetched {len(result)} tracks from {source['name']}")
+                    
+                    # Small delay between batches to prevent rate limiting
+                    if batch_end < total_sources:
                         await asyncio.sleep(0.5)
-                        
-                    except Exception as e:
-                        print(f"Task {task_id}: Error fetching from {source['name']}: {e}")
-                        # Continue with other sources even if one fails
-                        continue
                 
                 # Convert Track objects to dictionaries for JSON serialization
                 track_dicts = []
