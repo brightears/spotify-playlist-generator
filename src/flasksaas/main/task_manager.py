@@ -417,15 +417,20 @@ async def process_task_step(task_id: str) -> bool:
                         task['message'] = f'Fetching tracks from {source["name"]}... ({idx + 1}/{total_sources})'
                         update_task_status(task_id, progress=progress_percent, message=task['message'])
                         
-                        # Calculate dynamic limit based on number of sources
-                        # If fewer sources selected, get more tracks per source
-                        tracks_per_source = max(50 // len(custom_sources), 10)
+                        # Different limits for preset vs custom sources
+                        if source.get('custom', False):
+                            # Custom sources (Pro users): limit to 10 tracks to prevent abuse
+                            tracks_per_source = 10
+                        else:
+                            # Preset sources: no limit, get all tracks from date range
+                            # These channels only post a handful of tracks per week anyway
+                            tracks_per_source = 100  # Effectively unlimited within date range
                         
                         # Fetch tracks from this single source
                         source_tracks = await youtube_source.get_tracks_from_sources(
                             sources=[source],
                             days_to_look_back=days,
-                            limit=tracks_per_source,  # Dynamic limit based on source count
+                            limit=tracks_per_source,
                             progress_callback=lambda info: print(f"Progress: {info}")
                         )
                         tracks.extend(source_tracks)

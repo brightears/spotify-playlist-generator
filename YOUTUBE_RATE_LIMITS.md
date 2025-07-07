@@ -10,17 +10,27 @@
 
 ### Current Implementation
 ```python
-# Sequential processing with delays (task_manager.py line 415-432)
+# Sequential processing with delays (task_manager.py line 415-435)
 for idx, source in enumerate(custom_sources):
-    # Process one source at a time
+    # Different limits for preset vs custom sources
+    if source.get('custom', False):
+        tracks_per_source = 10  # Custom sources limited to prevent abuse
+    else:
+        tracks_per_source = 100  # Preset sources get all tracks in date range
+    
     source_tracks = await youtube_source.get_tracks_from_sources(
         sources=[source],
         days_to_look_back=days,
-        limit=10
+        limit=tracks_per_source
     )
     # 0.5 second delay prevents rate limiting
     await asyncio.sleep(0.5)
 ```
+
+### Track Limits
+- **Preset channels**: 100 tracks (effectively unlimited within date range)
+- **Custom sources (Pro)**: 10 tracks per source
+- **Rationale**: Preset channels post ~5-10 tracks/week, custom sources need limits for scaling
 
 ### Error Handling
 - Graceful failure: If one source fails, others continue
