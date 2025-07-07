@@ -44,13 +44,19 @@ class YouTubeSource(MusicSource):
         "above-and-beyond": [
             {"type": "playlist", "id": "PL6RLee9oArCADbiR6jaYCzSCNHxmk5Ezt", "name": "Above & Beyond - Latest Releases"}
         ],
+        "toolroom-records": [
+            {"type": "playlist", "id": "PLGdqhGdToks3HVLQqYbkp1pkyyuZUkJ8U", "name": "Toolroom Records - Latest Releases"},
+            {"type": "playlist", "id": "PLGdqhGdToks1CslquLlNQ4mofBwqnyrjW", "name": "Toolroom Records - New Music"}
+        ],
         "all": [
             {"type": "playlist", "id": "PLSr_oFUba1jtP9x5ZFs5Y0GJkb8fmC161", "name": "Selected Base"},
             {"type": "channel", "id": "UCd3TI79UTgYvVEq5lTnJ4uQ", "name": "MrRevillz"},
             {"type": "playlist", "id": "PLIxQjHO1yTm99RG32st06TnxZHMgCbT4H", "name": "Glitterbox Ibiza"},
             {"type": "playlist", "id": "PLoRGBexfBL8dbhIs6-GqWapmosx-0gqa7", "name": "Defected Music"},
             {"type": "playlist", "id": "PLOftnzGIKwJB6_3hhXlhfxD4CBoBSEFJF", "name": "Anjunadeep - Latest Releases"},
-            {"type": "playlist", "id": "PL6RLee9oArCADbiR6jaYCzSCNHxmk5Ezt", "name": "Above & Beyond - Latest Releases"}
+            {"type": "playlist", "id": "PL6RLee9oArCADbiR6jaYCzSCNHxmk5Ezt", "name": "Above & Beyond - Latest Releases"},
+            {"type": "playlist", "id": "PLGdqhGdToks3HVLQqYbkp1pkyyuZUkJ8U", "name": "Toolroom Records - Latest Releases"},
+            {"type": "playlist", "id": "PLGdqhGdToks1CslquLlNQ4mofBwqnyrjW", "name": "Toolroom Records - New Music"}
         ]
     }
     
