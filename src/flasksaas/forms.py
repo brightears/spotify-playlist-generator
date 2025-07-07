@@ -32,7 +32,6 @@ class PlaylistForm(FlaskForm):
             ('all', 'All Channels'),
             ('selected-base', 'Selected Base'),
             ('defected-music', 'Defected Music'),
-            ('mrrevillz', 'MrRevillz'),
             ('glitterbox-ibiza', 'Glitterbox Ibiza'),
             ('anjunadeep', 'Anjunadeep'),
             ('above-and-beyond', 'Above & Beyond'),
