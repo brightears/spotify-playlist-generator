@@ -1,4 +1,5 @@
 # Bright Ears - Professional Music Discovery Platform
+<!-- Deployment: Fixed @username YouTube channel resolution -->
 
 ## Project Repository
 
