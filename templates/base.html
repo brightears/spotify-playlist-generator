@@ -25,7 +25,7 @@
         <div class="layout-container flex h-full grow flex-col">
             
             <!-- Header -->
-            <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#282828] px-10 py-4 shadow-lg bg-gradient-to-r from-[#f0fdff] to-[#e6fcff]">
+            <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#282828] px-4 sm:px-6 lg:px-10 py-4 shadow-lg bg-gradient-to-r from-[#f0fdff] to-[#e6fcff]">
                 <div class="flex items-center gap-4 text-[#121212]">
                     <div class="w-10 h-10">
                         <img src="{{ url_for('static', filename='images/BE_Logo_Transparent.png') }}" alt="Bright Ears Logo" class="w-full h-full object-contain">
@@ -34,7 +34,16 @@
                         <a href="{{ url_for('main.index') }}" class="text-[#121212] hover:text-[#00CFFF] transition-colors duration-200">Bright Ears</a>
                     </h2>
                 </div>
-                <div class="flex flex-1 justify-end gap-6">
+                <!-- Mobile menu button -->
+                <button id="mobile-menu-button" class="lg:hidden p-2 rounded-md text-[#121212] hover:bg-black/10 transition-colors duration-200" aria-label="Toggle menu">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path id="menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        <path id="close-icon" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+                
+                <!-- Desktop navigation -->
+                <div class="hidden lg:flex flex-1 justify-end gap-6">
                     {% if current_user.is_authenticated %}
                     <div class="flex items-center gap-6">
                         <a class="text-[#666666] hover:text-[#121212] text-sm font-medium leading-normal transition-colors duration-200" href="{{ url_for('main.dashboard') }}">Dashboard</a>
@@ -59,12 +68,31 @@
                     </a>
                     {% endif %}
                 </div>
+                
+                <!-- Mobile navigation menu -->
+                <div id="mobile-menu" class="hidden lg:hidden absolute top-full left-0 right-0 bg-gradient-to-r from-[#f0fdff] to-[#e6fcff] border-b border-[#282828] shadow-lg z-50">
+                    <div class="px-4 py-4 space-y-3">
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('main.dashboard') }}" class="block py-2 text-[#666666] hover:text-[#121212] text-sm font-medium transition-colors duration-200">Dashboard</a>
+                            {% if current_user.has_active_subscription %}
+                                <a href="{{ url_for('main.sources') }}" class="block py-2 text-[#666666] hover:text-[#121212] text-sm font-medium transition-colors duration-200">My Sources</a>
+                            {% endif %}
+                            <a href="{{ url_for('auth.profile') }}" class="block py-2 text-[#666666] hover:text-[#121212] text-sm font-medium transition-colors duration-200">Account</a>
+                            <a href="{{ url_for('auth.logout') }}" class="block w-full text-center py-3 mt-3 rounded-full bg-[#282828] text-white text-sm font-bold hover:bg-[#383838] transition-colors duration-200">Log Out</a>
+                        {% else %}
+                            <a href="{{ url_for('main.index') }}" class="block py-2 text-[#666666] hover:text-[#121212] text-sm font-medium transition-colors duration-200">Home</a>
+                            <a href="{{ url_for('main.contact') }}" class="block py-2 text-[#666666] hover:text-[#121212] text-sm font-medium transition-colors duration-200">Contact</a>
+                            <a href="{{ url_for('auth.login') }}" class="block py-2 text-[#666666] hover:text-[#121212] text-sm font-medium transition-colors duration-200">Login</a>
+                            <a href="{{ url_for('auth.register') }}" class="block w-full text-center py-3 mt-3 rounded-full bg-[#00CFFF] text-[#121212] text-sm font-bold hover:bg-[#00a8d9] transition-colors duration-200">Sign Up</a>
+                        {% endif %}
+                    </div>
+                </div>
             </header>
 
             <!-- Flash Messages -->
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
-                    <div class="px-10 py-4">
+                    <div class="px-4 sm:px-6 lg:px-10 py-4">
                         {% for category, message in messages %}
                             <div class="mb-4 px-4 py-3 rounded-lg border {% if category == 'error' or category == 'danger' %}bg-[#2a2a2a] border-[#4a4a4a] text-[#00CFFF]{% elif category == 'warning' %}bg-[#2a2a2a] border-[#4a4a4a] text-[#00CFFF]{% elif category == 'success' %}bg-[#2a2a2a] border-[#4a4a4a] text-[#00CFFF]{% else %}bg-[#2a2a2a] border-[#4a4a4a] text-[#b3b3b3]{% endif %}" role="alert">
                                 <div class="flex items-center space-x-2">
@@ -117,5 +145,32 @@
     </div>
 
     {% block extra_js %}{% endblock %}
+    
+    <!-- Mobile menu toggle script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const menuIcon = document.getElementById('menu-icon');
+            const closeIcon = document.getElementById('close-icon');
+            
+            if (menuButton && mobileMenu) {
+                menuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                    menuIcon.classList.toggle('hidden');
+                    closeIcon.classList.toggle('hidden');
+                });
+                
+                // Close menu when clicking outside
+                document.addEventListener('click', function(event) {
+                    if (!menuButton.contains(event.target) && !mobileMenu.contains(event.target)) {
+                        mobileMenu.classList.add('hidden');
+                        menuIcon.classList.remove('hidden');
+                        closeIcon.classList.add('hidden');
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
