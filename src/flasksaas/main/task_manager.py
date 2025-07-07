@@ -449,11 +449,8 @@ async def process_task_step(task_id: str) -> bool:
                     # Create tasks for parallel execution
                     batch_tasks = []
                     for source in batch:
-                        # Different limits for preset vs custom sources
-                        if source.get('custom', False):
-                            tracks_per_source = 10
-                        else:
-                            tracks_per_source = 100
+                        # Same limit for all sources
+                        tracks_per_source = 100
                         
                         # Create coroutine for this source
                         source_task = youtube_source.get_tracks_from_sources(
