@@ -318,7 +318,28 @@ class YouTubeSource(MusicSource):
         
         loop = asyncio.get_event_loop()
         
-        # First, get the uploads playlist ID for the channel
+        # Handle @username format by resolving to channel ID first
+        if channel_id.startswith('@'):
+            username = channel_id[1:]  # Remove @ symbol
+            try:
+                # Try to get channel by username
+                channel_request = youtube.channels().list(
+                    part="contentDetails",
+                    forHandle=username  # Use forHandle for @username format
+                )
+                channel_response = await loop.run_in_executor(None, channel_request.execute)
+                
+                if not channel_response.get("items"):
+                    logger.warning(f"Channel @{username} not found")
+                    return []
+                    
+                # Extract the actual channel ID
+                channel_id = channel_response["items"][0]["id"]
+            except Exception as e:
+                logger.error(f"Error resolving @{username}: {e}")
+                return []
+        
+        # Now get the uploads playlist ID for the channel
         channel_request = youtube.channels().list(
             part="contentDetails",
             id=channel_id
