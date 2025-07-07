@@ -1,5 +1,6 @@
 {% extends "base.html" %}
-{% block title %}Bright Ears - Professional Music Discovery Tool for DJs{% endblock %}
+{% block title %}Bright Ears - Automated Music Discovery for DJs | Find Fresh Tracks Daily{% endblock %}
+{% block meta_description %}Automatically discover the latest tracks from YouTube channels. Export to CSV, M3U & JSON. Search on Spotify, Tidal, Beatport, Traxsource. Built by DJs, for DJs.{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
@@ -326,4 +327,38 @@
         </p>
     </div>
 </section>
+
+<!-- Structured Data for SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Bright Ears",
+  "applicationCategory": "MusicApplication",
+  "operatingSystem": "Web",
+  "url": "https://brightears.io",
+  "description": "Professional music discovery tool that automatically finds fresh tracks from YouTube channels and provides multi-platform search capabilities.",
+  "offers": [{
+    "@type": "Offer",
+    "name": "Free Plan",
+    "price": "0",
+    "priceCurrency": "USD"
+  }, {
+    "@type": "Offer", 
+    "name": "Pro Monthly",
+    "price": "3",
+    "priceCurrency": "USD"
+  }, {
+    "@type": "Offer",
+    "name": "Pro Yearly", 
+    "price": "24",
+    "priceCurrency": "USD"
+  }],
+  "creator": {
+    "@type": "Organization",
+    "name": "Bright Ears",
+    "url": "https://brightears.io"
+  }
+}
+</script>
 {% endblock %}

@@ -4,6 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Bright Ears - Professional Music Discovery Tool for DJs{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Discover fresh music automatically from YouTube channels. Export playlists to CSV, M3U, JSON. One-click search on Spotify, Tidal, Beatport & more.{% endblock %}">
+    <meta name="keywords" content="music discovery, DJ tools, playlist generator, YouTube music finder, fresh tracks, Beatport, Tidal, music research">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
+    <meta property="og:image" content="https://brightears.io{{ url_for('static', filename='images/BE_Logo_Transparent.png') }}">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ request.url }}">
+    <meta property="twitter:title" content="{{ self.og_title() }}">
+    <meta property="twitter:description" content="{{ self.og_description() }}">
+    <meta property="twitter:image" content="https://brightears.io{{ url_for('static', filename='images/BE_Logo_Transparent.png') }}">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="{{ request.url }}">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Inter:wght@400;500;600;700;900&family=Noto+Sans:wght@400;500;700;900" media="print" onload="this.media='all'">
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>

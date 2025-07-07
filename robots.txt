@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /auth/
+Disallow: /billing/
+Disallow: /api/
+Disallow: /static/
+Sitemap: https://brightears.io/sitemap.xml
