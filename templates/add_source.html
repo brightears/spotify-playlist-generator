@@ -15,6 +15,9 @@
                 <h1 class="text-white text-2xl font-bold">Add Custom Source</h1>
             </div>
             <p class="text-[#6a6a6a] text-sm">Add a YouTube channel or playlist to your personalized music discovery sources</p>
+            {% if current_count is defined and max_sources is defined %}
+            <p class="text-[#00CFFF] text-xs mt-1">{{ max_sources - current_count }} slot{{ 's' if (max_sources - current_count) != 1 else '' }} remaining</p>
+            {% endif %}
         </div>
 
         <div class="bg-[#282828] rounded-lg p-6 border border-[#383838]">
@@ -74,7 +77,7 @@
                 <div>
                     <h4 class="text-[#00CFFF] text-sm font-medium mb-1">Pro Tip</h4>
                     <p class="text-[#b3b3b3] text-xs">Custom sources will be included in your playlist generation alongside our curated sources. You can enable/disable individual sources at any time.</p>
-                    <p class="text-[#b3b3b3] text-xs mt-1">Note: Custom sources are limited to 10 tracks per playlist to ensure fast processing.</p>
+                    <p class="text-[#b3b3b3] text-xs mt-1">Note: Custom sources are limited to 10 tracks per playlist to ensure fast processing. Maximum 20 custom sources per account.</p>
                 </div>
             </div>
         </div>

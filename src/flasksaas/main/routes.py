@@ -396,7 +396,12 @@ def sources():
         return redirect(url_for('main.dashboard'))
     
     user_sources = UserSource.query.filter_by(user_id=current_user.id).order_by(UserSource.created_at.desc()).all()
-    return render_template("sources.html", sources=user_sources)
+    max_sources = 20
+    
+    return render_template("sources.html", 
+                         sources=user_sources, 
+                         current_count=len(user_sources),
+                         max_sources=max_sources)
 
 
 @main_bp.route("/sources/add", methods=["GET", "POST"])
@@ -407,14 +412,25 @@ def add_source():
         flash("Custom sources are available for Pro subscribers only.", "warning")
         return redirect(url_for('main.dashboard'))
     
+    # Check current source count
+    current_source_count = UserSource.query.filter_by(user_id=current_user.id).count()
+    max_sources = 20
+    
     if request.method == "POST":
+        # Check if user has reached the limit
+        if current_source_count >= max_sources:
+            flash(f"You've reached the maximum of {max_sources} custom sources. Please remove some before adding new ones.", "error")
+            return redirect(url_for('main.sources'))
+        
         name = request.form.get("name", "").strip()
         source_url = request.form.get("source_url", "").strip()
         source_type = request.form.get("source_type", "").strip()
         
         if not name or not source_url or not source_type:
             flash("All fields are required.", "error")
-            return render_template("add_source.html")
+            return render_template("add_source.html", 
+                                 current_count=current_source_count, 
+                                 max_sources=max_sources)
         
         try:
             # Create new source
@@ -432,13 +448,19 @@ def add_source():
             
         except ValueError as e:
             flash(str(e), "error")
-            return render_template("add_source.html")
+            return render_template("add_source.html", 
+                                 current_count=current_source_count, 
+                                 max_sources=max_sources)
         except Exception as e:
             flash("An error occurred while adding the source. Please try again.", "error")
             current_app.logger.error(f"Error adding source: {e}")
-            return render_template("add_source.html")
+            return render_template("add_source.html", 
+                                 current_count=current_source_count, 
+                                 max_sources=max_sources)
     
-    return render_template("add_source.html")
+    return render_template("add_source.html", 
+                         current_count=current_source_count, 
+                         max_sources=max_sources)
 
 
 @main_bp.route("/sources/<int:source_id>/delete", methods=["POST"])

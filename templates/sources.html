@@ -9,13 +9,20 @@
             <div>
                 <h1 class="text-white text-xl sm:text-2xl font-bold mb-2">My Custom Sources</h1>
                 <p class="text-[#6a6a6a] text-xs sm:text-sm">Manage your personalized YouTube channels and playlists for music discovery</p>
+                <p class="text-[#00CFFF] text-xs mt-1">{{ current_count }} of {{ max_sources }} sources used</p>
             </div>
+            {% if current_count < max_sources %}
             <a href="{{ url_for('main.add_source') }}" class="flex items-center justify-center gap-2 px-4 py-2 bg-[#00CFFF] text-[#121212] text-sm font-bold rounded-lg hover:bg-[#00a8d9] transition-colors duration-200 sm:w-auto">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
                 Add Source
             </a>
+            {% else %}
+            <div class="px-4 py-2 bg-[#383838] text-[#6a6a6a] text-sm font-medium rounded-lg cursor-not-allowed">
+                Source Limit Reached
+            </div>
+            {% endif %}
         </div>
 
         {% if sources %}
