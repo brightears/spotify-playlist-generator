@@ -235,6 +235,7 @@ On `auth-rebuild` branch - Fully functional music discovery platform:
 - **Above & Beyond - Latest Releases**: Trance and progressive house releases
 - **Toolroom Records - Latest Releases**: Tech house label playlist
 - **Toolroom Records - New Music**: Additional tech house releases
+- **Spinnin' Records - Latest Releases**: EDM/Big room house label playlist
 - All added as playlists (not full channels) to avoid DJ mixes and focus on tracks
 
 ### Recent Changes (Jan 7, 2025) - Mobile Responsiveness & SEO

@@ -48,6 +48,9 @@ class YouTubeSource(MusicSource):
             {"type": "playlist", "id": "PLGdqhGdToks3HVLQqYbkp1pkyyuZUkJ8U", "name": "Toolroom Records - Latest Releases"},
             {"type": "playlist", "id": "PLGdqhGdToks1CslquLlNQ4mofBwqnyrjW", "name": "Toolroom Records - New Music"}
         ],
+        "spinnin-records": [
+            {"type": "playlist", "id": "PL53244BC75ACF40D0", "name": "Spinnin' Records - Latest Releases"}
+        ],
         "all": [
             {"type": "playlist", "id": "PLSr_oFUba1jtP9x5ZFs5Y0GJkb8fmC161", "name": "Selected Base"},
             {"type": "channel", "id": "UCd3TI79UTgYvVEq5lTnJ4uQ", "name": "MrRevillz"},
@@ -56,7 +59,8 @@ class YouTubeSource(MusicSource):
             {"type": "playlist", "id": "PLOftnzGIKwJB6_3hhXlhfxD4CBoBSEFJF", "name": "Anjunadeep - Latest Releases"},
             {"type": "playlist", "id": "PL6RLee9oArCADbiR6jaYCzSCNHxmk5Ezt", "name": "Above & Beyond - Latest Releases"},
             {"type": "playlist", "id": "PLGdqhGdToks3HVLQqYbkp1pkyyuZUkJ8U", "name": "Toolroom Records - Latest Releases"},
-            {"type": "playlist", "id": "PLGdqhGdToks1CslquLlNQ4mofBwqnyrjW", "name": "Toolroom Records - New Music"}
+            {"type": "playlist", "id": "PLGdqhGdToks1CslquLlNQ4mofBwqnyrjW", "name": "Toolroom Records - New Music"},
+            {"type": "playlist", "id": "PL53244BC75ACF40D0", "name": "Spinnin' Records - Latest Releases"}
         ]
     }
     
