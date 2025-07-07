@@ -54,6 +54,9 @@ class YouTubeSource(MusicSource):
         "stay-true-sounds": [
             {"type": "playlist", "id": "PLOH68idrufmjnBkoJLchYzyRN_uFcH628", "name": "Stay True Sounds - Latest Releases"}
         ],
+        "ukf-dnb": [
+            {"type": "playlist", "id": "PLAEfXHuNOsEbijHnykLDJPNdQOhQiDVTp", "name": "UKF Drum & Bass - Latest Releases"}
+        ],
         "all": [
             {"type": "playlist", "id": "PLSr_oFUba1jtP9x5ZFs5Y0GJkb8fmC161", "name": "Selected Base"},
             {"type": "channel", "id": "UCd3TI79UTgYvVEq5lTnJ4uQ", "name": "MrRevillz"},
@@ -64,7 +67,8 @@ class YouTubeSource(MusicSource):
             {"type": "playlist", "id": "PLGdqhGdToks3HVLQqYbkp1pkyyuZUkJ8U", "name": "Toolroom Records - Latest Releases"},
             {"type": "playlist", "id": "PLGdqhGdToks1CslquLlNQ4mofBwqnyrjW", "name": "Toolroom Records - New Music"},
             {"type": "playlist", "id": "PL53244BC75ACF40D0", "name": "Spinnin' Records - Latest Releases"},
-            {"type": "playlist", "id": "PLOH68idrufmjnBkoJLchYzyRN_uFcH628", "name": "Stay True Sounds - Latest Releases"}
+            {"type": "playlist", "id": "PLOH68idrufmjnBkoJLchYzyRN_uFcH628", "name": "Stay True Sounds - Latest Releases"},
+            {"type": "playlist", "id": "PLAEfXHuNOsEbijHnykLDJPNdQOhQiDVTp", "name": "UKF Drum & Bass - Latest Releases"}
         ]
     }
     
