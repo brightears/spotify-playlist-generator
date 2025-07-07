@@ -417,11 +417,15 @@ async def process_task_step(task_id: str) -> bool:
                         task['message'] = f'Fetching tracks from {source["name"]}... ({idx + 1}/{total_sources})'
                         update_task_status(task_id, progress=progress_percent, message=task['message'])
                         
+                        # Calculate dynamic limit based on number of sources
+                        # If fewer sources selected, get more tracks per source
+                        tracks_per_source = max(50 // len(custom_sources), 10)
+                        
                         # Fetch tracks from this single source
                         source_tracks = await youtube_source.get_tracks_from_sources(
                             sources=[source],
                             days_to_look_back=days,
-                            limit=10,  # Get 10 tracks per source to balance variety
+                            limit=tracks_per_source,  # Dynamic limit based on source count
                             progress_callback=lambda info: print(f"Progress: {info}")
                         )
                         tracks.extend(source_tracks)
