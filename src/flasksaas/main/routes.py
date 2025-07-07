@@ -46,24 +46,39 @@ def guide():
 @login_required
 def create():
     """Create a new playlist."""
-    form = PlaylistForm()
-    
-    if form.validate_on_submit():
-        # Create a new task with the form data
-        task_id = create_new_task(
-            user_id=current_user.id,
-            playlist_name=form.name.data,
-            description=form.description.data,
-            genre=form.genre.data,
-            days=form.days.data,
-            public=True,  # Default to True since we removed the form field
-            source_selection=form.source_selection.data
-        )
+    try:
+        form = PlaylistForm()
         
-        # No flash message needed - the status page will show the progress
-        return redirect(url_for('main.status', task_id=task_id))
-    
-    return render_template('create.html', form=form)
+        if form.validate_on_submit():
+            # Create a new task with the form data
+            task_id = create_new_task(
+                user_id=current_user.id,
+                playlist_name=form.name.data,
+                description=form.description.data,
+                genre=form.genre.data,
+                days=form.days.data,
+                public=True,  # Default to True since we removed the form field
+                source_selection=form.source_selection.data
+            )
+            
+            # No flash message needed - the status page will show the progress
+            return redirect(url_for('main.status', task_id=task_id))
+        
+        # Log form errors if any
+        if request.method == 'POST' and not form.validate():
+            current_app.logger.error(f"Form validation errors: {form.errors}")
+            for field, errors in form.errors.items():
+                for error in errors:
+                    flash(f"{field}: {error}", "error")
+        
+        return render_template('create.html', form=form)
+        
+    except Exception as e:
+        current_app.logger.error(f"Error in create route: {e}", exc_info=True)
+        flash("An error occurred. Please try again.", "error")
+        # Create a fresh form instance
+        form = PlaylistForm()
+        return render_template('create.html', form=form)
 
 @main_bp.route("/test-session")
 def test_session():

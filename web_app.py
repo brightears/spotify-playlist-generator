@@ -98,6 +98,21 @@ print(f"Final database URL: {final_db_url}")
 app.config['SQLALCHEMY_DATABASE_URI'] = final_db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Database connection pooling for better reliability
+if 'postgresql' in final_db_url:
+    # PostgreSQL in production
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        'pool_size': 10,
+        'pool_recycle': 300,
+        'pool_pre_ping': True,
+        'max_overflow': 20
+    }
+else:
+    # SQLite in development
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        'pool_pre_ping': True
+    }
+
 # Enable CSRF protection in all environments for security
 app.config['WTF_CSRF_ENABLED'] = True
 

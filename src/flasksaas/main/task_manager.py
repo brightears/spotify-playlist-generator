@@ -256,21 +256,32 @@ def create_new_task(user_id: int, playlist_name: str, description: str, genre: s
     """Create a new playlist generation task."""
     task_id = str(uuid.uuid4())
     
-    # Create database entry
-    db_task = PlaylistTask(
-        id=task_id,
-        user_id=user_id,
-        status='processing',
-        progress=0,
-        playlist_name=playlist_name,
-        description=description,
-        genre=genre,
-        days=days,
-        is_public=public,
-        source_selection=source_selection
-    )
-    db.session.add(db_task)
-    db.session.commit()
+    try:
+        # Create database entry
+        db_task = PlaylistTask(
+            id=task_id,
+            user_id=user_id,
+            status='processing',
+            progress=0,
+            playlist_name=playlist_name,
+            description=description,
+            genre=genre,
+            days=days,
+            is_public=public,
+            source_selection=source_selection
+        )
+        db.session.add(db_task)
+        db.session.commit()
+    except Exception as e:
+        logger.error(f"Error creating task in database: {e}")
+        db.session.rollback()
+        # Try again with a fresh session
+        try:
+            db.session.add(db_task)
+            db.session.commit()
+        except Exception as e2:
+            logger.error(f"Second attempt failed: {e2}")
+            raise
     
     # Also maintain in-memory for backward compatibility
     task = {
