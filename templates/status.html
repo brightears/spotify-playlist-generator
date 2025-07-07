@@ -228,7 +228,7 @@ $(document).ready(function() {
                 }
                 
                 // Update header based on status
-                if (data.status === 'complete') {
+                if (data.status === 'complete' || data.status === 'completed') {
                     $('#status-header').text('Complete!').removeClass('animate-pulse-glow').addClass('text-[#00CFFF]');
                     $('#loading-dimmer').hide();
                     $('#task-progress').hide();

@@ -471,7 +471,7 @@ async def process_task_step(task_id: str) -> bool:
         elif current_step == 2:
             # Complete the task - don't automatically create Spotify playlist
             tracks = task.get('tracks', [])
-            task['status'] = 'complete'
+            task['status'] = 'completed'
             task['progress'] = 100
             task['message'] = f'Successfully fetched {len(tracks)} tracks from YouTube!'
             
@@ -535,7 +535,7 @@ async def process_task_step(task_id: str) -> bool:
             
             # Update task status in database
             update_task_status(task_id, 
-                             status='complete',
+                             status='completed',
                              progress=100,
                              tracks_found=len(tracks))
             

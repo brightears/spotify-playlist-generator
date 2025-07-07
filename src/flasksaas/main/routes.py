@@ -149,7 +149,7 @@ def api_status(task_id):
     
     # If the task is still in progress, advance it by one step
     was_updated = False
-    if task['status'] not in ['complete', 'error']:
+    if task['status'] not in ['completed', 'error']:
         # This will update the task state if needed
         was_updated = asyncio.run(process_task_step(task_id))
         task = get_task(task_id)  # Get updated task
@@ -169,7 +169,7 @@ def api_status(task_id):
     }
     
     # Add task results if complete
-    if task['status'] == 'complete':
+    if task['status'] == 'completed':
         response_data.update({
             'tracks': task.get('tracks', []),
             'sources': task.get('sources', []),
@@ -235,7 +235,7 @@ def simple_status(task_id):
         return redirect(url_for('main.dashboard'))
     
     # Process the task if it's not complete
-    if task['status'] not in ['complete', 'error']:
+    if task['status'] not in ['completed', 'error']:
         asyncio.run(process_task_step(task_id))
         task = get_task(task_id)  # Get updated task
     
@@ -279,7 +279,7 @@ def download(task_id):
             
             # Create a task-like object for the download logic
             task = {
-                'status': 'complete',
+                'status': 'completed',
                 'result': {
                     'tracks': tracks,
                     'playlist_name': playlist.name
@@ -306,7 +306,7 @@ def download(task_id):
             return redirect(url_for('main.dashboard'))
         
         # Check if task is complete
-        if task['status'] != 'complete':
+        if task['status'] != 'completed':
             flash("Task is not complete.", "error")
             return redirect(url_for('main.status', task_id=task_id))
         
@@ -563,7 +563,7 @@ def view_history(playlist_id):
         # Create a mock task object for the status template
         task = {
             'id': f'history_{playlist_id}',
-            'status': 'complete',
+            'status': 'completed',
             'progress': 100,
             'playlist_name': playlist.name,
             'description': playlist.description,
