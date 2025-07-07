@@ -34,12 +34,12 @@ class PlaylistForm(FlaskForm):
             ('defected-music', 'Defected Music'),
             ('mrrevillz', 'MrRevillz'),
             ('glitterbox-ibiza', 'Glitterbox Ibiza'),
-            ('anjunadeep', 'Anjunadeep - Latest Releases'),
-            ('above-and-beyond', 'Above & Beyond - Latest Releases'),
+            ('anjunadeep', 'Anjunadeep'),
+            ('above-and-beyond', 'Above & Beyond'),
             ('toolroom-records', 'Toolroom Records'),
-            ('spinnin-records', 'Spinnin\' Records - Latest Releases'),
-            ('stay-true-sounds', 'Stay True Sounds - Latest Releases'),
-            ('ukf-dnb', 'UKF Drum & Bass - Latest Releases')
+            ('spinnin-records', 'Spinnin\' Records'),
+            ('stay-true-sounds', 'Stay True Sounds'),
+            ('ukf-dnb', 'UKF Drum & Bass')
         ])
     days = IntegerField('Days to Look Back', default=7, validators=[NumberRange(min=1, max=90)])
     source_selection = RadioField('Music Sources', choices=[
