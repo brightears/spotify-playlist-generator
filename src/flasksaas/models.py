@@ -187,7 +187,7 @@ class PlaylistTask(db.Model):
     genre = db.Column(db.String(50))
     days = db.Column(db.Integer, default=7)
     is_public = db.Column(db.Boolean, default=True)
-    source_selection = db.Column(db.String(20), default='both')
+    source_selection = db.Column(db.Text, default='both')  # Changed to Text to support Pro users' multiple selections
     
     # Results
     spotify_playlist_url = db.Column(db.Text)

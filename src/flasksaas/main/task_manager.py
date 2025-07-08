@@ -297,11 +297,19 @@ def extract_youtube_id(url: str) -> Optional[str]:
         logger.error(f"Error extracting YouTube ID from URL {url}: {e}")
         return None
 
-def create_new_task(user_id: int, playlist_name: str, description: str, genre: str, days: int, public: bool, source_selection: str = 'both') -> str:
+def create_new_task(user_id: int, playlist_name: str, description: str, genre: str, days: int, public: bool, source_selection = 'both') -> str:
     """Create a new playlist generation task."""
     task_id = str(uuid.uuid4())
     
     try:
+        # Convert source_selection to a string if it's a list
+        if isinstance(source_selection, list):
+            # Store as JSON string for Pro users
+            import json
+            source_selection_str = json.dumps(source_selection)
+        else:
+            source_selection_str = source_selection
+        
         # Create database entry
         db_task = PlaylistTask(
             id=task_id,
@@ -313,7 +321,7 @@ def create_new_task(user_id: int, playlist_name: str, description: str, genre: s
             genre=genre,
             days=days,
             is_public=public,
-            source_selection=source_selection
+            source_selection=source_selection_str
         )
         db.session.add(db_task)
         db.session.commit()
@@ -362,6 +370,15 @@ def get_task(task_id: str) -> Optional[Dict[str, Any]]:
     # If not in memory, check database
     db_task = PlaylistTask.query.get(task_id)
     if db_task:
+        # Parse source_selection if it's JSON
+        source_selection = db_task.source_selection or 'both'
+        if source_selection.startswith('['):
+            import json
+            try:
+                source_selection = json.loads(source_selection)
+            except:
+                pass  # Keep as string if parsing fails
+        
         # Reconstruct task dict from database
         task = {
             'id': db_task.id,
@@ -379,7 +396,7 @@ def get_task(task_id: str) -> Optional[Dict[str, Any]]:
             'genre': db_task.genre,
             'days': db_task.days,
             'public': db_task.is_public,
-            'source_selection': db_task.source_selection or 'both'
+            'source_selection': source_selection
         }
         
         # If task is completed, try to get the result
