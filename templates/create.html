@@ -50,9 +50,9 @@
                     <label for="days" class="block text-sm font-medium text-[#b3b3b3] mb-2">
                         {{ form.days.label.text }}
                     </label>
-                    {{ form.days(class="w-full px-4 py-3 bg-[#1a1a1a] border border-[#282828] rounded-lg text-white placeholder-[#6a6a6a] focus:outline-none focus:ring-2 focus:ring-[#00CFFF] focus:border-transparent", placeholder="7") }}
+                    {{ form.days(class="w-full px-4 py-3 bg-[#1a1a1a] border border-[#282828] rounded-lg text-white placeholder-[#6a6a6a] focus:outline-none focus:ring-2 focus:ring-[#00CFFF] focus:border-transparent") }}
                     <p class="mt-2 text-sm text-[#6a6a6a]">
-                        How many days of recent tracks to analyze (1-90)
+                        Select how far back to search for new releases
                     </p>
                     {% if form.days.errors %}
                         {% for error in form.days.errors %}

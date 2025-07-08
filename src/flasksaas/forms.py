@@ -40,7 +40,11 @@ class PlaylistForm(FlaskForm):
             ('stay-true-sounds', 'Stay True Sounds'),
             ('ukf-dnb', 'UKF Drum & Bass')
         ])
-    days = IntegerField('Days to Look Back', default=7, validators=[NumberRange(min=1, max=90)])
+    days = SelectField('Time Period', choices=[
+            (14, 'Last 2 weeks'),
+            (21, 'Last 3 weeks'),
+            (30, 'Last month')
+        ], default=14, coerce=int)
     source_selection = RadioField('Music Sources', choices=[
             ('both', 'Use both selected channel and my custom sources'),
             ('predefined', 'Use only selected channel'),
