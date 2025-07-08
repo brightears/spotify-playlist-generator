@@ -112,7 +112,7 @@
                                            {% if value in form.selected_sources.data %}checked{% endif %}
                                            class="h-4 w-4 text-[#00CFFF] bg-[#1a1a1a] border-[#282828] rounded focus:ring-[#00CFFF] focus:ring-2">
                                     <label for="source_{{ value }}" class="ml-3 text-sm text-[#b3b3b3]">
-                                        {{ label }}
+                                        {{ label|safe }}
                                     </label>
                                 </div>
                                 {% endfor %}
@@ -134,7 +134,7 @@
                                            {% if value in form.selected_sources.data %}checked{% endif %}
                                            class="h-4 w-4 text-[#00CFFF] bg-[#1a1a1a] border-[#282828] rounded focus:ring-[#00CFFF] focus:ring-2">
                                     <label for="source_{{ value }}" class="ml-3 text-sm text-[#b3b3b3]">
-                                        {{ label }}
+                                        {{ label|safe }}
                                     </label>
                                 </div>
                                 {% endfor %}
