@@ -585,8 +585,6 @@ def toggle_source(source_id):
     try:
         source.is_active = not source.is_active
         db.session.commit()
-        status = "enabled" if source.is_active else "disabled"
-        flash(f"Successfully {status} '{source.name}'.", "success")
     except Exception as e:
         flash("An error occurred while updating the source.", "error")
         current_app.logger.error(f"Error toggling source: {e}")
