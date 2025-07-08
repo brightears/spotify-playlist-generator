@@ -38,9 +38,6 @@ class YouTubeSource(MusicSource):
         "anjunadeep": [
             {"type": "playlist", "id": "PLOftnzGIKwJB6_3hhXlhfxD4CBoBSEFJF", "name": "Anjunadeep"}
         ],
-        "above-and-beyond": [
-            {"type": "playlist", "id": "PL6RLee9oArCADbiR6jaYCzSCNHxmk5Ezt", "name": "Above & Beyond"}
-        ],
         "toolroom-records": [
             {"type": "playlist", "id": "PLGdqhGdToks3HVLQqYbkp1pkyyuZUkJ8U", "name": "Toolroom Records"},
             {"type": "playlist", "id": "PLGdqhGdToks1CslquLlNQ4mofBwqnyrjW", "name": "Toolroom Records"}
@@ -51,20 +48,15 @@ class YouTubeSource(MusicSource):
         "stay-true-sounds": [
             {"type": "playlist", "id": "PLOH68idrufmjnBkoJLchYzyRN_uFcH628", "name": "Stay True Sounds"}
         ],
-        "ukf-dnb": [
-            {"type": "playlist", "id": "PLAEfXHuNOsEbijHnykLDJPNdQOhQiDVTp", "name": "UKF Drum & Bass"}
-        ],
         "all": [
             {"type": "playlist", "id": "PLSr_oFUba1jtP9x5ZFs5Y0GJkb8fmC161", "name": "Selected Base"},
             {"type": "playlist", "id": "PLIxQjHO1yTm99RG32st06TnxZHMgCbT4H", "name": "Glitterbox Ibiza"},
             {"type": "playlist", "id": "PLoRGBexfBL8dbhIs6-GqWapmosx-0gqa7", "name": "Defected Music"},
             {"type": "playlist", "id": "PLOftnzGIKwJB6_3hhXlhfxD4CBoBSEFJF", "name": "Anjunadeep"},
-            {"type": "playlist", "id": "PL6RLee9oArCADbiR6jaYCzSCNHxmk5Ezt", "name": "Above & Beyond"},
             {"type": "playlist", "id": "PLGdqhGdToks3HVLQqYbkp1pkyyuZUkJ8U", "name": "Toolroom Records"},
             {"type": "playlist", "id": "PLGdqhGdToks1CslquLlNQ4mofBwqnyrjW", "name": "Toolroom Records"},
             {"type": "playlist", "id": "PL53244BC75ACF40D0", "name": "Spinnin' Records"},
-            {"type": "playlist", "id": "PLOH68idrufmjnBkoJLchYzyRN_uFcH628", "name": "Stay True Sounds"},
-            {"type": "playlist", "id": "PLAEfXHuNOsEbijHnykLDJPNdQOhQiDVTp", "name": "UKF Drum & Bass"}
+            {"type": "playlist", "id": "PLOH68idrufmjnBkoJLchYzyRN_uFcH628", "name": "Stay True Sounds"}
         ]
     }
     

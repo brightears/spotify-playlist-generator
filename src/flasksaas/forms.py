@@ -34,11 +34,9 @@ class PlaylistForm(FlaskForm):
             ('defected-music', 'Defected Music'),
             ('glitterbox-ibiza', 'Glitterbox Ibiza'),
             ('anjunadeep', 'Anjunadeep'),
-            ('above-and-beyond', 'Above & Beyond'),
             ('toolroom-records', 'Toolroom Records'),
             ('spinnin-records', 'Spinnin\' Records'),
-            ('stay-true-sounds', 'Stay True Sounds'),
-            ('ukf-dnb', 'UKF Drum & Bass')
+            ('stay-true-sounds', 'Stay True Sounds')
         ])
     days = SelectField('Time Period', choices=[
             (14, 'Last 2 weeks'),
