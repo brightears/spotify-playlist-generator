@@ -56,7 +56,22 @@ def create_checkout_session():
         current_app.logger.info(f"Creating checkout session for {plan_type} plan with price ID: {price_id}")
         
         # Create a new customer or get existing one
-        if not current_user.stripe_customer_id:
+        customer_id = current_user.stripe_customer_id
+        
+        # Verify existing customer ID is valid
+        if customer_id:
+            try:
+                # Try to retrieve the customer to verify it exists
+                stripe.Customer.retrieve(customer_id)
+                current_app.logger.info(f"Using existing Stripe customer: {customer_id}")
+            except stripe.error.InvalidRequestError:
+                # Customer doesn't exist, clear it and create new one
+                current_app.logger.warning(f"Stripe customer {customer_id} not found, creating new one")
+                customer_id = None
+                current_user.stripe_customer_id = None
+        
+        # Create new customer if needed
+        if not customer_id:
             customer = stripe.Customer.create(
                 email=current_user.email,
                 metadata={'user_id': str(current_user.id)},
@@ -65,9 +80,6 @@ def create_checkout_session():
             db.session.commit()
             current_app.logger.info(f"Created new Stripe customer: {customer.id}")
             customer_id = customer.id
-        else:
-            customer_id = current_user.stripe_customer_id
-            current_app.logger.info(f"Using existing Stripe customer: {customer_id}")
 
         checkout_session = stripe.checkout.Session.create(
             customer=customer_id,
