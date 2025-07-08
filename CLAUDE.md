@@ -396,6 +396,41 @@ On `auth-rebuild` branch - Fully functional music discovery platform:
   - Added visual separator with border-t for examples section
   - Overall design now feels less cramped and more professional
 
+- **Sources Page Improvements**:
+  - Fixed eye icon logic: open eye = enabled (green), closed eye = disabled (red)
+  - Removed redundant success flash messages when toggling sources
+  - Removed "Playlist" badge since all sources are playlists now
+  - Cleaner UI with just source name and active/inactive status
+
+- **Create Page Refinements**:
+  - Redesigned Select All/Clear All buttons as subtle text links
+  - Moved buttons to align with section heading
+  - Added hover effects with brand color
+  - Renamed "Deselect All" to "Clear all" for brevity
+
+- **Content Updates Across Platform**:
+  - Updated guide page: 2 weeks/3 weeks/1 month options (not 1-90 days)
+  - Fixed landing page: "2-4 weeks" timeframe, removed channel references
+  - Updated Terms of Service to reflect playlist-only functionality
+  - Fixed subscription page text to remove channel references
+  - Corrected FAQ: "up to 20" custom playlists (not unlimited)
+
+#### Critical Production Fixes (Jan 8, 2025 - Part 3)
+- **Resubscribe Functionality**: 
+  - Fixed non-functional resubscribe button for cancelled users
+  - Added query parameter to bypass cancelled view and show plans
+  - Now cancelled users can easily choose new subscription
+
+- **Test Account Cleanup**:
+  - Removed hardcoded email protection (norli@gmail.com, platzer.norbert@gmail.com)
+  - All users can now cancel subscriptions normally
+  - No more test artifacts in production code
+
+- **Stripe Customer ID Validation**:
+  - Added check for invalid customer IDs from test environment
+  - Automatically creates new customer if old ID doesn't exist
+  - Prevents "No such customer" errors when transitioning from test to live
+
 ### Deployment
 - Application deployed on Render.com
 - Custom domain: brightears.io
