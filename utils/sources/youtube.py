@@ -54,7 +54,8 @@ class YouTubeSource(MusicSource):
             {"type": "playlist", "id": "PLoRGBexfBL8dbhIs6-GqWapmosx-0gqa7", "name": "Defected Music"},
             {"type": "playlist", "id": "PLp0LvzekmDePVdSozfdcux2Lm-zw25Iie", "name": "Anjunadeep"},
             {"type": "playlist", "id": "PLGdqhGdToks3HVLQqYbkp1pkyyuZUkJ8U", "name": "Toolroom Records"},
-            {"type": "playlist", "id": "PL53244BC75ACF40D0", "name": "Spinnin' Records"}
+            {"type": "playlist", "id": "PL53244BC75ACF40D0", "name": "Spinnin' Records"},
+            {"type": "playlist", "id": "PLOH68idrufmjnBkoJLchYzyRN_uFcH628", "name": "Stay True Sounds"}
         ]
     }
     

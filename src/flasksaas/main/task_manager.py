@@ -219,18 +219,19 @@ def get_selected_sources(genre: str, user_id: int, selected_source_ids: List[str
     """Get sources based on Pro user's checkbox selections."""
     sources = []
     
+    logger.info(f"get_selected_sources called with genre='{genre}', user_id={user_id}, selected_ids={selected_source_ids}")
+    
     try:
         # Process each selected source
         for source_id in selected_source_ids:
             if source_id.startswith('preset_'):
-                # Handle preset sources
+                # Handle preset sources - just get from the "all" category like free tier does
                 playlist_id = source_id.replace('preset_', '')
                 youtube_source = YouTubeSource()
-                
-                # Check all available sources across all genres
-                found = False
-                # First check the "all" genre
                 all_channels = youtube_source.GENRE_CHANNELS.get("all", [])
+                
+                # Find the matching preset source
+                found = False
                 for channel in all_channels:
                     if channel['id'] == playlist_id:
                         sources.append({
@@ -242,25 +243,8 @@ def get_selected_sources(genre: str, user_id: int, selected_source_ids: List[str
                         found = True
                         break
                 
-                # If not found in "all", check all other genres
                 if not found:
-                    for genre_key, genre_channels in youtube_source.GENRE_CHANNELS.items():
-                        for channel in genre_channels:
-                            if channel['id'] == playlist_id:
-                                sources.append({
-                                    'id': channel['id'],
-                                    'name': channel['name'],
-                                    'type': channel['type'],
-                                    'custom': False
-                                })
-                                found = True
-                                break
-                        if found:
-                            break
-                
-                # Log if we couldn't find the preset source
-                if not found:
-                    logger.warning(f"Preset source with ID '{playlist_id}' not found in any genre")
+                    logger.warning(f"Preset source with ID '{playlist_id}' not found in 'all' genre")
                         
             elif source_id.startswith('custom_'):
                 # Handle custom sources
@@ -462,6 +446,7 @@ async def process_task_step(task_id: str) -> bool:
             # Check if source_selection is a list (Pro user with checkboxes)
             if isinstance(source_selection, list):
                 # Pro user with selected sources
+                logger.info(f"Task {task_id}: Pro user with selected sources: {source_selection}")
                 task['sources'] = get_selected_sources(
                     task['genre'], 
                     user_id=task.get('user_id'),
