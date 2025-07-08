@@ -139,9 +139,15 @@ class YouTubeSource(MusicSource):
                     # Fetch videos from channel
                     source_tracks = await self._get_channel_tracks(youtube, source_id, source_name, date_threshold, per_source_limit)
             except HttpError as e:
-                logger.error(f"YouTube API error for {source_name}: {e}")
+                error_details = e.error_details[0] if hasattr(e, 'error_details') and e.error_details else {}
+                error_reason = error_details.get('reason', 'unknown')
+                logger.error(f"YouTube API error for {source_name} (ID: {source_id}): {e.resp.status} - {error_reason} - {str(e)}")
+                # Continue to next source instead of failing entirely
+                continue
             except Exception as e:
-                logger.error(f"Error fetching tracks from {source_name}: {e}", exc_info=True)
+                logger.error(f"Error fetching tracks from {source_name} (ID: {source_id}): {type(e).__name__}: {e}", exc_info=True)
+                # Continue to next source
+                continue
             
             logger.info(f"Found {len(source_tracks)} tracks from {source_name}")
             all_tracks.extend(source_tracks)
@@ -152,7 +158,11 @@ class YouTubeSource(MusicSource):
         
         # Shuffle tracks to ensure variety, then limit
         import random
-        random.shuffle(all_tracks)
+        if all_tracks:
+            random.shuffle(all_tracks)
+        else:
+            logger.warning(f"No tracks found from any of the {len(sources)} sources")
+        
         return all_tracks[:limit]
     
     async def get_tracks_from_sources(self, sources: List[Dict], days_to_look_back: int = 14, limit: int = 100, progress_callback=None) -> List[Track]:
@@ -198,9 +208,15 @@ class YouTubeSource(MusicSource):
                     # Fetch videos from channel
                     source_tracks = await self._get_channel_tracks(youtube, source_id, source_name, date_threshold, per_source_limit)
             except HttpError as e:
-                logger.error(f"YouTube API error for {source_name}: {e}")
+                error_details = e.error_details[0] if hasattr(e, 'error_details') and e.error_details else {}
+                error_reason = error_details.get('reason', 'unknown')
+                logger.error(f"YouTube API error for {source_name} (ID: {source_id}): {e.resp.status} - {error_reason} - {str(e)}")
+                # Continue to next source instead of failing entirely
+                continue
             except Exception as e:
-                logger.error(f"Error fetching tracks from {source_name}: {e}", exc_info=True)
+                logger.error(f"Error fetching tracks from {source_name} (ID: {source_id}): {type(e).__name__}: {e}", exc_info=True)
+                # Continue to next source
+                continue
             
             logger.info(f"Found {len(source_tracks)} tracks from {source_name}")
             all_tracks.extend(source_tracks)
@@ -211,7 +227,11 @@ class YouTubeSource(MusicSource):
         
         # Shuffle tracks to ensure variety, then limit
         import random
-        random.shuffle(all_tracks)
+        if all_tracks:
+            random.shuffle(all_tracks)
+        else:
+            logger.warning(f"No tracks found from any of the {len(sources)} sources")
+        
         return all_tracks[:limit]
     
     async def _get_playlist_tracks(self, youtube, playlist_id: str, playlist_name: str, 
@@ -526,7 +546,11 @@ class YouTubeSource(MusicSource):
         
         # Shuffle tracks to ensure variety, then limit
         import random
-        random.shuffle(all_tracks)
+        if all_tracks:
+            random.shuffle(all_tracks)
+        else:
+            logger.warning(f"No tracks found from any of the {len(sources)} sources")
+        
         return all_tracks[:limit]
     
     def _parse_title(self, title: str) -> Tuple[str, str, Optional[str]]:
