@@ -651,11 +651,11 @@ def debug_playlist(playlist_id):
         
         playlist_info = playlist_response["items"][0]
         
-        # Get first 5 videos from playlist
+        # Get first 20 videos from playlist to see more
         playlist_items_request = youtube.playlistItems().list(
             part="snippet,contentDetails",
             playlistId=playlist_id,
-            maxResults=5
+            maxResults=20
         )
         items_response = playlist_items_request.execute()
         
