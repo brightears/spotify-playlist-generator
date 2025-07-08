@@ -32,7 +32,7 @@
                 <div class="flex items-start justify-between">
                     <div class="flex-1">
                         <div class="flex items-center gap-3 mb-2">
-                            <h3 class="text-white text-lg font-semibold">{{ source.name }}</h3>
+                            <h3 class="text-white text-lg font-semibold">{{ source.name|safe }}</h3>
                             <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
                                 {% if source.source_type == 'channel' %}bg-blue-900/20 text-blue-200 border border-blue-500/30
                                 {% else %}bg-purple-900/20 text-purple-200 border border-purple-500/30{% endif %}">
