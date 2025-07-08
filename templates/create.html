@@ -71,18 +71,20 @@
                 <!-- Source Selection (Pro users only) -->
                 {% if current_user.has_active_subscription %}
                 <div>
-                    <label class="block text-sm font-medium text-[#b3b3b3] mb-3">
-                        Select Music Sources
-                    </label>
-                    
-                    <!-- Select/Deselect All buttons -->
-                    <div class="flex gap-2 mb-4">
-                        <button type="button" onclick="selectAllSources()" class="px-3 py-1 text-xs bg-[#282828] text-[#b3b3b3] rounded hover:bg-[#383838] transition-colors">
-                            Select All
-                        </button>
-                        <button type="button" onclick="deselectAllSources()" class="px-3 py-1 text-xs bg-[#282828] text-[#b3b3b3] rounded hover:bg-[#383838] transition-colors">
-                            Deselect All
-                        </button>
+                    <div class="flex items-center justify-between mb-3">
+                        <label class="block text-sm font-medium text-[#b3b3b3]">
+                            Select Music Sources
+                        </label>
+                        <!-- Select/Deselect All buttons -->
+                        <div class="flex items-center gap-1 text-xs">
+                            <button type="button" onclick="selectAllSources()" class="text-[#6a6a6a] hover:text-[#00CFFF] transition-colors">
+                                Select all
+                            </button>
+                            <span class="text-[#3a3a3a]">•</span>
+                            <button type="button" onclick="deselectAllSources()" class="text-[#6a6a6a] hover:text-[#00CFFF] transition-colors">
+                                Clear all
+                            </button>
+                        </div>
                     </div>
                     
                     <!-- All sources are now custom sources for Pro users -->
