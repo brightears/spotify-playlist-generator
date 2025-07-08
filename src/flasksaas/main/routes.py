@@ -19,6 +19,41 @@ from src.flasksaas.main.task_manager import create_new_task, process_task_step, 
 from ..models import User, UserSource, GeneratedPlaylist
 from .. import db
 
+def populate_suggested_sources(user_id):
+    """Pre-populate suggested playlist sources for new Pro users."""
+    # Check if user already has sources
+    existing_sources = UserSource.query.filter_by(user_id=user_id).count()
+    if existing_sources > 0:
+        return  # User already has sources, don't add suggestions
+    
+    # Our suggested playlists
+    suggested_sources = [
+        {"name": "Selected Base", "url": "https://www.youtube.com/playlist?list=PLSr_oFUba1jtP9x5ZFs5Y0GJkb8fmC161"},
+        {"name": "Defected Music", "url": "https://www.youtube.com/playlist?list=PLoRGBexfBL8dbhIs6-GqWapmosx-0gqa7"},
+        {"name": "Glitterbox Ibiza", "url": "https://www.youtube.com/playlist?list=PLIxQjHO1yTm99RG32st06TnxZHMgCbT4H"},
+        {"name": "Anjunadeep", "url": "https://www.youtube.com/playlist?list=PLp0LvzekmDePVdSozfdcux2Lm-zw25Iie"},
+        {"name": "Toolroom Records", "url": "https://www.youtube.com/playlist?list=PLGdqhGdToks3HVLQqYbkp1pkyyuZUkJ8U"},
+        {"name": "Spinnin' Records", "url": "https://www.youtube.com/playlist?list=PL53244BC75ACF40D0"},
+        {"name": "Stay True Sounds", "url": "https://www.youtube.com/playlist?list=PLOH68idrufmjnBkoJLchYzyRN_uFcH628"}
+    ]
+    
+    try:
+        for source in suggested_sources:
+            new_source = UserSource(
+                user_id=user_id,
+                name=source["name"],
+                source_url=source["url"],
+                source_type="playlist",
+                is_active=True
+            )
+            db.session.add(new_source)
+        
+        db.session.commit()
+        current_app.logger.info(f"Added {len(suggested_sources)} suggested sources for user {user_id}")
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error adding suggested sources: {e}")
+
 main_bp = Blueprint('main', __name__, template_folder="templates")
 task_manager = TaskManager()
 
@@ -51,26 +86,13 @@ def create():
         
         # For Pro users, populate the sources dynamically
         if current_user.has_active_subscription:
-            # Import here to avoid circular imports
-            from src.flasksaas.main.task_manager import get_genre_sources
-            from utils.sources.youtube import YouTubeSource
+            # Pre-populate suggested sources if user has none
+            populate_suggested_sources(current_user.id)
             
-            # For Pro users, always use 'all' genre to show all available preset sources
-            # They will select individually via checkboxes
-            selected_genre = 'all'
-            
-            # Build choices for the form
+            # Build choices for the form - only custom sources
             choices = []
             
-            # Add preset sources
-            youtube_source = YouTubeSource()
-            genre_channels = youtube_source.GENRE_CHANNELS.get(selected_genre, youtube_source.GENRE_CHANNELS.get("all", []))
-            
-            for channel in genre_channels:
-                choice_id = f"preset_{channel['id']}"
-                choices.append((choice_id, channel['name']))
-            
-            # Add custom sources
+            # Get all custom sources (including pre-populated suggestions)
             custom_sources = UserSource.query.filter_by(
                 user_id=current_user.id,
                 is_active=True
@@ -451,6 +473,9 @@ def sources():
     if not current_user.has_active_subscription:
         flash("Custom sources are available for Pro subscribers only.", "warning")
         return redirect(url_for('main.dashboard'))
+    
+    # Pre-populate suggested sources for new Pro users
+    populate_suggested_sources(current_user.id)
     
     user_sources = UserSource.query.filter_by(user_id=current_user.id).order_by(UserSource.created_at.desc()).all()
     max_sources = 20

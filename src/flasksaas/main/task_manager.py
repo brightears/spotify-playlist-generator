@@ -216,37 +216,15 @@ def get_genre_sources(genre: str, user_id: Optional[int] = None, include_predefi
 
 
 def get_selected_sources(genre: str, user_id: int, selected_source_ids: List[str]) -> List[Dict]:
-    """Get sources based on Pro user's checkbox selections."""
+    """Get sources based on Pro user's checkbox selections - all sources are now custom."""
     sources = []
     
     logger.info(f"get_selected_sources called with genre='{genre}', user_id={user_id}, selected_ids={selected_source_ids}")
     
     try:
-        # Process each selected source
+        # Process each selected source (all are custom now)
         for source_id in selected_source_ids:
-            if source_id.startswith('preset_'):
-                # Handle preset sources - just get from the "all" category like free tier does
-                playlist_id = source_id.replace('preset_', '')
-                youtube_source = YouTubeSource()
-                all_channels = youtube_source.GENRE_CHANNELS.get("all", [])
-                
-                # Find the matching preset source
-                found = False
-                for channel in all_channels:
-                    if channel['id'] == playlist_id:
-                        sources.append({
-                            'id': channel['id'],
-                            'name': channel['name'],
-                            'type': channel['type'],
-                            'custom': False
-                        })
-                        found = True
-                        break
-                
-                if not found:
-                    logger.warning(f"Preset source with ID '{playlist_id}' not found in 'all' genre")
-                        
-            elif source_id.startswith('custom_'):
+            if source_id.startswith('custom_'):
                 # Handle custom sources
                 custom_id = int(source_id.replace('custom_', ''))
                 custom_source = UserSource.query.filter_by(

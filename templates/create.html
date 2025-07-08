@@ -85,63 +85,36 @@
                         </button>
                     </div>
                     
-                    <div class="space-y-4">
-                        {% set preset_sources = [] %}
-                        {% set custom_sources = [] %}
-                        
-                        <!-- Separate sources into preset and custom -->
-                        {% for value, label in form.selected_sources.choices %}
-                            {% if value.startswith('preset_') %}
-                                {% set _ = preset_sources.append((value, label)) %}
-                            {% else %}
-                                {% set _ = custom_sources.append((value, label)) %}
-                            {% endif %}
-                        {% endfor %}
-                        
-                        <!-- Preset Sources -->
-                        {% if preset_sources %}
-                        <div class="bg-[#1a1a1a] p-4 rounded-lg border border-[#282828]">
-                            <h4 class="text-sm font-medium text-white mb-3">Preset Sources</h4>
-                            <div class="space-y-2">
-                                {% for value, label in preset_sources %}
-                                <div class="flex items-center">
-                                    <input type="checkbox" 
-                                           id="source_{{ value }}" 
-                                           name="selected_sources" 
-                                           value="{{ value }}" 
-                                           {% if value in form.selected_sources.data %}checked{% endif %}
-                                           class="h-4 w-4 text-[#00CFFF] bg-[#1a1a1a] border-[#282828] rounded focus:ring-[#00CFFF] focus:ring-2">
-                                    <label for="source_{{ value }}" class="ml-3 text-sm text-[#b3b3b3]">
-                                        {{ label|safe }}
-                                    </label>
-                                </div>
-                                {% endfor %}
+                    <!-- All sources are now custom sources for Pro users -->
+                    {% if form.selected_sources.choices %}
+                    <div class="bg-[#1a1a1a] p-4 rounded-lg border border-[#282828]">
+                        <div class="space-y-2">
+                            {% for value, label in form.selected_sources.choices %}
+                            <div class="flex items-center">
+                                <input type="checkbox" 
+                                       id="source_{{ value }}" 
+                                       name="selected_sources" 
+                                       value="{{ value }}" 
+                                       {% if value in form.selected_sources.data %}checked{% endif %}
+                                       class="h-4 w-4 text-[#00CFFF] bg-[#1a1a1a] border-[#282828] rounded focus:ring-[#00CFFF] focus:ring-2">
+                                <label for="source_{{ value }}" class="ml-3 text-sm text-[#b3b3b3]">
+                                    {{ label|safe }}
+                                </label>
                             </div>
+                            {% endfor %}
                         </div>
-                        {% endif %}
-                        
-                        <!-- Custom Sources -->
-                        {% if custom_sources %}
-                        <div class="bg-[#1a1a1a] p-4 rounded-lg border border-[#282828]">
-                            <h4 class="text-sm font-medium text-white mb-3">My Custom Sources</h4>
-                            <div class="space-y-2">
-                                {% for value, label in custom_sources %}
-                                <div class="flex items-center">
-                                    <input type="checkbox" 
-                                           id="source_{{ value }}" 
-                                           name="selected_sources" 
-                                           value="{{ value }}" 
-                                           {% if value in form.selected_sources.data %}checked{% endif %}
-                                           class="h-4 w-4 text-[#00CFFF] bg-[#1a1a1a] border-[#282828] rounded focus:ring-[#00CFFF] focus:ring-2">
-                                    <label for="source_{{ value }}" class="ml-3 text-sm text-[#b3b3b3]">
-                                        {{ label|safe }}
-                                    </label>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                        {% endif %}
                     </div>
+                    {% else %}
+                    <div class="bg-[#1a1a1a] p-4 rounded-lg border border-[#282828] text-center">
+                        <p class="text-[#b3b3b3] mb-3">No sources configured yet.</p>
+                        <a href="{{ url_for('main.sources') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-[#00CFFF] text-[#121212] text-sm font-bold rounded-lg hover:bg-[#00a8d9] transition-colors duration-200">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            Add Your First Source
+                        </a>
+                    </div>
+                    {% endif %}
                     
                     <p class="mt-2 text-sm text-[#6a6a6a]">
                         Select which sources to include in your search. <a href="{{ url_for('main.sources') }}" class="text-[#00CFFF] hover:text-[#00a8d9]">Manage your custom sources</a>
