@@ -55,8 +55,9 @@ def create():
             from src.flasksaas.main.task_manager import get_genre_sources
             from utils.sources.youtube import YouTubeSource
             
-            # Get the selected genre to determine preset sources
-            selected_genre = request.form.get('genre', 'all') if request.method == 'POST' else 'all'
+            # For Pro users, always use 'all' genre to show all available preset sources
+            # They will select individually via checkboxes
+            selected_genre = 'all'
             
             # Build choices for the form
             choices = []

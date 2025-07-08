@@ -37,13 +37,18 @@
                     {{ form.description(class="w-full px-4 py-3 bg-[#1a1a1a] border border-[#282828] rounded-lg text-white placeholder-[#6a6a6a] focus:outline-none focus:ring-2 focus:ring-[#00CFFF] focus:border-transparent", placeholder="Fresh tracks from my favorite channels", rows="3") }}
                 </div>
                 
-                <!-- YouTube Channel Selection -->
+                <!-- YouTube Channel Selection (only for non-Pro users) -->
+                {% if not current_user.has_active_subscription %}
                 <div>
                     <label for="genre" class="block text-sm font-medium text-[#b3b3b3] mb-2">
                         {{ form.genre.label.text }}
                     </label>
                     {{ form.genre(class="w-full px-4 py-3 bg-[#1a1a1a] border border-[#282828] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#00CFFF] focus:border-transparent appearance-none cursor-pointer", style="background-image: var(--select-button-svg); background-repeat: no-repeat; background-position: right 0.7rem center; background-size: 1.5em 1.5em; padding-right: 2.5rem;") }}
                 </div>
+                {% else %}
+                <!-- Hidden field for Pro users to maintain form structure -->
+                {{ form.genre(type="hidden", value="all") }}
+                {% endif %}
                 
                 <!-- Days to Analyze -->
                 <div>

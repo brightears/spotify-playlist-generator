@@ -226,10 +226,11 @@ def get_selected_sources(genre: str, user_id: int, selected_source_ids: List[str
                 # Handle preset sources
                 playlist_id = source_id.replace('preset_', '')
                 youtube_source = YouTubeSource()
-                genre_channels = youtube_source.GENRE_CHANNELS.get(genre, youtube_source.GENRE_CHANNELS.get("all", []))
+                # For Pro users, always check all available sources
+                all_channels = youtube_source.GENRE_CHANNELS.get("all", [])
                 
                 # Find the matching preset source
-                for channel in genre_channels:
+                for channel in all_channels:
                     if channel['id'] == playlist_id:
                         sources.append({
                             'id': channel['id'],
