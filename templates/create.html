@@ -47,7 +47,9 @@
                 </div>
                 {% else %}
                 <!-- Hidden field for Pro users to maintain form structure -->
-                {{ form.genre(type="hidden", value="all") }}
+                <div style="display: none;">
+                    {{ form.genre(value="all") }}
+                </div>
                 {% endif %}
                 
                 <!-- Days to Analyze -->
