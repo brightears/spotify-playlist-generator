@@ -346,6 +346,48 @@ On `auth-rebuild` branch - Fully functional music discovery platform:
 - **Last Task**: Switch Stripe from test mode to live mode
 - **Test Users**: Remove hardcoded Pro access after Stripe is live
 
+### Recent Changes (Jan 8, 2025) - Pro Sources Architecture Overhaul
+
+#### Complete Redesign of Pro User Sources
+- **Problem**: Complex dual system with preset and custom sources causing server errors
+- **Root Cause**: Database field `source_selection` was VARCHAR(20), too small for Pro users' multiple selections
+- **Solution**: Unified system where everything is a custom source for Pro users
+
+#### Implementation Details
+1. **Pre-populated Sources**: When Pro user first visits sources page, 7 suggested playlists auto-added:
+   - Selected Base, Defected Music, Glitterbox Ibiza, Anjunadeep
+   - Toolroom Records, Spinnin' Records, Stay True Sounds
+   - Users can delete any they don't want (freeing up slots)
+
+2. **Database Changes**:
+   - Changed `source_selection` from VARCHAR(20) to TEXT
+   - Added JSON serialization for storing selected source arrays
+   - Migration script: `migrate_source_selection_field.py`
+
+3. **UI Changes**:
+   - Removed genre dropdown for Pro users (hidden field set to 'all')
+   - Single checkbox list for all sources (no preset/custom sections)
+   - Select All/Deselect All buttons
+   - Fixed HTML entity encoding (|safe filter for ampersands)
+
+4. **Code Architecture**:
+   - `populate_suggested_sources()` in routes.py adds initial sources
+   - `get_selected_sources()` only processes custom sources
+   - All sources use proven UserSource model and workflow
+
+#### Critical Lessons Learned
+- **Database Field Sizes**: Always consider data growth, especially for lists
+- **Simple Solutions**: Reusing existing working code (custom sources) instead of complex dual systems
+- **Error Analysis**: "StringDataRightTruncation" immediately pointed to field size issue
+
+#### Migration Process for Production
+1. Deploy latest code to Render
+2. Open Shell in Render dashboard
+3. Run migration to increase field size:
+   ```bash
+   python migrate_source_selection_field.py
+   ```
+
 ### Deployment
 - Application deployed on Render.com
 - Custom domain: brightears.io
