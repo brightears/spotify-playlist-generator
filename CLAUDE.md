@@ -388,6 +388,14 @@ On `auth-rebuild` branch - Fully functional music discovery platform:
    python migrate_source_selection_field.py
    ```
 
+#### UI/UX Improvements (Jan 8, 2025 - Part 2)
+- **Add Custom Source Page**: Improved spacing for better readability
+  - Increased padding from p-6 to p-8 for main container
+  - Increased form spacing from space-y-6 to space-y-8
+  - Added mt-8 margin to "How to Find Playlist URLs" section
+  - Added visual separator with border-t for examples section
+  - Overall design now feels less cramped and more professional
+
 ### Deployment
 - Application deployed on Render.com
 - Custom domain: brightears.io
