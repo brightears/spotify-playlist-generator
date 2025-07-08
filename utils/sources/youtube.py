@@ -227,10 +227,12 @@ class YouTubeSource(MusicSource):
         """Fetch tracks from a YouTube playlist."""
         tracks = []
         next_page_token = None
+        pages_scanned = 0
+        max_pages_to_scan = 4  # Scan up to 200 videos (50 per page)
         
         loop = asyncio.get_event_loop()
         
-        while True:
+        while pages_scanned < max_pages_to_scan:
             # Get playlist items
             playlist_request = youtube.playlistItems().list(
                 part="snippet,contentDetails",
@@ -241,9 +243,13 @@ class YouTubeSource(MusicSource):
             
             # Execute request in the thread pool
             playlist_response = await loop.run_in_executor(None, playlist_request.execute)
+            pages_scanned += 1
+            
+            items = playlist_response.get("items", [])
+            logger.info(f"Playlist {playlist_name}: Page {pages_scanned}, found {len(items)} items")
             
             # Process videos
-            for item in playlist_response.get("items", []):
+            for item in items:
                 snippet = item.get("snippet", {})
                 video_id = item.get("contentDetails", {}).get("videoId")
                 
@@ -265,6 +271,8 @@ class YouTubeSource(MusicSource):
                     publish_date = datetime.strptime(published_at, "%Y-%m-%dT%H:%M:%SZ")
                     if publish_date < date_threshold:
                         continue
+                    else:
+                        logger.debug(f"Video '{title}' is within date range: {publish_date}")
                 
                 # Skip if it matches any filter keywords (but allow specific terms)
                 should_filter = False
@@ -308,6 +316,7 @@ class YouTubeSource(MusicSource):
             if not next_page_token:
                 break
         
+        logger.info(f"Playlist {playlist_name}: Scanned {pages_scanned} pages, found {len(tracks)} tracks within date range")
         return tracks
     
     async def _get_channel_tracks(self, youtube, channel_id: str, channel_name: str,
@@ -398,6 +407,8 @@ class YouTubeSource(MusicSource):
                     publish_date = datetime.strptime(published_at, "%Y-%m-%dT%H:%M:%SZ")
                     if publish_date < date_threshold:
                         continue
+                    else:
+                        logger.debug(f"Video '{title}' is within date range: {publish_date}")
                 
                 # Skip if it matches any filter keywords
                 should_filter = False
