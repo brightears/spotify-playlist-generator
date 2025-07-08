@@ -97,7 +97,7 @@ def create():
                 user_id=current_user.id,
                 playlist_name=form.name.data,
                 description=form.description.data,
-                genre=form.genre.data,
+                genre=form.genre.data if not current_user.has_active_subscription else 'all',
                 days=form.days.data,
                 public=True,  # Default to True since we removed the form field
                 source_selection='both' if not selected_sources else selected_sources

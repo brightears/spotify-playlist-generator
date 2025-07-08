@@ -226,10 +226,11 @@ def get_selected_sources(genre: str, user_id: int, selected_source_ids: List[str
                 # Handle preset sources
                 playlist_id = source_id.replace('preset_', '')
                 youtube_source = YouTubeSource()
-                # For Pro users, always check all available sources
-                all_channels = youtube_source.GENRE_CHANNELS.get("all", [])
                 
-                # Find the matching preset source
+                # Check all available sources across all genres
+                found = False
+                # First check the "all" genre
+                all_channels = youtube_source.GENRE_CHANNELS.get("all", [])
                 for channel in all_channels:
                     if channel['id'] == playlist_id:
                         sources.append({
@@ -238,7 +239,28 @@ def get_selected_sources(genre: str, user_id: int, selected_source_ids: List[str
                             'type': channel['type'],
                             'custom': False
                         })
+                        found = True
                         break
+                
+                # If not found in "all", check all other genres
+                if not found:
+                    for genre_key, genre_channels in youtube_source.GENRE_CHANNELS.items():
+                        for channel in genre_channels:
+                            if channel['id'] == playlist_id:
+                                sources.append({
+                                    'id': channel['id'],
+                                    'name': channel['name'],
+                                    'type': channel['type'],
+                                    'custom': False
+                                })
+                                found = True
+                                break
+                        if found:
+                            break
+                
+                # Log if we couldn't find the preset source
+                if not found:
+                    logger.warning(f"Preset source with ID '{playlist_id}' not found in any genre")
                         
             elif source_id.startswith('custom_'):
                 # Handle custom sources
@@ -260,7 +282,11 @@ def get_selected_sources(genre: str, user_id: int, selected_source_ids: List[str
                             'url': custom_source.source_url
                         })
     except Exception as e:
-        logger.error(f"Error processing selected sources: {e}")
+        logger.error(f"Error processing selected sources: {e}", exc_info=True)
+        # Continue processing other sources even if one fails
+    
+    # Log summary
+    logger.info(f"Processed {len(selected_source_ids)} selected sources, found {len(sources)} valid sources")
     
     return sources
 
