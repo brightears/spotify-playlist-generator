@@ -65,27 +65,95 @@
                 {% if current_user.has_active_subscription %}
                 <div>
                     <label class="block text-sm font-medium text-[#b3b3b3] mb-3">
-                        {{ form.source_selection.label.text }}
+                        Select Music Sources
                     </label>
-                    <div class="space-y-3">
-                        {% for value, label in form.source_selection.choices %}
-                        <div class="flex items-center">
-                            <input type="radio" 
-                                   id="source_selection_{{ value }}" 
-                                   name="source_selection" 
-                                   value="{{ value }}" 
-                                   {% if form.source_selection.data == value %}checked{% endif %}
-                                   class="h-4 w-4 text-[#00CFFF] bg-[#1a1a1a] border-[#282828] focus:ring-[#00CFFF] focus:ring-2">
-                            <label for="source_selection_{{ value }}" class="ml-3 text-sm text-[#b3b3b3]">
-                                {{ label }}
-                            </label>
-                        </div>
-                        {% endfor %}
+                    
+                    <!-- Select/Deselect All buttons -->
+                    <div class="flex gap-2 mb-4">
+                        <button type="button" onclick="selectAllSources()" class="px-3 py-1 text-xs bg-[#282828] text-[#b3b3b3] rounded hover:bg-[#383838] transition-colors">
+                            Select All
+                        </button>
+                        <button type="button" onclick="deselectAllSources()" class="px-3 py-1 text-xs bg-[#282828] text-[#b3b3b3] rounded hover:bg-[#383838] transition-colors">
+                            Deselect All
+                        </button>
                     </div>
+                    
+                    <div class="space-y-4">
+                        {% set preset_sources = [] %}
+                        {% set custom_sources = [] %}
+                        
+                        <!-- Separate sources into preset and custom -->
+                        {% for value, label in form.selected_sources.choices %}
+                            {% if value.startswith('preset_') %}
+                                {% set _ = preset_sources.append((value, label)) %}
+                            {% else %}
+                                {% set _ = custom_sources.append((value, label)) %}
+                            {% endif %}
+                        {% endfor %}
+                        
+                        <!-- Preset Sources -->
+                        {% if preset_sources %}
+                        <div class="bg-[#1a1a1a] p-4 rounded-lg border border-[#282828]">
+                            <h4 class="text-sm font-medium text-white mb-3">Preset Sources</h4>
+                            <div class="space-y-2">
+                                {% for value, label in preset_sources %}
+                                <div class="flex items-center">
+                                    <input type="checkbox" 
+                                           id="source_{{ value }}" 
+                                           name="selected_sources" 
+                                           value="{{ value }}" 
+                                           {% if value in form.selected_sources.data %}checked{% endif %}
+                                           class="h-4 w-4 text-[#00CFFF] bg-[#1a1a1a] border-[#282828] rounded focus:ring-[#00CFFF] focus:ring-2">
+                                    <label for="source_{{ value }}" class="ml-3 text-sm text-[#b3b3b3]">
+                                        {{ label }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Custom Sources -->
+                        {% if custom_sources %}
+                        <div class="bg-[#1a1a1a] p-4 rounded-lg border border-[#282828]">
+                            <h4 class="text-sm font-medium text-white mb-3">My Custom Sources</h4>
+                            <div class="space-y-2">
+                                {% for value, label in custom_sources %}
+                                <div class="flex items-center">
+                                    <input type="checkbox" 
+                                           id="source_{{ value }}" 
+                                           name="selected_sources" 
+                                           value="{{ value }}" 
+                                           {% if value in form.selected_sources.data %}checked{% endif %}
+                                           class="h-4 w-4 text-[#00CFFF] bg-[#1a1a1a] border-[#282828] rounded focus:ring-[#00CFFF] focus:ring-2">
+                                    <label for="source_{{ value }}" class="ml-3 text-sm text-[#b3b3b3]">
+                                        {{ label }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
                     <p class="mt-2 text-sm text-[#6a6a6a]">
-                        Choose which music sources to use for discovery. <a href="{{ url_for('main.sources') }}" class="text-[#00CFFF] hover:text-[#00a8d9]">Manage your custom sources</a>
+                        Select which sources to include in your search. <a href="{{ url_for('main.sources') }}" class="text-[#00CFFF] hover:text-[#00a8d9]">Manage your custom sources</a>
                     </p>
                 </div>
+                
+                <script>
+                    function selectAllSources() {
+                        document.querySelectorAll('input[name="selected_sources"]').forEach(checkbox => {
+                            checkbox.checked = true;
+                        });
+                    }
+                    
+                    function deselectAllSources() {
+                        document.querySelectorAll('input[name="selected_sources"]').forEach(checkbox => {
+                            checkbox.checked = false;
+                        });
+                    }
+                </script>
                 {% endif %}
                 
                 <!-- Submit Button -->

@@ -1,7 +1,7 @@
 """Common forms for the FlaskSaaS application."""
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, SelectMultipleField, BooleanField, IntegerField, PasswordField, SubmitField, RadioField, TextAreaField
+from wtforms import StringField, SelectField, SelectMultipleField, BooleanField, IntegerField, PasswordField, SubmitField, RadioField, TextAreaField, FieldList
 from wtforms.validators import DataRequired, NumberRange, Optional as OptionalValidator, Email, EqualTo, Length
 
 class LoginForm(FlaskForm):
@@ -43,11 +43,8 @@ class PlaylistForm(FlaskForm):
             (21, 'Last 3 weeks'),
             (30, 'Last month')
         ], default=14, coerce=int)
-    source_selection = RadioField('Music Sources', choices=[
-            ('both', 'Use both selected channel and my custom sources'),
-            ('predefined', 'Use only selected channel'),
-            ('custom', 'Use only my custom sources')
-        ], default='both')
+    # This will be populated dynamically in the view
+    selected_sources = SelectMultipleField('Select Sources', choices=[], coerce=str)
 
 
 class ContactForm(FlaskForm):

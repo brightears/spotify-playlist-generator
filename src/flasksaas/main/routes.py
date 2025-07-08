@@ -49,7 +49,48 @@ def create():
     try:
         form = PlaylistForm()
         
+        # For Pro users, populate the sources dynamically
+        if current_user.has_active_subscription:
+            # Import here to avoid circular imports
+            from src.flasksaas.main.task_manager import get_genre_sources
+            from utils.sources.youtube import YouTubeSource
+            
+            # Get the selected genre to determine preset sources
+            selected_genre = request.form.get('genre', 'all') if request.method == 'POST' else 'all'
+            
+            # Build choices for the form
+            choices = []
+            
+            # Add preset sources
+            youtube_source = YouTubeSource()
+            genre_channels = youtube_source.GENRE_CHANNELS.get(selected_genre, youtube_source.GENRE_CHANNELS.get("all", []))
+            
+            for channel in genre_channels:
+                choice_id = f"preset_{channel['id']}"
+                choices.append((choice_id, channel['name']))
+            
+            # Add custom sources
+            custom_sources = UserSource.query.filter_by(
+                user_id=current_user.id,
+                is_active=True
+            ).all()
+            
+            for source in custom_sources:
+                choice_id = f"custom_{source.id}"
+                choices.append((choice_id, source.name))
+            
+            form.selected_sources.choices = choices
+            
+            # Pre-select all sources by default on GET request
+            if request.method == 'GET':
+                form.selected_sources.data = [choice[0] for choice in choices]
+        
         if form.validate_on_submit():
+            # Process selected sources for Pro users
+            selected_sources = None
+            if current_user.has_active_subscription and hasattr(form, 'selected_sources'):
+                selected_sources = form.selected_sources.data
+            
             # Create a new task with the form data
             task_id = create_new_task(
                 user_id=current_user.id,
@@ -58,7 +99,7 @@ def create():
                 genre=form.genre.data,
                 days=form.days.data,
                 public=True,  # Default to True since we removed the form field
-                source_selection=form.source_selection.data
+                source_selection='both' if not selected_sources else selected_sources
             )
             
             # No flash message needed - the status page will show the progress

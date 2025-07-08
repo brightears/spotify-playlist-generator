@@ -215,6 +215,55 @@ def get_genre_sources(genre: str, user_id: Optional[int] = None, include_predefi
     return sources
 
 
+def get_selected_sources(genre: str, user_id: int, selected_source_ids: List[str]) -> List[Dict]:
+    """Get sources based on Pro user's checkbox selections."""
+    sources = []
+    
+    try:
+        # Process each selected source
+        for source_id in selected_source_ids:
+            if source_id.startswith('preset_'):
+                # Handle preset sources
+                playlist_id = source_id.replace('preset_', '')
+                youtube_source = YouTubeSource()
+                genre_channels = youtube_source.GENRE_CHANNELS.get(genre, youtube_source.GENRE_CHANNELS.get("all", []))
+                
+                # Find the matching preset source
+                for channel in genre_channels:
+                    if channel['id'] == playlist_id:
+                        sources.append({
+                            'id': channel['id'],
+                            'name': channel['name'],
+                            'type': channel['type'],
+                            'custom': False
+                        })
+                        break
+                        
+            elif source_id.startswith('custom_'):
+                # Handle custom sources
+                custom_id = int(source_id.replace('custom_', ''))
+                custom_source = UserSource.query.filter_by(
+                    id=custom_id,
+                    user_id=user_id,
+                    is_active=True
+                ).first()
+                
+                if custom_source:
+                    source_id = extract_youtube_id(custom_source.source_url)
+                    if source_id:
+                        sources.append({
+                            'id': source_id,
+                            'name': custom_source.name,
+                            'type': custom_source.source_type,
+                            'custom': True,
+                            'url': custom_source.source_url
+                        })
+    except Exception as e:
+        logger.error(f"Error processing selected sources: {e}")
+    
+    return sources
+
+
 def extract_youtube_id(url: str) -> Optional[str]:
     """Extract YouTube channel or playlist ID from URL."""
     try:
@@ -382,15 +431,27 @@ async def process_task_step(task_id: str) -> bool:
             task['progress'] = 10
             # Get source selection preference
             source_selection = task.get('source_selection', 'both')
-            include_predefined = source_selection in ['both', 'predefined']
-            include_custom = source_selection in ['both', 'custom']
             
-            task['sources'] = get_genre_sources(
-                task['genre'], 
-                user_id=task.get('user_id'),
-                include_predefined=include_predefined,
-                include_custom=include_custom
-            )
+            # Check if source_selection is a list (Pro user with checkboxes)
+            if isinstance(source_selection, list):
+                # Pro user with selected sources
+                task['sources'] = get_selected_sources(
+                    task['genre'], 
+                    user_id=task.get('user_id'),
+                    selected_source_ids=source_selection
+                )
+            else:
+                # Regular user or old format
+                include_predefined = source_selection in ['both', 'predefined']
+                include_custom = source_selection in ['both', 'custom']
+                
+                task['sources'] = get_genre_sources(
+                    task['genre'], 
+                    user_id=task.get('user_id'),
+                    include_predefined=include_predefined,
+                    include_custom=include_custom
+                )
+            
             task['step'] = 1
             print(f"Task {task_id}: Initialization complete, moving to step 1. Found {len(task['sources'])} sources for genre {task['genre']}")
             
@@ -409,15 +470,26 @@ async def process_task_step(task_id: str) -> bool:
                 # Get sources based on user's selection
                 user_id = task.get('user_id')
                 source_selection = task.get('source_selection', 'both')
-                include_predefined = source_selection in ['both', 'predefined']
-                include_custom = source_selection in ['both', 'custom']
                 
-                custom_sources = get_genre_sources(
-                    genre, 
-                    user_id=user_id, 
-                    include_predefined=include_predefined, 
-                    include_custom=include_custom
-                )
+                # Check if source_selection is a list (Pro user with checkboxes)
+                if isinstance(source_selection, list):
+                    # Pro user with selected sources
+                    custom_sources = get_selected_sources(
+                        genre, 
+                        user_id=user_id,
+                        selected_source_ids=source_selection
+                    )
+                else:
+                    # Regular user or old format
+                    include_predefined = source_selection in ['both', 'predefined']
+                    include_custom = source_selection in ['both', 'custom']
+                    
+                    custom_sources = get_genre_sources(
+                        genre, 
+                        user_id=user_id, 
+                        include_predefined=include_predefined, 
+                        include_custom=include_custom
+                    )
                 
                 # Fetch tracks from YouTube sources in parallel batches for speed
                 tracks = []
