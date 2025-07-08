@@ -118,6 +118,7 @@ class YouTubeSource(MusicSource):
         
         # Calculate the date threshold
         date_threshold = datetime.utcnow() - timedelta(days=days_to_look_back)
+        logger.info(f"Date threshold for {days_to_look_back} days: {date_threshold} (UTC now: {datetime.utcnow()})")
         
         # Use API key if available, otherwise fallback to scraping
         api_key = os.environ.get("YOUTUBE_API_KEY")
@@ -272,7 +273,8 @@ class YouTubeSource(MusicSource):
                     if publish_date < date_threshold:
                         continue
                     else:
-                        logger.debug(f"Video '{title}' is within date range: {publish_date}")
+                        days_old = (datetime.utcnow() - publish_date).days
+                        logger.info(f"[{playlist_name}] Video '{title}' is {days_old} days old, within date range")
                 
                 # Skip if it matches any filter keywords (but allow specific terms)
                 should_filter = False
@@ -408,7 +410,8 @@ class YouTubeSource(MusicSource):
                     if publish_date < date_threshold:
                         continue
                     else:
-                        logger.debug(f"Video '{title}' is within date range: {publish_date}")
+                        days_old = (datetime.utcnow() - publish_date).days
+                        logger.info(f"[{channel_name}] Video '{title}' is {days_old} days old, within date range")
                 
                 # Skip if it matches any filter keywords
                 should_filter = False
