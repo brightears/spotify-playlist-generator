@@ -243,6 +243,9 @@ def get_selected_sources(genre: str, user_id: int, selected_source_ids: List[str
                             'custom': True,
                             'url': custom_source.source_url
                         })
+                        logger.info(f"Added custom source: {custom_source.name} with ID: {source_id}")
+                    else:
+                        logger.warning(f"Could not extract YouTube ID from URL: {custom_source.source_url}")
     except Exception as e:
         logger.error(f"Error processing selected sources: {e}", exc_info=True)
         # Continue processing other sources even if one fails
@@ -430,6 +433,7 @@ async def process_task_step(task_id: str) -> bool:
                     user_id=task.get('user_id'),
                     selected_source_ids=source_selection
                 )
+                logger.info(f"Task {task_id}: Step 0 - found {len(task['sources'])} sources")
             else:
                 # Regular user or old format
                 include_predefined = source_selection in ['both', 'predefined']
@@ -469,6 +473,7 @@ async def process_task_step(task_id: str) -> bool:
                         user_id=user_id,
                         selected_source_ids=source_selection
                     )
+                    logger.info(f"Task {task_id}: get_selected_sources returned {len(custom_sources)} sources")
                 else:
                     # Regular user or old format
                     include_predefined = source_selection in ['both', 'predefined']
@@ -484,6 +489,12 @@ async def process_task_step(task_id: str) -> bool:
                 # Fetch tracks from YouTube sources in parallel batches for speed
                 tracks = []
                 total_sources = len(custom_sources)
+                
+                if total_sources == 0:
+                    logger.error(f"Task {task_id}: No sources found to process!")
+                    task['status'] = 'error'
+                    task['message'] = 'No sources found to process. Please select at least one source.'
+                    raise ValueError("No sources found to process")
                 
                 # Dynamic batch size: more sources = larger batches
                 if total_sources <= 3:
