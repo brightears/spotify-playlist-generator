@@ -625,6 +625,60 @@ def view_history(playlist_id):
         return redirect(url_for('main.history'))
 
 
+@main_bp.route("/debug/playlist/<playlist_id>")
+@login_required
+def debug_playlist(playlist_id):
+    """Debug endpoint to test individual YouTube playlists."""
+    import os
+    from googleapiclient.discovery import build
+    
+    api_key = os.environ.get("YOUTUBE_API_KEY")
+    if not api_key:
+        return jsonify({"error": "No YouTube API key configured"}), 500
+    
+    try:
+        youtube = build("youtube", "v3", developerKey=api_key)
+        
+        # Get playlist info
+        playlist_request = youtube.playlists().list(
+            part="snippet,contentDetails",
+            id=playlist_id
+        )
+        playlist_response = playlist_request.execute()
+        
+        if not playlist_response.get("items"):
+            return jsonify({"error": "Playlist not found", "playlist_id": playlist_id}), 404
+        
+        playlist_info = playlist_response["items"][0]
+        
+        # Get first 5 videos from playlist
+        playlist_items_request = youtube.playlistItems().list(
+            part="snippet,contentDetails",
+            playlistId=playlist_id,
+            maxResults=5
+        )
+        items_response = playlist_items_request.execute()
+        
+        videos = []
+        for item in items_response.get("items", []):
+            videos.append({
+                "title": item["snippet"]["title"],
+                "published": item["snippet"]["publishedAt"],
+                "video_id": item["contentDetails"]["videoId"]
+            })
+        
+        return jsonify({
+            "playlist_id": playlist_id,
+            "playlist_title": playlist_info["snippet"]["title"],
+            "channel": playlist_info["snippet"]["channelTitle"],
+            "item_count": playlist_info["contentDetails"]["itemCount"],
+            "recent_videos": videos
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e), "playlist_id": playlist_id}), 500
+
+
 @main_bp.route("/contact", methods=["GET", "POST"])
 def contact():
     """Contact form page."""

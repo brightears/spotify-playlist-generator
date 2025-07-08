@@ -472,10 +472,15 @@ async def process_task_step(task_id: str) -> bool:
                     for (source, _), result in zip(batch_tasks, batch_results):
                         if isinstance(result, Exception):
                             print(f"Task {task_id}: Error fetching from {source['name']}: {result}")
+                            logger.error(f"Error fetching from {source['name']}: {result}")
                             continue
                         elif result:
                             tracks.extend(result)
                             print(f"Task {task_id}: Fetched {len(result)} tracks from {source['name']}")
+                            logger.info(f"Fetched {len(result)} tracks from {source['name']}")
+                        else:
+                            print(f"Task {task_id}: No tracks found from {source['name']}")
+                            logger.info(f"No tracks found from {source['name']}")
                     
                     # Small delay between batches to prevent rate limiting
                     if batch_end < total_sources:
