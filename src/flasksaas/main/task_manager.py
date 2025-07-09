@@ -60,6 +60,8 @@ def update_task_status(task_id: str, status: str = None, progress: int = None, m
             db_task.tracks_found = kwargs['tracks_found']
         if 'tracks_matched' in kwargs:
             db_task.tracks_matched = kwargs['tracks_matched']
+        if 'csv_data' in kwargs:
+            db_task.csv_data = kwargs['csv_data']
             
         db.session.commit()
 
@@ -403,8 +405,28 @@ def get_task(task_id: str) -> Optional[Dict[str, Any]]:
         if db_task.status == 'completed' and db_task.tracks_found:
             task['result'] = {
                 'tracks_found': db_task.tracks_found,
-                'playlist_url': db_task.spotify_playlist_url
+                'playlist_url': db_task.spotify_playlist_url,
+                'playlist_name': db_task.playlist_name,
+                'track_count': db_task.tracks_found
             }
+            
+            # Load CSV data if available
+            if db_task.csv_data:
+                task['csv_data'] = db_task.csv_data
+                
+                # Parse CSV to reconstruct tracks for display
+                import csv
+                import io
+                csv_reader = csv.DictReader(io.StringIO(db_task.csv_data))
+                tracks = []
+                for row in csv_reader:
+                    tracks.append({
+                        'title': row.get('Title', ''),
+                        'artist': row.get('Artist', ''),
+                        'remix': row.get('Remix', ''),
+                        'source': row.get('Source', '')
+                    })
+                task['result']['tracks'] = tracks
         
         # Cache it in memory for future requests
         tasks[task_id] = task
@@ -672,11 +694,12 @@ async def process_task_step(task_id: str) -> bool:
                 print(f"Error saving playlist to history: {e}")
                 # Don't fail the task if history save fails
             
-            # Update task status in database
+            # Update task status in database and save CSV data for all users
             update_task_status(task_id, 
                              status='completed',
                              progress=100,
-                             tracks_found=len(tracks))
+                             tracks_found=len(tracks),
+                             csv_data=task.get('csv_data', ''))
             
         else:
             # Unknown step, reset to beginning

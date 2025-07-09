@@ -397,9 +397,15 @@ def download(task_id):
     format_type = request.args.get('format', 'csv').lower()
     tracks = result.get('tracks', [])
     
+    # Debug logging
+    current_app.logger.info(f"Download request for task {task_id}: format={format_type}, tracks count={len(tracks)}")
+    
     if format_type == 'csv':
-        # Generate CSV if not cached
-        if 'csv_data' not in task or not task['csv_data']:
+        # Generate CSV - check if we have cached data
+        if task.get('csv_data'):
+            csv_data = task['csv_data']
+        else:
+            # Generate CSV from tracks
             csv_buffer = io.StringIO()
             csv_writer = csv.writer(csv_buffer)
             csv_writer.writerow(['Title', 'Artist', 'Remix', 'Source'])
@@ -413,8 +419,6 @@ def download(task_id):
                 ])
             
             csv_data = csv_buffer.getvalue()
-        else:
-            csv_data = task['csv_data']
         
         response = make_response(csv_data)
         response.headers['Content-Disposition'] = f'attachment; filename={playlist_name}.csv'

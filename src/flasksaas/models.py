@@ -195,6 +195,7 @@ class PlaylistTask(db.Model):
     tracks_found = db.Column(db.Integer, default=0)
     tracks_matched = db.Column(db.Integer, default=0)
     error_message = db.Column(db.Text)
+    csv_data = db.Column(db.Text)  # Store CSV data for all users
     
     # Timestamps
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
