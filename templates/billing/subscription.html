@@ -88,20 +88,19 @@
             </div>
         </div>
         {% else %}
-        <!-- No Subscription View -->
+        <!-- Free Plan View -->
         <div class="bg-[#2a2a2a] border border-[#3a3a3a] text-[#b3b3b3] px-6 py-4 rounded-lg mb-8">
-            <h3 class="text-lg font-semibold mb-1">No Active Subscription</h3>
+            <h3 class="text-lg font-semibold mb-1">Free Plan</h3>
             <p>You're currently on the free plan with limited features. Upgrade to Premium for unlimited access!</p>
         </div>
         
-        <!-- Continue with Free Option -->
+        <!-- Continue to Dashboard Option -->
         <div class="text-center mb-8">
-            <p class="text-[#b3b3b3] mb-4">Want to explore first? You can use Bright Ears free with basic features.</p>
             <a href="{{ url_for('main.dashboard') }}" class="inline-flex items-center justify-center px-8 py-3 border-2 border-[#4a4a4a] text-white rounded-full font-medium hover:bg-[#282828] hover:border-[#6a6a6a] transition-all duration-200">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
                 </svg>
-                Continue with Free Plan
+                Start Creating Playlists
             </a>
         </div>
         
