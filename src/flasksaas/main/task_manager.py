@@ -4,6 +4,8 @@ Task manager for handling playlist creation tasks.
 import time
 import asyncio
 import re
+import csv
+import io
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Callable, Any
 import uuid
@@ -415,8 +417,6 @@ def get_task(task_id: str) -> Optional[Dict[str, Any]]:
                 task['csv_data'] = db_task.csv_data
                 
                 # Parse CSV to reconstruct tracks for display
-                import csv
-                import io
                 csv_reader = csv.DictReader(io.StringIO(db_task.csv_data))
                 tracks = []
                 for row in csv_reader:
