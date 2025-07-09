@@ -8,13 +8,6 @@
         <h1 class="text-2xl sm:text-3xl font-bold text-white mb-8">Playlist Generation Status</h1>
         
         <div class="bg-[#252525] rounded-xl border border-[#282828] shadow-xl p-4 sm:p-6 md:p-8" id="status-box">
-            <div id="loading-dimmer" class="text-center">
-                <div class="inline-flex items-center justify-center">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00CFFF]"></div>
-                    <span class="ml-3 text-[#b3b3b3]">Loading status...</span>
-                </div>
-            </div>
-            
             <h2 class="text-2xl font-semibold text-[#00CFFF] mb-4" id="status-header">Processing</h2>
             
             <div class="mb-4">
@@ -230,7 +223,6 @@ $(document).ready(function() {
                 // Update header based on status
                 if (data.status === 'complete' || data.status === 'completed') {
                     $('#status-header').text('Complete!').removeClass('animate-pulse-glow').addClass('text-[#00CFFF]');
-                    $('#loading-dimmer').hide();
                     $('#task-progress').hide();
                     
                     // Show results if available
@@ -245,7 +237,6 @@ $(document).ready(function() {
                 } else if (data.status === 'error') {
                     $('#status-header').text('Error').removeClass('text-[#00CFFF] animate-pulse-glow').addClass('text-red-400');
                     $('#status-message').text(data.error || 'An error occurred during playlist creation.');
-                    $('#loading-dimmer').hide();
                     $('#task-progress').hide();
                     
                     // Stop polling
@@ -255,7 +246,6 @@ $(document).ready(function() {
                 } else {
                     // Still processing - add pulse animation to header
                     $('#status-header').text('Processing...').addClass('text-[#00CFFF] animate-pulse-glow');
-                    $('#loading-dimmer').show();
                 }
             },
             error: function(xhr, status, error) {
@@ -268,7 +258,6 @@ $(document).ready(function() {
                     console.error('Max failed attempts reached, stopping polling');
                     $('#status-header').text('Connection Error').removeClass('processing').addClass('negative');
                     $('#status-message').text('Unable to connect to server. Please refresh the page.');
-                    $('#loading-dimmer').removeClass('active');
                     
                     // Stop polling
                     if (pollInterval) {
@@ -378,8 +367,7 @@ $(document).ready(function() {
         // For historical playlists, we already have the data from the server
         const taskData = {{ task | tojson | safe }};
         
-        // Hide loading and show results immediately
-        $('#loading-dimmer').hide();
+        // Show results immediately
         $('#status-header').text('Complete!').addClass('text-[#00CFFF]');
         $('#status-message').text('Viewing historical playlist');
         
