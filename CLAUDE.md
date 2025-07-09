@@ -453,6 +453,96 @@ On `auth-rebuild` branch - Fully functional music discovery platform:
 - Removed authenticated user redirect on password reset page
 - Created stable checkpoint tags (v1.0-stable-jan9, v1.1-stable-jan9)
 
+### Recent Changes (Jan 9, 2025) - UI/UX Improvements & Bug Fixes
+
+#### UI Cleanup & Improvements
+- **Status Page Loading Spinner**: 
+  - Removed redundant circular loading spinner, kept only progress bar
+  - Cleaner, less cluttered interface during playlist generation
+  
+- **Loading Messages**:
+  - Changed "Initializing playlist creation..." to "Hold tight! We're fetching your fresh tracks..."
+  - More user-friendly and encouraging tone
+
+- **Landing Page**:
+  - Fixed line break issue in subtitle "Built by DJs, for DJs"
+  - Used whitespace-nowrap to prevent awkward text wrapping
+
+- **New User Onboarding**:
+  - Improved subscription page for free users
+  - Changed "No active subscription" to "You're on the Free Plan"
+  - Made upgrade CTAs less pushy, more informative
+
+#### Authentication Enhancements
+- **Change Password Feature**:
+  - Implemented complete change password functionality
+  - Created new template at templates/auth/change_password.html
+  - Added proper validation and error handling
+  
+- **Forgot Password Link**:
+  - Added "Forgot password?" link to change password page
+  - Positioned below submit button for better UX
+  - Links to existing password reset functionality
+
+#### Critical Bug Fixes
+
+##### CSV Download Empty for Free Users
+- **Problem**: Free users saw tracks on screen but CSV downloads were empty
+- **Root Cause**: Tracks only stored in memory, not persisted to database
+- **Solution**: 
+  - Added `csv_data` column to PlaylistTask model
+  - Now storing CSV data for all users (not just Pro)
+  - Created migration script `migrate_add_csv_data.py` with SQLite/PostgreSQL compatibility
+  
+##### HTML Entities in CSV Output
+- **Problem**: CSV files showed "&amp;" instead of "&" 
+- **Initial Fix**: Added html.unescape() to CSV generation
+- **Issue**: This caused "NoneType is not iterable" errors
+- **Resolution**: Reverted HTML unescaping - CSV formatting quirks accepted as standard behavior
+
+##### Playlist Creation Errors
+- **NoneType Error**: Fixed by adding defensive checks for empty source lists
+- **Source Selection**: Added validation requiring Pro users to select at least one source
+- **Task Status**: Fixed status check to accept both 'complete' and 'completed'
+
+#### M3U Format Removal
+- **Decision**: Removed M3U export option entirely
+- **Reason**: M3U files don't work with iTunes/Spotify, causing user confusion
+- **Changes**:
+  - Removed M3U button from UI
+  - Removed M3U generation code from backend
+  - Updated all content references (landing page, ToS, subscription page)
+  - Now only offering CSV and JSON exports
+
+#### Timing & Synchronization Fixes
+- **Initial Issue**: "Task not complete" errors when downloading immediately after completion
+- **First Attempt**: Added 5-second "Finalizing..." delay
+- **Second Issue**: 5 seconds wasn't enough for backend operations
+- **Final Solution**: Increased delay to 8 seconds
+  - Gives backend time to complete all database operations
+  - Prevents race conditions between frontend and backend
+  - Shows clear progression: Processing → Finalizing → Complete
+
+#### Technical Improvements
+- **Database Migrations**: 
+  - Created SQLite-compatible migration scripts
+  - Added proper database type detection
+  - Handled both SQLite (development) and PostgreSQL (production)
+
+- **Error Handling**:
+  - Added defensive programming for None/empty values
+  - Improved user feedback for various error states
+  - Better logging for debugging production issues
+
+#### Current State (Checkpoint - Jan 9, 2025)
+- All major bugs fixed and tested
+- UI/UX improvements implemented
+- CSV downloads working for all users
+- M3U format removed to prevent confusion
+- 8-second finalization delay preventing timing issues
+- Authentication features complete and functional
+- Ready for production use
+
 ### Deployment
 - Application deployed on Render.com
 - Custom domain: brightears.io
