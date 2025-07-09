@@ -351,8 +351,7 @@ def change_password():
 @auth_bp.route("/reset-password-request", methods=["GET", "POST"])
 def reset_password_request():
     """Request a password reset."""
-    if current_user.is_authenticated:
-        return redirect(url_for("main.dashboard"))
+    # Allow both authenticated and non-authenticated users to request password reset
     
     form = ResetPasswordRequestForm()
     
