@@ -8,7 +8,7 @@ from google_auth_oauthlib.flow import Flow
 
 from .. import db
 from ..models import User
-from ..forms import LoginForm, RegisterForm, ResetPasswordRequestForm, ResetPasswordForm
+from ..forms import LoginForm, RegisterForm, ResetPasswordRequestForm, ResetPasswordForm, ChangePasswordForm
 from flask_mail import Message
 from flask import current_app
 
@@ -322,6 +322,30 @@ def logout():
 def profile():
     """User profile page."""
     return render_template("auth/profile.html")
+
+
+@auth_bp.route("/change-password", methods=["GET", "POST"])
+@login_required
+def change_password():
+    """Change password for logged-in users."""
+    # Don't allow Google users to change password
+    if current_user.google_id:
+        flash("You're logged in with Google. Please change your password through Google.", "info")
+        return redirect(url_for("auth.profile"))
+    
+    form = ChangePasswordForm()
+    if form.validate_on_submit():
+        # Verify current password
+        if not current_user.check_password(form.current_password.data):
+            flash("Current password is incorrect.", "error")
+        else:
+            # Set new password
+            current_user.set_password(form.new_password.data)
+            db.session.commit()
+            flash("Your password has been changed successfully.", "success")
+            return redirect(url_for("auth.profile"))
+    
+    return render_template("auth/change_password.html", form=form)
 
 
 @auth_bp.route("/reset-password-request", methods=["GET", "POST"])
