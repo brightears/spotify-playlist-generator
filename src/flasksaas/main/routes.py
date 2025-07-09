@@ -428,29 +428,6 @@ def download(task_id):
         response.headers['Content-Disposition'] = f'attachment; filename={playlist_name}.csv'
         response.headers['Content-Type'] = 'text/csv'
         
-    elif format_type == 'm3u':
-        # Generate M3U playlist
-        m3u_content = "#EXTM3U\n"
-        m3u_content += f"#PLAYLIST:{playlist_name}\n\n"
-        
-        for track in tracks:
-            # M3U format: #EXTINF:duration,Artist - Title
-            artist = track.get('artist', 'Unknown Artist')
-            title = track.get('title', 'Unknown Title')
-            remix = track.get('remix', '')
-            full_title = f"{title} ({remix})" if remix else title
-            
-            m3u_content += f"#EXTINF:-1,{artist} - {full_title}\n"
-            # For YouTube tracks, we can include the URL
-            if track.get('url'):
-                m3u_content += f"{track['url']}\n\n"
-            else:
-                m3u_content += f"# Search: {artist} {full_title}\n\n"
-        
-        response = make_response(m3u_content)
-        response.headers['Content-Disposition'] = f'attachment; filename={playlist_name}.m3u8'
-        response.headers['Content-Type'] = 'audio/x-mpegurl'
-        
     elif format_type == 'json':
         # Generate JSON export
         json_data = {
