@@ -7,6 +7,7 @@ import json
 import uuid
 import gzip
 import base64
+import html
 from datetime import datetime, timedelta
 from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, current_app, session, send_file, make_response
 from flask_login import login_required, current_user
@@ -412,10 +413,10 @@ def download(task_id):
             
             for track in tracks:
                 csv_writer.writerow([
-                    track.get('title', ''),
-                    track.get('artist', ''),
-                    track.get('remix', ''),
-                    track.get('source', '')
+                    html.unescape(track.get('title', '')),
+                    html.unescape(track.get('artist', '')),
+                    html.unescape(track.get('remix', '')),
+                    html.unescape(track.get('source', ''))
                 ])
             
             csv_data = csv_buffer.getvalue()
