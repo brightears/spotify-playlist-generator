@@ -114,6 +114,10 @@ def create():
             selected_sources = None
             if current_user.has_active_subscription and hasattr(form, 'selected_sources'):
                 selected_sources = form.selected_sources.data
+                # Validate that at least one source is selected
+                if not selected_sources:
+                    flash("Please select at least one source.", "error")
+                    return render_template('create.html', form=form)
             
             # Create a new task with the form data
             task_id = create_new_task(

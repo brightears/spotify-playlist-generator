@@ -226,6 +226,11 @@ def get_selected_sources(genre: str, user_id: int, selected_source_ids: List[str
     
     logger.info(f"get_selected_sources called with genre='{genre}', user_id={user_id}, selected_ids={selected_source_ids}")
     
+    # Handle None or empty selections
+    if not selected_source_ids:
+        logger.warning(f"No source IDs provided for user {user_id}")
+        return sources
+    
     try:
         # Process each selected source (all are custom now)
         for source_id in selected_source_ids:
@@ -465,7 +470,7 @@ async def process_task_step(task_id: str) -> bool:
             source_selection = task.get('source_selection', 'both')
             
             # Check if source_selection is a list (Pro user with checkboxes)
-            if isinstance(source_selection, list):
+            if isinstance(source_selection, list) and source_selection:
                 # Pro user with selected sources
                 logger.info(f"Task {task_id}: Pro user with selected sources: {source_selection}")
                 task['sources'] = get_selected_sources(
@@ -506,7 +511,7 @@ async def process_task_step(task_id: str) -> bool:
                 source_selection = task.get('source_selection', 'both')
                 
                 # Check if source_selection is a list (Pro user with checkboxes)
-                if isinstance(source_selection, list):
+                if isinstance(source_selection, list) and source_selection:
                     # Pro user with selected sources
                     custom_sources = get_selected_sources(
                         genre, 
@@ -534,6 +539,7 @@ async def process_task_step(task_id: str) -> bool:
                     logger.error(f"Task {task_id}: No sources found to process!")
                     task['status'] = 'error'
                     task['message'] = 'No sources found to process. Please select at least one source.'
+                    update_task_status(task_id, status='error', message=task['message'])
                     raise ValueError("No sources found to process")
                 
                 # Dynamic batch size: more sources = larger batches
