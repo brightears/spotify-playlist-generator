@@ -442,8 +442,8 @@ def download(task_id):
             
             m3u_content += f"#EXTINF:-1,{artist} - {full_title}\n"
             # For YouTube tracks, we can include the URL
-            if track.get('source_url'):
-                m3u_content += f"{track['source_url']}\n\n"
+            if track.get('url'):
+                m3u_content += f"{track['url']}\n\n"
             else:
                 m3u_content += f"# Search: {artist} {full_title}\n\n"
         
