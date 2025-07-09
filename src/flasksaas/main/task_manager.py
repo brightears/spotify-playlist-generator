@@ -6,7 +6,6 @@ import asyncio
 import re
 import csv
 import io
-import html
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Callable, Any
 import uuid
@@ -652,10 +651,10 @@ async def process_task_step(task_id: str) -> bool:
             
             for track in tracks:
                 csv_writer.writerow([
-                    html.unescape(track.get('title', '')),
-                    html.unescape(track.get('artist', '')),
-                    html.unescape(track.get('remix', '')),
-                    html.unescape(track.get('source', ''))
+                    track.get('title', ''),
+                    track.get('artist', ''),
+                    track.get('remix', ''),
+                    track.get('source', '')
                 ])
             
             task['csv_data'] = csv_buffer.getvalue()
