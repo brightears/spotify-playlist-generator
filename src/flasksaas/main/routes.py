@@ -389,7 +389,7 @@ def download(task_id):
             return redirect(url_for('main.dashboard'))
         
         # Check if task is complete
-        if task['status'] != 'completed':
+        if task['status'] not in ['completed', 'complete']:
             flash("Task is not complete.", "error")
             return redirect(url_for('main.status', task_id=task_id))
         
