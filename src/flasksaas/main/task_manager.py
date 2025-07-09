@@ -342,7 +342,7 @@ def create_new_task(user_id: int, playlist_name: str, description: str, genre: s
         'user_id': user_id,
         'status': 'processing',
         'progress': 0,
-        'message': 'Hold tight! We're fetching your fresh tracks...',
+        'message': "Hold tight! We're fetching your fresh tracks...",
         'step': 0,
         'created_at': datetime.now(),
         'last_updated': datetime.now(),
@@ -436,7 +436,7 @@ async def process_task_step(task_id: str) -> bool:
         if current_step == 0:
             # Initialize task
             print(f"Task {task_id}: Starting initialization (step 0)")
-            task['message'] = 'Hold tight! We're fetching your fresh tracks...'
+            task['message'] = "Hold tight! We're fetching your fresh tracks..."
             task['progress'] = 10
             # Get source selection preference
             source_selection = task.get('source_selection', 'both')
