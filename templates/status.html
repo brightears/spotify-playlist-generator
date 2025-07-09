@@ -222,13 +222,19 @@ $(document).ready(function() {
                 
                 // Update header based on status
                 if (data.status === 'complete' || data.status === 'completed') {
-                    $('#status-header').text('Complete!').removeClass('animate-pulse-glow').addClass('text-[#00CFFF]');
-                    $('#task-progress').hide();
+                    // Add a 3-second delay before showing complete to ensure backend is fully done
+                    $('#status-header').text('Finalizing...').addClass('text-[#00CFFF] animate-pulse-glow');
+                    $('#status-message').text('Preparing your playlist for download...');
                     
-                    // Show results if available
-                    if (data.result) {
-                        showResults(data);
-                    }
+                    setTimeout(function() {
+                        $('#status-header').text('Complete!').removeClass('animate-pulse-glow').addClass('text-[#00CFFF]');
+                        $('#task-progress').hide();
+                        
+                        // Show results if available
+                        if (data.result) {
+                            showResults(data);
+                        }
+                    }, 3000);  // 3 second delay
                     
                     // Stop polling
                     if (pollInterval) {
