@@ -150,7 +150,7 @@ def register():
                 print("Logging in new user...")
                 login_user(user, remember=True)
                 print("User logged in successfully!")
-                flash("Registration successful! Let's get you started with a subscription.", "success")
+                flash("Registration successful! Welcome to Bright Ears.", "success")
                 return redirect(url_for("billing.subscription"))
             except Exception as e:
                 print(f"Error during registration: {str(e)}")
