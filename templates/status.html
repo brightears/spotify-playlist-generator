@@ -229,7 +229,7 @@ $(document).ready(function() {
                         $('#task-progress').hide();
                         // Update message to show success
                         $('#status-message').text('Successfully fetched ' + (data.result ? data.result.track_count : data.total_tracks || '0') + ' tracks from YouTube!');
-                    }, 5000);  // 5 second delay
+                    }, 8000);  // 8 second delay
                     
                     // Stop polling
                     if (pollInterval) {
