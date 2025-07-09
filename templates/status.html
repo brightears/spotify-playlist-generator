@@ -215,6 +215,11 @@ $(document).ready(function() {
                 
                 // Update header based on status
                 if (data.status === 'complete' || data.status === 'completed') {
+                    // Show results immediately when available
+                    if (data.result) {
+                        showResults(data);
+                    }
+                    
                     // Add a 5-second delay before showing complete to ensure backend is fully done
                     $('#status-header').text('Finalizing...').addClass('text-[#00CFFF] animate-pulse-glow');
                     $('#status-message').text('Preparing your playlist for download...');
@@ -224,11 +229,6 @@ $(document).ready(function() {
                         $('#task-progress').hide();
                         // Update message to show success
                         $('#status-message').text('Successfully fetched ' + (data.result ? data.result.track_count : data.total_tracks || '0') + ' tracks from YouTube!');
-                        
-                        // Show results if available
-                        if (data.result) {
-                            showResults(data);
-                        }
                     }, 5000);  // 5 second delay
                     
                     // Stop polling
