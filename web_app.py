@@ -265,10 +265,7 @@ if IS_PRODUCTION:
     # Exempt certain endpoints from rate limiting
     limiter.exempt(app.view_functions['billing.stripe_webhook'])  # Webhooks should not be rate limited
 
-# Exempt Stripe webhook from CSRF protection
-# This needs to be done after blueprints are registered
-if hasattr(csrf, '_exempt_views'):
-    csrf._exempt_views.add('billing.stripe_webhook')
+# Stripe webhook CSRF exemption is now handled by @csrf_exempt decorator in the route
 
 # Initialize database after everything is set up
 init_db()
