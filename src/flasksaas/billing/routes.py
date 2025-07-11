@@ -1,7 +1,7 @@
 """Skeleton Stripe billing blueprint – to be fleshed out later."""
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
 from flask_login import login_required, current_user
-from flask_wtf.csrf import csrf_exempt
+from flask_wtf import csrf
 
 from .. import db
 from ..models import User
@@ -134,7 +134,6 @@ def cancel():
 
 
 @billing_bp.route('/webhook', methods=['POST'])
-@csrf_exempt
 def stripe_webhook():
     """Handle Stripe webhooks to keep subscription status in sync."""
     payload = request.data
@@ -343,3 +342,7 @@ def handle_payment_succeeded(invoice):
         user.subscription_status = 'active'
         db.session.commit()
         current_app.logger.info(f'Payment succeeded for user {user.id}, marking subscription active')
+
+
+# Exempt webhook from CSRF protection
+stripe_webhook.exempt = True
