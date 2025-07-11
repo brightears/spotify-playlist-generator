@@ -113,24 +113,24 @@ else:
         'pool_pre_ping': True
     }
 
-# Enable CSRF protection in all environments for security
+# Enable CSRF protection conditionally
+# Disable for webhook testing, will re-enable after webhook is fixed
 app.config['WTF_CSRF_ENABLED'] = True
+app.config['WTF_CSRF_CHECK_DEFAULT'] = False  # Disable automatic CSRF checking
 
 # Initialize CSRFProtect but don't enforce it for now
 csrf = CSRFProtect()
-
 csrf.init_app(app)
 
-# Override CSRF protect to check for exemption flag
-from flask import g
-original_csrf_protect = csrf._protect
-
-def custom_csrf_protect():
-    if hasattr(g, 'csrf_exempt') and g.csrf_exempt:
-        return
-    return original_csrf_protect()
-
-csrf._protect = custom_csrf_protect
+# Manually protect routes except webhooks
+@app.before_request
+def manual_csrf_protect():
+    if request.method == "POST":
+        # Skip CSRF for webhook endpoint
+        if request.endpoint == 'billing.stripe_webhook':
+            return
+        # For all other POST requests, validate CSRF
+        csrf.protect()
 
 # Security headers middleware
 @app.after_request
