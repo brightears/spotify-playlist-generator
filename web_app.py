@@ -118,6 +118,14 @@ app.config['WTF_CSRF_ENABLED'] = True
 
 # Initialize CSRFProtect but don't enforce it for now
 csrf = CSRFProtect()
+
+# Configure CSRF exemptions before initialization
+@app.before_request
+def csrf_protect():
+    if request.endpoint == 'billing.stripe_webhook':
+        # Skip CSRF protection for Stripe webhook
+        request.environ['csrf.exempt'] = True
+
 csrf.init_app(app)
 
 # Security headers middleware
