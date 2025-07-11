@@ -119,14 +119,18 @@ app.config['WTF_CSRF_ENABLED'] = True
 # Initialize CSRFProtect but don't enforce it for now
 csrf = CSRFProtect()
 
-# Configure CSRF exemptions before initialization
-@app.before_request
-def csrf_protect():
-    if request.endpoint == 'billing.stripe_webhook':
-        # Skip CSRF protection for Stripe webhook
-        request.environ['csrf.exempt'] = True
-
 csrf.init_app(app)
+
+# Override CSRF protect to check for exemption flag
+from flask import g
+original_csrf_protect = csrf._protect
+
+def custom_csrf_protect():
+    if hasattr(g, 'csrf_exempt') and g.csrf_exempt:
+        return
+    return original_csrf_protect()
+
+csrf._protect = custom_csrf_protect
 
 # Security headers middleware
 @app.after_request

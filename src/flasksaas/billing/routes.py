@@ -132,7 +132,18 @@ def cancel():
     return redirect(url_for('billing.subscription'))
 
 
+def csrf_exempt(f):
+    """Decorator to exempt a view from CSRF protection."""
+    def decorated_function(*args, **kwargs):
+        # Store the current CSRF validation state
+        from flask import g
+        g.csrf_exempt = True
+        return f(*args, **kwargs)
+    decorated_function.__name__ = f.__name__
+    return decorated_function
+
 @billing_bp.route('/webhook', methods=['POST'])
+@csrf_exempt
 def stripe_webhook():
     """Handle Stripe webhooks to keep subscription status in sync."""
     payload = request.data
