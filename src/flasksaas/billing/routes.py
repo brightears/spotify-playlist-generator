@@ -139,17 +139,24 @@ def stripe_webhook():
     sig_header = request.headers.get('Stripe-Signature')
     webhook_secret = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
     
+    # Debug logging
+    current_app.logger.info(f'Webhook received. Sig header present: {bool(sig_header)}')
+    current_app.logger.info(f'Webhook secret configured: {bool(webhook_secret)}')
+    current_app.logger.info(f'Webhook secret length: {len(webhook_secret) if webhook_secret else 0}')
+    
     if not webhook_secret:
         current_app.logger.error('Missing Stripe webhook secret')
-        return jsonify(success=False), 500
+        return jsonify(success=False, error='Missing webhook secret'), 500
 
     try:
         event = stripe.Webhook.construct_event(
             payload, sig_header, webhook_secret
         )
-    except stripe.error.SignatureVerificationError:
+    except stripe.error.SignatureVerificationError as e:
+        current_app.logger.error(f'Signature verification failed: {str(e)}')
         return jsonify(success=False, error='Invalid signature'), 400
     except Exception as e:
+        current_app.logger.error(f'Webhook construction error: {str(e)}')
         return jsonify(success=False, error=str(e)), 400
 
     # Handle specific events
