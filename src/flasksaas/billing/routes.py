@@ -139,11 +139,6 @@ def stripe_webhook():
     sig_header = request.headers.get('Stripe-Signature')
     webhook_secret = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
     
-    # Debug logging
-    current_app.logger.info(f'Webhook received. Sig header present: {bool(sig_header)}')
-    current_app.logger.info(f'Webhook secret configured: {bool(webhook_secret)}')
-    current_app.logger.info(f'Webhook secret length: {len(webhook_secret) if webhook_secret else 0}')
-    
     if not webhook_secret:
         current_app.logger.error('Missing Stripe webhook secret')
         return jsonify(success=False, error='Missing webhook secret'), 500

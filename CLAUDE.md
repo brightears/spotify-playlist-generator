@@ -453,6 +453,21 @@ On `auth-rebuild` branch - Fully functional music discovery platform:
 - Removed authenticated user redirect on password reset page
 - Created stable checkpoint tags (v1.0-stable-jan9, v1.1-stable-jan9)
 
+### Recent Changes (July 11, 2025) - Stripe Webhook Fix
+
+#### Fixed Stripe Webhook 404/400 Errors
+- **Problem**: Stripe webhooks were failing with 404 errors (wrong URL) then 400 errors (CSRF protection)
+- **Root Causes**: 
+  1. Webhook URL mismatch: Stripe was configured with `/billing/stripe-webhook` but app expected `/billing/webhook`
+  2. CSRF protection was blocking webhook POST requests
+- **Solution**:
+  1. Updated Stripe webhook URL to `https://brightears.io/billing/webhook` 
+  2. Implemented manual CSRF protection that exempts webhook endpoint:
+     - Set `WTF_CSRF_CHECK_DEFAULT = False` to disable automatic CSRF
+     - Added `manual_csrf_protect()` in `before_request` to validate CSRF for all POSTs except webhook
+  3. Added debug logging to webhook handler for troubleshooting
+- **Result**: Webhooks now return 200 OK and properly update subscription status
+
 ### Recent Changes (Jan 9, 2025) - UI/UX Improvements & Bug Fixes
 
 #### UI Cleanup & Improvements
@@ -546,6 +561,11 @@ On `auth-rebuild` branch - Fully functional music discovery platform:
 ### Deployment
 - Application deployed on Render.com
 - Custom domain: brightears.io
-- GitHub integration for automatic deployments
+- GitHub integration for automatic deployments from main branch
 - PostgreSQL database in production
 - Environment variables managed in Render dashboard
+- **Stripe Configuration**:
+  - Live mode active with production keys
+  - Webhook endpoint: `https://brightears.io/billing/webhook`
+  - Webhook events properly received and processed (200 OK)
+  - CSRF protection configured to exempt webhook endpoint
